@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"lyrical/help"
 	"regexp"
 	"strings"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jamestjw/lyrical/help"
 )
 
 var (
@@ -85,6 +85,17 @@ func leaveVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) 
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
 		}
+	}
+}
+
+func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+	// TODO: Leave voice channel of current guild only.
+	if m.Content == "!add-playlist" {
+		s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😂")
+		go addToPlaylist("kI-09zY3GPA")
 	}
 }
 

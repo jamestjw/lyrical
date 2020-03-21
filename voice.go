@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jamestjw/lyrical/ytmp3"
 	"github.com/jonas747/dca"
 )
 
@@ -90,4 +91,8 @@ func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID strin
 	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
 	activeVoiceChannels.channelMap[vc] = vcd
 	return vc
+}
+
+func addToPlaylist(youtubeID string) {
+	ytmp3.Download(youtubeID)
 }
