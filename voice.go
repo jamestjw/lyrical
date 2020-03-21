@@ -30,38 +30,6 @@ func newActiveVoiceChannels() *voiceChannels {
 	return &vcs
 }
 
-func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "!play-music" {
-		vc, connected := s.VoiceConnections[m.GuildID]
-		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet.")
-		} else {
-			if activeVoiceChannels.channelMap[vc].MusicActive {
-				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
-			} else {
-				go playMusic(vc)
-				s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
-			}
-		}
-	}
-}
-
-func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "!stop-music" {
-		vc, connected := s.VoiceConnections[m.GuildID]
-		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
-		} else {
-			if activeVoiceChannels.channelMap[vc].MusicActive {
-				activeVoiceChannels.channelMap[vc].AbortChannel <- "stop"
-				s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
-			} else {
-				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
-			}
-		}
-	}
-}
-
 func alreadyInVoiceChannel(s *discordgo.Session, guildID string) bool {
 	_, connected := s.VoiceConnections[guildID]
 	return connected

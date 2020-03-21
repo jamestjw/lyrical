@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
-	_ "lyrical/help"
+	"lyrical/help"
 	"regexp"
 	"strings"
 
@@ -84,6 +84,49 @@ func leaveVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) 
 
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
+		}
+	}
+}
+
+func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+
+	if m.Content == "!help" {
+		s.ChannelMessageSend(m.ChannelID, "Commands that are available (as of 22/3/2020) 😂")
+		s.ChannelMessageSend(m.ChannelID, help.Message())
+	}
+}
+
+func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "!play-music" {
+		vc, connected := s.VoiceConnections[m.GuildID]
+		if !connected {
+			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet.")
+		} else {
+			if activeVoiceChannels.channelMap[vc].MusicActive {
+				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
+			} else {
+				go playMusic(vc)
+				s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+			}
+		}
+	}
+}
+
+func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "!stop-music" {
+		vc, connected := s.VoiceConnections[m.GuildID]
+		if !connected {
+			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
+		} else {
+			if activeVoiceChannels.channelMap[vc].MusicActive {
+				activeVoiceChannels.channelMap[vc].AbortChannel <- "stop"
+				s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
+			}
 		}
 	}
 }

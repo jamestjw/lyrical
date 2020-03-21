@@ -4,6 +4,26 @@
             "description": "Join a voice channel",
             "name": "join-voice",
             "arguments": ["channel-name"]
+        },
+        {
+            "description": "Leave a voice channel",
+            "name": "leave-voice",
+            "arguments": ""
+        },
+        {
+            "description": "Add song to playlist",
+            "name": "add-playlist",
+            "arguments": ["youtube-id"]
+        },
+        {
+            "description": "Resume playing music",
+            "name": "play-music",
+            "arguments": ""
+        },
+        {
+            "description": "Stop music",
+            "name": "stop-music",
+            "arguments": ""
         }
     ]
 }
