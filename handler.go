@@ -44,12 +44,3 @@ func joinChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 }
-
-func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID string) *discordgo.VoiceConnection {
-	vc, err := s.ChannelVoiceJoin(guildID, voiceChannelID, false, false)
-	if err != nil {
-		log.Fatal(err)
-	}
-	activeVoiceChannels.channelMap[vc] = make(chan string)
-	return vc
-}

@@ -16,12 +16,17 @@ func init() {
 }
 
 type voiceChannels struct {
-	channelMap map[*discordgo.VoiceConnection](chan string)
+	channelMap map[*discordgo.VoiceConnection]*voiceChannel
+}
+
+type voiceChannel struct {
+	AbortChannel chan string
+	MusicActive  bool
 }
 
 func newActiveVoiceChannels() *voiceChannels {
 	var vcs voiceChannels
-	vcs.channelMap = make(map[*discordgo.VoiceConnection](chan string), 1)
+	vcs.channelMap = make(map[*discordgo.VoiceConnection]*voiceChannel)
 	return &vcs
 }
 
@@ -31,8 +36,12 @@ func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !connected {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet.")
 		} else {
-			go playMusic(vc)
-			s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+			if activeVoiceChannels.channelMap[vc].MusicActive {
+				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
+			} else {
+				go playMusic(vc)
+				s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+			}
 		}
 	}
 }
@@ -43,8 +52,12 @@ func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !connected {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
 		} else {
-			activeVoiceChannels.channelMap[vc] <- "stop"
-			s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
+			if activeVoiceChannels.channelMap[vc].MusicActive {
+				activeVoiceChannels.channelMap[vc].AbortChannel <- "stop"
+				s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
+			}
 		}
 	}
 }
@@ -74,6 +87,11 @@ func playMusic(vc *discordgo.VoiceConnection) {
 
 	decoder := dca.NewDecoder(encodeSession)
 
+	activeVoiceChannels.channelMap[vc].MusicActive = true
+	defer func() {
+		activeVoiceChannels.channelMap[vc].MusicActive = false
+	}()
+
 	for {
 		frame, err := decoder.OpusFrame()
 		if err != nil {
@@ -86,7 +104,7 @@ func playMusic(vc *discordgo.VoiceConnection) {
 		// Do something with the frame, in this example were sending it to discord
 		select {
 		case vc.OpusSend <- frame:
-		case <-activeVoiceChannels.channelMap[vc]:
+		case <-activeVoiceChannels.channelMap[vc].AbortChannel:
 			return
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
@@ -94,4 +112,14 @@ func playMusic(vc *discordgo.VoiceConnection) {
 			return
 		}
 	}
+}
+
+func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID string) *discordgo.VoiceConnection {
+	vc, err := s.ChannelVoiceJoin(guildID, voiceChannelID, false, false)
+	if err != nil {
+		log.Fatal(err)
+	}
+	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
+	activeVoiceChannels.channelMap[vc] = vcd
+	return vc
 }
