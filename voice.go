@@ -108,7 +108,7 @@ func playMusic(vc *discordgo.VoiceConnection) {
 			return
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
-			log.Println("Unable to send audio..")
+			log.Println("TIMEOUT: Unable to send audio..")
 			return
 		}
 	}
