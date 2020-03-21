@@ -20,7 +20,8 @@ func main() {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(messageCreate)
-	dg.AddHandler(joinChannelRequest)
+	dg.AddHandler(joinVoiceChannelRequest)
+	dg.AddHandler(leaveVoiceChannelRequest)
 	dg.AddHandler(stopMusicRequest)
 	dg.AddHandler(playMusicRequest)
 

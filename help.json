@@ -1,0 +1,9 @@
+{
+    "commands": [
+        {
+            "description": "Join a voice channel",
+            "name": "join-voice",
+            "arguments": ["channel-name"]
+        }
+    ]
+}

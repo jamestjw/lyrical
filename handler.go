@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	_ "lyrical/help"
 	"regexp"
 	"strings"
 
@@ -34,7 +35,7 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func joinChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
@@ -49,7 +50,7 @@ func joinChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	channelName := strings.TrimSpace(matched[1])
 	if channelName == "" {
-		fmt.Println("!join-voice expects an argument <channel-name> ")
+		s.ChannelMessageSend(m.ChannelID, "Whoops `!join-voice` expects an argument `<channel-name>` ")
 		return
 	}
 
@@ -69,5 +70,20 @@ func joinChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID)
 		vc := joinVoiceChannel(s, m.GuildID, channel.ID)
 		playMusic(vc)
+	}
+}
+
+func leaveVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Author.ID == s.State.User.ID {
+		return
+	}
+	// TODO: Leave voice channel of current guild only.
+	if m.Content == "!leave-voice" {
+		s.ChannelMessageSend(m.ChannelID, "Leaving voice channel 👋🏼")
+		err := disconnectAllVoiceConnections(s)
+
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, err.Error())
+		}
 	}
 }
