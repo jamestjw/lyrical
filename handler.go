@@ -113,7 +113,6 @@ func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	if m.Content == "!help" {
-		s.ChannelMessageSend(m.ChannelID, "Commands that are available (as of 22/3/2020) 😂")
 		s.ChannelMessageSend(m.ChannelID, help.Message())
 	}
 }

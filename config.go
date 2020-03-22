@@ -14,7 +14,7 @@ type Config struct {
 }
 
 func loadConfig() {
-	file, err := os.Open("config.json")
+	file, err := os.Open("configs/config.json")
 	if err != nil {
 		log.Fatalln("Cannot open config file", err)
 	}

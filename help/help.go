@@ -42,7 +42,7 @@ func (c command) prettyName() string {
 }
 
 func init() {
-	jsonFile, err := os.Open("help.json")
+	jsonFile, err := os.Open("configs/help.json")
 	jsonBytes, _ := ioutil.ReadAll(jsonFile)
 	if err != nil {
 		log.Fatal(err)
