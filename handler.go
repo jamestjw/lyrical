@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"log"
 	"regexp"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
+	"github.com/jamestjw/lyrical/matcher"
 )
 
 var (
@@ -42,15 +42,14 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	matched := joinChannelRequestRe.FindStringSubmatch(m.Content)
+	matched, channelName, err := matcher.Match(matcher.JoinChannelRequestRe, m.Content, "!join-voice", "channel-name")
 
-	if matched == nil {
+	if !matched {
 		return
 	}
 
-	channelName := strings.TrimSpace(matched[1])
-	if channelName == "" {
-		s.ChannelMessageSend(m.ChannelID, "Whoops `!join-voice` expects an argument `<channel-name>` ")
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, err.Error())
 		return
 	}
 
