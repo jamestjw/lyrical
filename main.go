@@ -19,7 +19,7 @@ func main() {
 	defer dg.Close()
 
 	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(messageCreate)
+	dg.AddHandler(dummyMessageCreate)
 	dg.AddHandler(joinVoiceChannelRequest)
 	dg.AddHandler(leaveVoiceChannelRequest)
 	dg.AddHandler(stopMusicRequest)

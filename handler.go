@@ -3,22 +3,13 @@ package main
 import (
 	"fmt"
 	"log"
-	"regexp"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
 )
 
-var (
-	joinChannelRequestRe = regexp.MustCompile(`^!join-voice\s?(.*)$`)
-)
-
-// This function will be called (due to AddHandler above) every time a new
-// message is created on any channel that the authenticated bot has access to.
-func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
+func dummyMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
@@ -36,8 +27,6 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
@@ -92,16 +81,24 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if m.Content == "!add-playlist" {
-		youtubeID := "kI-09zY3GPA"
-		s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😉")
-		err := addToPlaylist(youtubeID)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error adding your song %s: %s", youtubeID, err.Error()))
-		}
-		log.Print("Done added song!!")
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", youtubeID))
+	matched, youtubeID, err := matcher.Match(matcher.AddPlaylistRequestRe, m.Content, "!add-playlist", "youtube-id")
+
+	if !matched {
+		return
 	}
+
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, err.Error())
+		return
+	}
+
+	s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😉")
+	err = addToPlaylist(youtubeID)
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error adding your song %s 🤨: %s", youtubeID, err.Error()))
+		return
+	}
+	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", youtubeID))
 }
 
 func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
