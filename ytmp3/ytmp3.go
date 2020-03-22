@@ -18,16 +18,16 @@ func init() {
 }
 
 // Download a MP3 file based on youtube ID
-func Download(youtubeID string) error {
+func Download(youtubeID string) (title string, err error) {
 	vid, err := ytdl.GetVideoInfo("https://www.youtube.com/watch?v=" + youtubeID)
 	if err != nil {
 		log.Println("Failed to get video info")
-		return errors.New("video ID is invalid")
+		return "", errors.New("video ID is invalid")
 	}
 	ffmpeg, err := exec.LookPath("ffmpeg")
 	if err != nil {
 		log.Println("ffmpeg not found")
-		return err
+		return "", err
 	}
 
 	videoFname := filepath.Join(AudioPath, youtubeID+".mp4")
@@ -36,16 +36,17 @@ func Download(youtubeID string) error {
 	defer file.Close()
 	defer os.Remove(videoFname)
 
+	title = vid.Title
 	vid.Download(vid.Formats[0], file)
 
 	log.Println("Video is ready.")
 	cmd := exec.Command(ffmpeg, "-y", "-loglevel", "quiet", "-i", videoFname, "-vn", mp3Fname)
 	if err := cmd.Run(); err != nil {
 		log.Println("Failed to extract audio:", err)
-		return err
+		return "", err
 	}
 	log.Println("Extracted audio:", mp3Fname)
-	return nil
+	return title, nil
 }
 
 // PathToAudio returns a path to an audio file

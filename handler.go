@@ -57,10 +57,10 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID))
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID)
 		vc := joinVoiceChannel(s, m.GuildID, channel.ID)
-		if globalPlaylist.IsEmpty() {
+		if lyricalPlaylist.IsEmpty() {
 			s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
 		} else {
-			go playMusic(vc, globalPlaylist.First())
+			go playMusic(vc, lyricalPlaylist.First())
 			s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
 		}
 	}
@@ -98,13 +98,13 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😉")
-	err = addToPlaylist(youtubeID)
+	title, err := addToPlaylist(youtubeID)
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error adding your song %s 🤨: %s", youtubeID, err.Error()))
 		return
 	}
-	globalPlaylist.AddSongWithYoutubeID(youtubeID)
-	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", youtubeID))
+	lyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
+	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", title))
 }
 
 func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -126,11 +126,11 @@ func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if activeVoiceChannels.channelMap[vc].MusicActive {
 				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
 			} else {
-				if globalPlaylist.IsEmpty() {
+				if lyricalPlaylist.IsEmpty() {
 					s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
 				} else {
-					go playMusic(vc, globalPlaylist.First())
-					s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+					go playMusic(vc, lyricalPlaylist.First())
+					s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
 				}
 			}
 		}

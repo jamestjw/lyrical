@@ -3,6 +3,7 @@ package main
 // Song is a type that contains information about a song saved in the bot
 type Song struct {
 	YoutubeID string
+	Name      string
 	Next      *Song
 }
 
@@ -11,7 +12,7 @@ type Playlist struct {
 	Songs []*Song
 }
 
-var globalPlaylist = &Playlist{}
+var lyricalPlaylist = &Playlist{}
 
 // IsEmpty is a method on a playlist to check if it is empty
 func (p *Playlist) IsEmpty() bool {
@@ -29,8 +30,11 @@ func (p *Playlist) Last() *Song {
 }
 
 // AddSongWithYoutubeID adds a song with this youtubeID to a playlist
-func (p *Playlist) AddSongWithYoutubeID(youtubeID string) {
-	newSong := Song{YoutubeID: youtubeID}
+func (p *Playlist) AddSongWithYoutubeID(songName string, youtubeID string) {
+	newSong := Song{
+		YoutubeID: youtubeID,
+		Name:      songName,
+	}
 	if !p.IsEmpty() {
 		p.Last().Next = &newSong
 	}
