@@ -15,7 +15,4 @@ RUN apt-get install vim -y
 RUN apt-get install ffmpeg --yes
 RUN go get github.com/jonas747/dca/cmd/dca
 
-# Copy project files (see .dockerignore).
-COPY . .
-
 CMD ["/bin/bash"]

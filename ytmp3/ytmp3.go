@@ -1,7 +1,8 @@
 package ytmp3
 
 import (
-	"fmt"
+	"errors"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -16,16 +17,16 @@ func init() {
 }
 
 // Download a MP3 file based on youtube ID
-func Download(youtubeID string) {
+func Download(youtubeID string) error {
 	vid, err := ytdl.GetVideoInfo("https://www.youtube.com/watch?v=" + youtubeID)
 	if err != nil {
-		fmt.Println("Failed to get video info")
-		return
+		log.Println("Failed to get video info")
+		return errors.New("video ID is invalid")
 	}
 	ffmpeg, err := exec.LookPath("ffmpeg")
 	if err != nil {
-		fmt.Println("ffmpeg not found")
-		return
+		log.Println("ffmpeg not found")
+		return err
 	}
 
 	videoFname := filepath.Join(audioPath, youtubeID+".mp4")
@@ -36,11 +37,12 @@ func Download(youtubeID string) {
 
 	vid.Download(vid.Formats[0], file)
 
-	fmt.Println("Video is ready.")
+	log.Println("Video is ready.")
 	cmd := exec.Command(ffmpeg, "-y", "-loglevel", "quiet", "-i", videoFname, "-vn", mp3Fname)
 	if err := cmd.Run(); err != nil {
-		fmt.Println("Failed to extract audio:", err)
-	} else {
-		fmt.Println("Extracted audio:", mp3Fname)
+		log.Println("Failed to extract audio:", err)
+		return err
 	}
+	log.Println("Extracted audio:", mp3Fname)
+	return nil
 }

@@ -93,6 +93,6 @@ func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID strin
 	return vc
 }
 
-func addToPlaylist(youtubeID string) {
-	ytmp3.Download(youtubeID)
+func addToPlaylist(youtubeID string) error {
+	return ytmp3.Download(youtubeID)
 }

@@ -50,8 +50,7 @@ func init() {
 
 	json.Unmarshal(jsonBytes, &HelpJSON)
 
-	fmt.Println(HelpJSON.Commands[0].Description)
-	fmt.Println("help library is working as intended!")
+	log.Println("Loaded help text.")
 }
 
 // Message is the message sent to channels with list

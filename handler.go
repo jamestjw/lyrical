@@ -92,10 +92,16 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// TODO: Leave voice channel of current guild only.
+
 	if m.Content == "!add-playlist" {
-		s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😂")
-		go addToPlaylist("kI-09zY3GPA")
+		youtubeID := "kI-09zY3GPA"
+		s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😉")
+		err := addToPlaylist(youtubeID)
+		if err != nil {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error adding your song %s: %s", youtubeID, err.Error()))
+		}
+		log.Print("Done added song!!")
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", youtubeID))
 	}
 }
 
