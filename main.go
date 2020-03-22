@@ -25,6 +25,7 @@ func main() {
 	dg.AddHandler(stopMusicRequest)
 	dg.AddHandler(playMusicRequest)
 	dg.AddHandler(addToPlaylistRequest)
+	dg.AddHandler(nowPlayingRequest)
 	dg.AddHandler(helpRequest)
 
 	// Open a websocket connection to Discord and begin listening.

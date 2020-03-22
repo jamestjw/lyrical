@@ -152,3 +152,18 @@ func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 	}
 }
+
+func nowPlayingRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "!now-playing" {
+		vc, connected := s.VoiceConnections[m.GuildID]
+		if !connected {
+			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
+		} else {
+			if activeVoiceChannels.channelMap[vc].MusicActive {
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: %s", activeVoiceChannels.channelMap[vc].GetNowPlayingName()))
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
+			}
+		}
+	}
+}

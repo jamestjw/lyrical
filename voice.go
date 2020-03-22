@@ -22,6 +22,7 @@ type voiceChannels struct {
 }
 
 type voiceChannel struct {
+	NowPlaying   *Song
 	AbortChannel chan string
 	MusicActive  bool
 }
@@ -44,8 +45,19 @@ func disconnectAllVoiceConnections(s *discordgo.Session) error {
 			return err
 		}
 		log.Println("Disconnected from voice channel...")
+		activeVoiceChannels.channelMap[channel].RemoveNowPlaying()
 	}
 	return nil
+}
+
+func (vc *voiceChannel) SetNowPlaying(s *Song) {
+	vc.MusicActive = true
+	vc.NowPlaying = s
+}
+
+func (vc *voiceChannel) RemoveNowPlaying() {
+	vc.MusicActive = false
+	vc.NowPlaying = nil
 }
 
 func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
@@ -58,10 +70,8 @@ func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
 
 	decoder := dca.NewDecoder(encodeSession)
 
-	activeVoiceChannels.channelMap[vc].MusicActive = true
-	defer func() {
-		activeVoiceChannels.channelMap[vc].MusicActive = false
-	}()
+	activeVoiceChannels.channelMap[vc].SetNowPlaying(song)
+	defer activeVoiceChannels.channelMap[vc].RemoveNowPlaying()
 
 	for {
 		frame, err := decoder.OpusFrame()
@@ -105,4 +115,8 @@ func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID strin
 func addToPlaylist(youtubeID string) (title string, err error) {
 	title, err = ytmp3.Download(youtubeID)
 	return
+}
+
+func (vc *voiceChannel) GetNowPlayingName() string {
+	return vc.NowPlaying.Name
 }
