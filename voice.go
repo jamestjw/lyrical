@@ -59,12 +59,16 @@ func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
 	decoder := dca.NewDecoder(encodeSession)
 
 	activeVoiceChannels.channelMap[vc].MusicActive = true
+	defer func() {
+		activeVoiceChannels.channelMap[vc].MusicActive = false
+	}()
 
 	for {
 		frame, err := decoder.OpusFrame()
 		if err != nil {
 			if err != io.EOF {
-				log.Fatal(err)
+				log.Print(err)
+				return errors.New("unable to decode this song")
 			}
 			break
 		}
@@ -80,7 +84,11 @@ func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
 			return nil
 		}
 	}
-	activeVoiceChannels.channelMap[vc].MusicActive = false
+
+	// Being able to get here means that audio clip has ended
+	if song.Next != nil {
+		go playMusic(vc, song.Next)
+	}
 	return nil
 }
 

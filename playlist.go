@@ -23,7 +23,16 @@ func (p *Playlist) First() *Song {
 	return p.Songs[0]
 }
 
+// Last returns last song in the playlist
+func (p *Playlist) Last() *Song {
+	return p.Songs[len(p.Songs)-1]
+}
+
 // AddSongWithYoutubeID adds a song with this youtubeID to a playlist
 func (p *Playlist) AddSongWithYoutubeID(youtubeID string) {
-	p.Songs = append(p.Songs, &Song{YoutubeID: youtubeID})
+	newSong := Song{YoutubeID: youtubeID}
+	if !p.IsEmpty() {
+		p.Last().Next = &newSong
+	}
+	p.Songs = append(p.Songs, &newSong)
 }
