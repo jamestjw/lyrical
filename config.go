@@ -10,9 +10,7 @@ var config Config
 
 // Config has all application level configurations
 type Config struct {
-	DiscordToken   string `yaml:"discordToken"`
-	GuildID        string `yaml:"guildID"`
-	VoiceChannelID string `yaml:"voiceChannelID"`
+	DiscordToken string `yaml:"discordToken"`
 }
 
 func loadConfig() {

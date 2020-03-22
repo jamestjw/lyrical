@@ -10,10 +10,11 @@ import (
 	"github.com/rylio/ytdl"
 )
 
-const audioPath = "audio-cache"
+// AudioPath is the path that contains all audio files
+const AudioPath = "audio-cache"
 
 func init() {
-	_ = os.Mkdir(audioPath, 0777)
+	_ = os.Mkdir(AudioPath, 0777)
 }
 
 // Download a MP3 file based on youtube ID
@@ -29,8 +30,8 @@ func Download(youtubeID string) error {
 		return err
 	}
 
-	videoFname := filepath.Join(audioPath, youtubeID+".mp4")
-	mp3Fname := filepath.Join(audioPath, youtubeID+".mp3")
+	videoFname := filepath.Join(AudioPath, youtubeID+".mp4")
+	mp3Fname := filepath.Join(AudioPath, youtubeID+".mp3")
 	file, _ := os.Create(videoFname)
 	defer file.Close()
 	defer os.Remove(videoFname)
@@ -45,4 +46,9 @@ func Download(youtubeID string) error {
 	}
 	log.Println("Extracted audio:", mp3Fname)
 	return nil
+}
+
+// PathToAudio returns a path to an audio file
+func PathToAudio(youtubeID string) string {
+	return filepath.Join(AudioPath, youtubeID+".mp3")
 }

@@ -54,10 +54,15 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if alreadyInVoiceChannel(s, m.GuildID) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("I am already in Voice Channel within Guild ID: %s", m.GuildID))
 	} else {
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v \n", m.GuildID, config.VoiceChannelID))
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID))
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID)
 		vc := joinVoiceChannel(s, m.GuildID, channel.ID)
-		playMusic(vc)
+		if globalPlaylist.IsEmpty() {
+			s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
+		} else {
+			go playMusic(vc, globalPlaylist.First())
+			s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+		}
 	}
 }
 
@@ -98,6 +103,7 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error adding your song %s 🤨: %s", youtubeID, err.Error()))
 		return
 	}
+	globalPlaylist.AddSongWithYoutubeID(youtubeID)
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", youtubeID))
 }
 
@@ -121,8 +127,12 @@ func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if activeVoiceChannels.channelMap[vc].MusicActive {
 				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
 			} else {
-				go playMusic(vc)
-				s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+				if globalPlaylist.IsEmpty() {
+					s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
+				} else {
+					go playMusic(vc, globalPlaylist.First())
+					s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
+				}
 			}
 		}
 	}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"io"
 	"log"
 	"time"
@@ -47,19 +48,17 @@ func disconnectAllVoiceConnections(s *discordgo.Session) error {
 	return nil
 }
 
-func playMusic(vc *discordgo.VoiceConnection) {
-	encodeSession, err := dca.EncodeFile("chopin.mp3", dca.StdEncodeOptions)
+func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
+	encodeSession, err := dca.EncodeFile(ytmp3.PathToAudio(song.YoutubeID), dca.StdEncodeOptions)
 	if err != nil {
-		log.Fatal(err)
+		log.Print(err)
+		return errors.New("unable to open this song")
 	}
 	defer encodeSession.Cleanup()
 
 	decoder := dca.NewDecoder(encodeSession)
 
 	activeVoiceChannels.channelMap[vc].MusicActive = true
-	defer func() {
-		activeVoiceChannels.channelMap[vc].MusicActive = false
-	}()
 
 	for {
 		frame, err := decoder.OpusFrame()
@@ -74,13 +73,15 @@ func playMusic(vc *discordgo.VoiceConnection) {
 		select {
 		case vc.OpusSend <- frame:
 		case <-activeVoiceChannels.channelMap[vc].AbortChannel:
-			return
+			return nil
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
 			log.Println("TIMEOUT: Unable to send audio..")
-			return
+			return nil
 		}
 	}
+	activeVoiceChannels.channelMap[vc].MusicActive = false
+	return nil
 }
 
 func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID string) *discordgo.VoiceConnection {
