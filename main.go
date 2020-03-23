@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jamestjw/lyrical/database"
 )
 
 func main() {
@@ -45,6 +46,7 @@ func main() {
 		log.Println("Received signal to terminate, cleaning up...")
 		// Cleanly close down the Discord session.
 		disconnectAllVoiceConnections(dg)
+		database.Connection.Close()
 		log.Println("Exit successful!")
 		return
 	}

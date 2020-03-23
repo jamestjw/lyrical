@@ -30,13 +30,14 @@ func (p *Playlist) Last() *Song {
 }
 
 // AddSongWithYoutubeID adds a song with this youtubeID to a playlist
-func (p *Playlist) AddSongWithYoutubeID(songName string, youtubeID string) {
-	newSong := Song{
+func (p *Playlist) AddSongWithYoutubeID(songName string, youtubeID string) *Song {
+	newSong := &Song{
 		YoutubeID: youtubeID,
 		Name:      songName,
 	}
 	if !p.IsEmpty() {
-		p.Last().Next = &newSong
+		p.Last().Next = newSong
 	}
-	p.Songs = append(p.Songs, &newSong)
+	p.Songs = append(p.Songs, newSong)
+	return newSong
 }

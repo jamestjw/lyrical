@@ -27,6 +27,7 @@ func TestMatch(t *testing.T) {
 		expectedErr     error
 	}{
 		{"!test-command test-arg", true, "test-arg", *new(error)},
+		{"!test-command", true, "", Error{}},
 		{"!test-commandx test-arg", true, "", Error{}},
 		{"!wrong-test-command test-arg", false, "", *new(error)},
 	}

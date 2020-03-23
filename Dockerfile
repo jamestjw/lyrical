@@ -12,7 +12,8 @@ RUN echo 'export GOPATH=$HOME/go' >> ~/.bashrc
 RUN echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bashrc
 RUN source ~/.bashrc
 RUN apt-get install vim -y
-RUN apt-get install ffmpeg --yes
+RUN apt-get install ffmpeg -y
+RUN apt-get install sqlite3 -y
 RUN go get github.com/jonas747/dca/cmd/dca
 
 CMD ["/bin/bash"]

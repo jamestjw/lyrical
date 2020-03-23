@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"time"
@@ -112,11 +113,26 @@ func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID strin
 	return vc
 }
 
-func addToPlaylist(youtubeID string) (title string, err error) {
+func downloadByYoutubeID(youtubeID string) (title string, err error) {
 	title, err = ytmp3.Download(youtubeID)
 	return
 }
 
 func (vc *voiceChannel) GetNowPlayingName() string {
 	return vc.NowPlaying.Name
+}
+
+func addSong(youtubeID string) (title string, err error) {
+	title, err = downloadByYoutubeID(youtubeID)
+	if err != nil {
+		err = fmt.Errorf("Error adding the song %s 🤨: %s", youtubeID, err.Error())
+	}
+
+	newSong := lyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
+
+	dbErr := AddSongToDB(newSong)
+	if dbErr != nil {
+		log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
+	}
+	return
 }

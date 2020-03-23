@@ -98,12 +98,11 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 
 	s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😉")
-	title, err := addToPlaylist(youtubeID)
+	title, err := addSong(youtubeID)
 	if err != nil {
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Error adding your song %s 🤨: %s", youtubeID, err.Error()))
+		s.ChannelMessageSend(m.ChannelID, err.Error())
 		return
 	}
-	lyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", title))
 }
 
