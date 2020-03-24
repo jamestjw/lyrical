@@ -2,3 +2,4 @@ config.json
 builds/
 audio-cache/
 deployment-scripts/
+*.db

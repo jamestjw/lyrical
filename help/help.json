@@ -24,6 +24,11 @@
             "description": "Stop music",
             "name": "stop-music",
             "arguments": ""
+        },
+        {
+            "description": "Now playing",
+            "name": "now-playing",
+            "arguments": ""   
         }
     ]
 }
