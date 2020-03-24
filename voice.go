@@ -19,18 +19,20 @@ func init() {
 }
 
 type voiceChannels struct {
-	channelMap map[*discordgo.VoiceConnection]*voiceChannel
+	// Maps GuildID to voiceChannel
+	channelMap map[string]*voiceChannel
 }
 
 type voiceChannel struct {
 	NowPlaying   *Song
+	Next         *Song
 	AbortChannel chan string
 	MusicActive  bool
 }
 
 func newActiveVoiceChannels() *voiceChannels {
 	var vcs voiceChannels
-	vcs.channelMap = make(map[*discordgo.VoiceConnection]*voiceChannel)
+	vcs.channelMap = make(map[string]*voiceChannel)
 	return &vcs
 }
 
@@ -46,14 +48,21 @@ func disconnectAllVoiceConnections(s *discordgo.Session) error {
 			return err
 		}
 		log.Println("Disconnected from voice channel...")
-		activeVoiceChannels.channelMap[channel].RemoveNowPlaying()
+		activeVoiceChannels.channelMap[channel.GuildID].RemoveNowPlaying()
 	}
 	return nil
+}
+
+func (vc *voiceChannel) MaybeSetNext(s *Song) {
+	if vc.Next == nil {
+		vc.Next = s
+	}
 }
 
 func (vc *voiceChannel) SetNowPlaying(s *Song) {
 	vc.MusicActive = true
 	vc.NowPlaying = s
+	vc.Next = s.Next
 }
 
 func (vc *voiceChannel) RemoveNowPlaying() {
@@ -71,8 +80,8 @@ func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
 
 	decoder := dca.NewDecoder(encodeSession)
 
-	activeVoiceChannels.channelMap[vc].SetNowPlaying(song)
-	defer activeVoiceChannels.channelMap[vc].RemoveNowPlaying()
+	activeVoiceChannels.channelMap[vc.GuildID].SetNowPlaying(song)
+	defer activeVoiceChannels.channelMap[vc.GuildID].RemoveNowPlaying()
 
 	for {
 		frame, err := decoder.OpusFrame()
@@ -87,7 +96,7 @@ func playMusic(vc *discordgo.VoiceConnection, song *Song) error {
 		// Do something with the frame, in this example were sending it to discord
 		select {
 		case vc.OpusSend <- frame:
-		case <-activeVoiceChannels.channelMap[vc].AbortChannel:
+		case <-activeVoiceChannels.channelMap[vc.GuildID].AbortChannel:
 			return nil
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
@@ -109,7 +118,7 @@ func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID strin
 		log.Fatal(err)
 	}
 	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
-	activeVoiceChannels.channelMap[vc] = vcd
+	activeVoiceChannels.channelMap[vc.GuildID] = vcd
 	return vc
 }
 
@@ -122,7 +131,7 @@ func (vc *voiceChannel) GetNowPlayingName() string {
 	return vc.NowPlaying.Name
 }
 
-func addSong(youtubeID string) (title string, err error) {
+func addSong(youtubeID string, guildID string) (title string, err error) {
 	title, err = downloadByYoutubeID(youtubeID)
 	if err != nil {
 		err = fmt.Errorf("Error adding the song %s 🤨: %s", youtubeID, err.Error())
@@ -134,5 +143,6 @@ func addSong(youtubeID string) (title string, err error) {
 	if dbErr != nil {
 		log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
 	}
+	activeVoiceChannels.channelMap[guildID].MaybeSetNext(newSong)
 	return
 }

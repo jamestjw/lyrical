@@ -70,7 +70,7 @@ end
 after 'go:build', 'go:stop-previous' do
   on roles(:app) do
     old_pid = capture(:ps, :aux, '|', :grep, "bin/#{fetch(:application)}", '|', :grep, '-v grep', '|', :awk, "'{print $2}'", '|', :tail, '-n1')
-    if old_pid
+    if old_pid && !old_pid.empty?
       info "Found PID: #{old_pid}"
       execute :kill, '-s', 'SIGINT', old_pid
       sleep 3
