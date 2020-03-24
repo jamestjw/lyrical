@@ -56,13 +56,15 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	} else {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID))
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID)
-		_ = joinVoiceChannel(s, m.GuildID, channel.ID)
-		// if lyricalPlaylist.IsEmpty() {
-		// 	s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
-		// } else {
-		// 	go playMusic(vc, lyricalPlaylist.First())
-		// 	s.ChannelMessageSend(m.ChannelID, "Starting music... 👍")
-		// }
+
+		vc := joinVoiceChannel(s, m.GuildID, channel.ID)
+		nextSong := activeVoiceChannels.channelMap[m.GuildID].Next
+		if nextSong == nil {
+			s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
+		} else {
+			go playMusic(vc, nextSong)
+			s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
+		}
 	}
 }
 

@@ -18,6 +18,6 @@ func init() {
 		log.Fatal(err)
 	}
 
-	statement, _ := Connection.Prepare("CREATE TABLE IF NOT EXISTS songs (id INTEGER PRIMARY KEY, youtube_id TEXT, name TEXT)")
+	statement, _ := Connection.Prepare("CREATE TABLE IF NOT EXISTS songs (id INTEGER PRIMARY KEY, youtube_id TEXT, name TEXT, created_at TIMESTAMP)")
 	statement.Exec()
 }
