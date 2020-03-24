@@ -53,7 +53,12 @@ func disconnectAllVoiceConnections(s *discordgo.Session) error {
 	return nil
 }
 
-func (vc *voiceChannel) MaybeSetNext(s *Song) {
+func maybeSetNext(guildID string, s *Song) {
+	if _, exists := activeVoiceChannels.channelMap[guildID]; !exists {
+		initialiseVoiceChannelForGuild(guildID)
+	}
+
+	vc := activeVoiceChannels.channelMap[guildID]
 	if vc.Next == nil {
 		vc.Next = s
 	}
@@ -117,9 +122,16 @@ func joinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID strin
 	if err != nil {
 		log.Fatal(err)
 	}
-	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
-	activeVoiceChannels.channelMap[vc.GuildID] = vcd
+
+	if _, exists := activeVoiceChannels.channelMap[guildID]; !exists {
+		initialiseVoiceChannelForGuild(guildID)
+	}
 	return vc
+}
+
+func initialiseVoiceChannelForGuild(guildID string) {
+	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
+	activeVoiceChannels.channelMap[guildID] = vcd
 }
 
 func downloadByYoutubeID(youtubeID string) (title string, err error) {
@@ -143,6 +155,6 @@ func addSong(youtubeID string, guildID string) (title string, err error) {
 	if dbErr != nil {
 		log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
 	}
-	activeVoiceChannels.channelMap[guildID].MaybeSetNext(newSong)
+	maybeSetNext(guildID, newSong)
 	return
 }
