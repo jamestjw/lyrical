@@ -144,17 +144,21 @@ func (vc *voiceChannel) GetNowPlayingName() string {
 }
 
 func addSong(youtubeID string, guildID string) (title string, err error) {
-	title, err = downloadByYoutubeID(youtubeID)
-	if err != nil {
-		err = fmt.Errorf("Error adding the song %s 🤨: %s", youtubeID, err.Error())
+	title, exists := SongExists(youtubeID)
+
+	if !exists {
+		title, err = downloadByYoutubeID(youtubeID)
+		if err != nil {
+			err = fmt.Errorf("Error adding the song %s 🤨: %s", youtubeID, err.Error())
+		}
+
+		dbErr := AddSongToDB(title, youtubeID)
+		if dbErr != nil {
+			log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
+		}
 	}
 
 	newSong := lyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
-
-	dbErr := AddSongToDB(newSong)
-	if dbErr != nil {
-		log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
-	}
 	maybeSetNext(guildID, newSong)
 	return
 }
