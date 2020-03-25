@@ -19,5 +19,6 @@ func init() {
 	}
 
 	statement, _ := Connection.Prepare("CREATE TABLE IF NOT EXISTS songs (id INTEGER PRIMARY KEY, youtube_id TEXT, name TEXT, created_at TIMESTAMP)")
+	defer statement.Close()
 	statement.Exec()
 }
