@@ -105,7 +105,7 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, err.Error())
 		return
 	}
-	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song %s was added 👍", title))
+	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song **%s** was added 👍", title))
 }
 
 func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -162,7 +162,7 @@ func nowPlayingRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
 		} else {
 			if activeVoiceChannels.channelMap[vc.GuildID].MusicActive {
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: %s", activeVoiceChannels.channelMap[vc.GuildID].GetNowPlayingName()))
+				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: **%s**", activeVoiceChannels.channelMap[vc.GuildID].GetNowPlayingName()))
 			} else {
 				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
 			}
