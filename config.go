@@ -10,7 +10,8 @@ var config Config
 
 // Config has all application level configurations
 type Config struct {
-	DiscordToken string `yaml:"discordToken"`
+	DiscordToken  string `yaml:"discordToken"`
+	YoutubeAPIKey string `yaml:"youtubeApiKey"`
 }
 
 func loadConfig() {

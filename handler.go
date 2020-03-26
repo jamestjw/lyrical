@@ -7,7 +7,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
+	"github.com/jamestjw/lyrical/searcher"
 )
+
+func init() {
+	searcher.InitialiseSearchService(config.YoutubeAPIKey)
+}
 
 func dummyMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
@@ -88,7 +93,7 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	matched, youtubeID, err := matcher.Match(matcher.AddPlaylistRequestRe, m.Content, "!add-playlist", "youtube-id")
+	matched, query, err := matcher.Match(matcher.AddPlaylistRequestRe, m.Content, "!add-playlist", "youtube-id")
 
 	if !matched {
 		return
@@ -99,7 +104,14 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
+	youtubeID, err := searcher.GetVideoID(query)
+	if err != nil {
+		s.ChannelMessageSend(m.ChannelID, err.Error())
+		return
+	}
+
 	s.ChannelMessageSend(m.ChannelID, "Adding to playlist 😉")
+
 	title, err := addSong(youtubeID, m.GuildID)
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())

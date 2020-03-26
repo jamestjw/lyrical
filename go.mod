@@ -9,4 +9,6 @@ require (
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/rylio/ytdl v0.6.2
+	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
+	google.golang.org/api v0.20.0
 )
