@@ -10,7 +10,7 @@ var (
 	// JoinChannelRequestRe is a regex to match request to join voice channels
 	JoinChannelRequestRe = regexp.MustCompile(`^!join-voice(\s+(.*)$)?`)
 	// AddPlaylistRequestRe is a regex to match request to add songs to playlists
-	AddPlaylistRequestRe = regexp.MustCompile(`^!add-playlist(\s+(.*)$)?`)
+	AddPlaylistRequestRe = regexp.MustCompile(`^!(?:add-playlist|add-music)(\s+(.*)$)?`)
 )
 
 // Error is the error returned from matcher when invalid
