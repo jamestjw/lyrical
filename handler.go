@@ -142,7 +142,7 @@ func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
 			} else {
 				if thisVoiceChannel.Next == nil {
-					s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
+					s.ChannelMessageSend(m.ChannelID, "Playlist is currently empty.")
 				} else {
 					go playMusic(vc, thisVoiceChannel.Next)
 					s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
@@ -156,7 +156,7 @@ func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "!stop-music" {
 		vc, connected := s.VoiceConnections[m.GuildID]
 		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
+			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
 		} else {
 			if activeVoiceChannels.channelMap[vc.GuildID].MusicActive {
 				activeVoiceChannels.channelMap[vc.GuildID].AbortChannel <- "stop"
@@ -172,10 +172,30 @@ func nowPlayingRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Content == "!now-playing" {
 		vc, connected := s.VoiceConnections[m.GuildID]
 		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel.")
+			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
 		} else {
 			if activeVoiceChannels.channelMap[vc.GuildID].MusicActive {
 				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: **%s**", activeVoiceChannels.channelMap[vc.GuildID].GetNowPlayingName()))
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
+			}
+		}
+	}
+}
+
+func skipMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
+	if m.Content == "!skip-music" {
+		vc, connected := s.VoiceConnections[m.GuildID]
+		if !connected {
+			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet. 😔")
+		} else {
+			thisVoiceChannel := activeVoiceChannels.channelMap[vc.GuildID]
+			if thisVoiceChannel.MusicActive {
+				thisVoiceChannel.AbortChannel <- "stop"
+				s.ChannelMessageSend(m.ChannelID, "Skipping song... ❌")
+				if thisVoiceChannel.Next != nil {
+					go playMusic(vc, thisVoiceChannel.Next)
+				}
 			} else {
 				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
 			}

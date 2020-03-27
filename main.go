@@ -25,6 +25,7 @@ func main() {
 	dg.AddHandler(leaveVoiceChannelRequest)
 	dg.AddHandler(stopMusicRequest)
 	dg.AddHandler(playMusicRequest)
+	dg.AddHandler(skipMusicRequest)
 	dg.AddHandler(addToPlaylistRequest)
 	dg.AddHandler(nowPlayingRequest)
 	dg.AddHandler(helpRequest)
