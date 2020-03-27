@@ -30,13 +30,8 @@ func FindVoiceChannel(s *discordgo.Session, guildID string, channelName string) 
 
 // VideoDurationValid parses the duration of a YouTube video
 // and checks if it valid
-func VideoDurationValid(videoDuration string) (err error) {
-	duration, err := time.ParseDuration(videoDuration)
-	if err != nil {
-		return
-	}
-
-	if duration > 10 {
+func VideoDurationValid(videoDuration time.Duration) (err error) {
+	if videoDuration.Minutes() > 10 {
 		err = errors.New("video is more than 10 minutes long")
 	}
 	return

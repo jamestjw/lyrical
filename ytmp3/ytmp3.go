@@ -32,7 +32,7 @@ func Download(youtubeID string) (title string, err error) {
 	}
 
 	title = vid.Title
-	if err := utils.VideoDurationValid(title); err != nil {
+	if err := utils.VideoDurationValid(vid.Duration); err != nil {
 		return "", err
 	}
 
