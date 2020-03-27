@@ -8,6 +8,7 @@ import (
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
 	"github.com/jamestjw/lyrical/searcher"
+	"github.com/jamestjw/lyrical/utils"
 )
 
 func init() {
@@ -49,7 +50,7 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Connecting to channel name: %s", channelName))
 
-	channel, err := findVoiceChannel(s, m.GuildID, channelName)
+	channel, err := utils.FindVoiceChannel(s, m.GuildID, channelName)
 
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, "Unable to find channel fo this name in the server.")

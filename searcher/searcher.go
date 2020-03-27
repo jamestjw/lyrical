@@ -29,8 +29,7 @@ func GetVideoID(query string) (youtubeID string, err error) {
 	call := searchService.List("id, snippet").
 		Type("video").
 		Q(query).
-		MaxResults(1).
-		VideoDuration("short")
+		MaxResults(1)
 
 	res, err := call.Do()
 	if err != nil {

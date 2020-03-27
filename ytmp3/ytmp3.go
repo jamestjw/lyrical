@@ -7,6 +7,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
+	"github.com/jamestjw/lyrical/utils"
 	"github.com/rylio/ytdl"
 )
 
@@ -30,13 +31,17 @@ func Download(youtubeID string) (title string, err error) {
 		return "", err
 	}
 
+	title = vid.Title
+	if err := utils.VideoDurationValid(title); err != nil {
+		return "", err
+	}
+
 	videoFname := filepath.Join(AudioPath, youtubeID+".mp4")
 	mp3Fname := filepath.Join(AudioPath, youtubeID+".mp3")
 	file, _ := os.Create(videoFname)
 	defer file.Close()
 	defer os.Remove(videoFname)
 
-	title = vid.Title
 	vid.Download(vid.Formats[0], file)
 
 	log.Println("Video is ready.")
