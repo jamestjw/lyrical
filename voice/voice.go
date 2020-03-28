@@ -59,7 +59,7 @@ func (vc *voiceChannel) RemoveNowPlaying() {
 	vc.NowPlaying = nil
 }
 
-func PlayMusic(vc *discordgo.VoiceConnection, song *playlist.Song) error {
+func PlayMusic(input chan []byte, guildID string, song *playlist.Song) error {
 	encodeSession, err := dca.EncodeFile(ytmp3.PathToAudio(song.YoutubeID), dca.StdEncodeOptions)
 	if err != nil {
 		log.Print(err)
@@ -69,10 +69,10 @@ func PlayMusic(vc *discordgo.VoiceConnection, song *playlist.Song) error {
 
 	decoder := dca.NewDecoder(encodeSession)
 
-	ActiveVoiceChannels.ChannelMap[vc.GuildID].SetNowPlaying(song)
-	defer ActiveVoiceChannels.ChannelMap[vc.GuildID].RemoveNowPlaying()
+	ActiveVoiceChannels.ChannelMap[guildID].SetNowPlaying(song)
+	defer ActiveVoiceChannels.ChannelMap[guildID].RemoveNowPlaying()
 
-	abortChannel := ActiveVoiceChannels.ChannelMap[vc.GuildID].GetAbortChannel()
+	abortChannel := ActiveVoiceChannels.ChannelMap[guildID].GetAbortChannel()
 
 	for {
 		frame, err := decoder.OpusFrame()
@@ -86,7 +86,7 @@ func PlayMusic(vc *discordgo.VoiceConnection, song *playlist.Song) error {
 
 		// Do something with the frame, in this example were sending it to discord
 		select {
-		case vc.OpusSend <- frame:
+		case input <- frame:
 		case <-abortChannel:
 			return nil
 		case <-time.After(time.Second):
@@ -98,13 +98,13 @@ func PlayMusic(vc *discordgo.VoiceConnection, song *playlist.Song) error {
 
 	// Being able to get here means that audio clip has ended
 	if song.Next != nil {
-		go PlayMusic(vc, song.Next)
+		go PlayMusic(input, guildID, song.Next)
 	}
 	return nil
 }
 
-func JoinVoiceChannel(s *discordgo.Session, guildID string, voiceChannelID string) *discordgo.VoiceConnection {
-	vc, err := s.ChannelVoiceJoin(guildID, voiceChannelID, false, false)
+func JoinVoiceChannel(s Connectable, guildID string, voiceChannelID string) Connection {
+	vc, err := s.JoinVoiceChannel(guildID, voiceChannelID)
 	if err != nil {
 		log.Fatal(err)
 	}

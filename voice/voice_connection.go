@@ -15,3 +15,7 @@ func (vc DGVoiceConnection) Disconnect() error {
 func (vc DGVoiceConnection) GetGuildID() string {
 	return vc.Connection.GuildID
 }
+
+func (vc DGVoiceConnection) GetAudioInputChannel() chan []byte {
+	return vc.Connection.OpusSend
+}

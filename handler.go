@@ -64,12 +64,12 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID))
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID)
 
-		vc := voice.JoinVoiceChannel(s, m.GuildID, channel.ID)
+		vc := voice.JoinVoiceChannel(botSession{s}, m.GuildID, channel.ID)
 		nextSong := voice.ActiveVoiceChannels.ChannelMap[m.GuildID].GetNext()
 		if nextSong == nil {
 			s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
 		} else {
-			go voice.PlayMusic(vc, nextSong)
+			go voice.PlayMusic(vc.GetAudioInputChannel(), m.GuildID, nextSong)
 			s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
 		}
 	}
@@ -82,7 +82,7 @@ func leaveVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) 
 	// TODO: Leave voice channel of current guild only.
 	if m.Content == "!leave-voice" {
 		s.ChannelMessageSend(m.ChannelID, "Leaving voice channel 👋🏼")
-		err := voice.DisconnectAllVoiceConnections(&botSession{s})
+		err := voice.DisconnectAllVoiceConnections(botSession{s})
 
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, err.Error())
@@ -145,7 +145,7 @@ func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 				if thisVoiceChannel.GetNext() == nil {
 					s.ChannelMessageSend(m.ChannelID, "Playlist is currently empty.")
 				} else {
-					go voice.PlayMusic(vc, thisVoiceChannel.GetNext())
+					go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
 					s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
 				}
 			}
@@ -196,7 +196,7 @@ func skipMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 				thisVoiceChannel.StopMusic()
 				s.ChannelMessageSend(m.ChannelID, "Skipping song... ❌")
 				if thisVoiceChannel.GetNext() != nil {
-					go voice.PlayMusic(vc, thisVoiceChannel.GetNext())
+					go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
 				}
 			} else {
 				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
