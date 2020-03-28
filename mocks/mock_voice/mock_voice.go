@@ -254,3 +254,93 @@ func (mr *MockChannelMockRecorder) StopMusic() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopMusic", reflect.TypeOf((*MockChannel)(nil).StopMusic))
 }
+
+// MockDatabase is a mock of Database interface.
+type MockDatabase struct {
+	ctrl     *gomock.Controller
+	recorder *MockDatabaseMockRecorder
+}
+
+// MockDatabaseMockRecorder is the mock recorder for MockDatabase.
+type MockDatabaseMockRecorder struct {
+	mock *MockDatabase
+}
+
+// NewMockDatabase creates a new mock instance.
+func NewMockDatabase(ctrl *gomock.Controller) *MockDatabase {
+	mock := &MockDatabase{ctrl: ctrl}
+	mock.recorder = &MockDatabaseMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDatabase) EXPECT() *MockDatabaseMockRecorder {
+	return m.recorder
+}
+
+// SongExists mocks base method.
+func (m *MockDatabase) SongExists(youtubeID string) (string, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SongExists", youtubeID)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// SongExists indicates an expected call of SongExists.
+func (mr *MockDatabaseMockRecorder) SongExists(youtubeID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SongExists", reflect.TypeOf((*MockDatabase)(nil).SongExists), youtubeID)
+}
+
+// AddSongToDB mocks base method.
+func (m *MockDatabase) AddSongToDB(name, youtubeID string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddSongToDB", name, youtubeID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AddSongToDB indicates an expected call of AddSongToDB.
+func (mr *MockDatabaseMockRecorder) AddSongToDB(name, youtubeID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSongToDB", reflect.TypeOf((*MockDatabase)(nil).AddSongToDB), name, youtubeID)
+}
+
+// MockDownloader is a mock of Downloader interface.
+type MockDownloader struct {
+	ctrl     *gomock.Controller
+	recorder *MockDownloaderMockRecorder
+}
+
+// MockDownloaderMockRecorder is the mock recorder for MockDownloader.
+type MockDownloaderMockRecorder struct {
+	mock *MockDownloader
+}
+
+// NewMockDownloader creates a new mock instance.
+func NewMockDownloader(ctrl *gomock.Controller) *MockDownloader {
+	mock := &MockDownloader{ctrl: ctrl}
+	mock.recorder = &MockDownloaderMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockDownloader) EXPECT() *MockDownloaderMockRecorder {
+	return m.recorder
+}
+
+// Download mocks base method.
+func (m *MockDownloader) Download(query string) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Download", query)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Download indicates an expected call of Download.
+func (mr *MockDownloaderMockRecorder) Download(query interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockDownloader)(nil).Download), query)
+}

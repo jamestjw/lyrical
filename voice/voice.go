@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/jamestjw/lyrical/database"
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/ytmp3"
 	"github.com/jonas747/dca"
@@ -37,7 +36,7 @@ func DisconnectAllVoiceConnections(s Connectable) error {
 	return nil
 }
 
-func MaybeSetNext(guildID string, s *playlist.Song) {
+func maybeSetNext(guildID string, s *playlist.Song) {
 	if _, exists := ActiveVoiceChannels.ChannelMap[guildID]; !exists {
 		InitialiseVoiceChannelForGuild(guildID)
 	}
@@ -126,21 +125,21 @@ func DownloadByYoutubeID(youtubeID string) (title string, err error) {
 }
 
 func AddSong(youtubeID string, guildID string) (title string, err error) {
-	title, exists := database.SongExists(youtubeID)
+	title, exists := DB.SongExists(youtubeID)
 
 	if !exists {
-		title, err = DownloadByYoutubeID(youtubeID)
+		title, err = Dl.Download(youtubeID)
 		if err != nil {
 			err = fmt.Errorf("Error adding the song %s 🤨: %s", youtubeID, err.Error())
 		}
 
-		dbErr := database.AddSongToDB(title, youtubeID)
+		dbErr := DB.AddSongToDB(title, youtubeID)
 		if dbErr != nil {
 			log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
 		}
 	}
 
 	newSong := playlist.LyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
-	MaybeSetNext(guildID, newSong)
+	maybeSetNext(guildID, newSong)
 	return
 }

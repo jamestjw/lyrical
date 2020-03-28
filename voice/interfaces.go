@@ -23,3 +23,12 @@ type Channel interface {
 	GetNowPlayingName() string
 	StopMusic()
 }
+
+type Database interface {
+	SongExists(youtubeID string) (string, bool)
+	AddSongToDB(name string, youtubeID string) error
+}
+
+type Downloader interface {
+	Download(query string) (title string, err error)
+}
