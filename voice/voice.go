@@ -20,24 +20,6 @@ func init() {
 	ActiveVoiceChannels = NewActiveVoiceChannels()
 }
 
-type voiceChannels struct {
-	// Maps GuildID to voiceChannel
-	ChannelMap map[string]Channel
-}
-
-type voiceChannel struct {
-	NowPlaying   *playlist.Song
-	Next         *playlist.Song
-	AbortChannel chan string
-	MusicActive  bool
-}
-
-func NewActiveVoiceChannels() *voiceChannels {
-	var vcs voiceChannels
-	vcs.ChannelMap = make(map[string]Channel)
-	return &vcs
-}
-
 func AlreadyInVoiceChannel(s *discordgo.Session, guildID string) bool {
 	_, connected := s.VoiceConnections[guildID]
 	return connected
@@ -143,30 +125,6 @@ func DownloadByYoutubeID(youtubeID string) (title string, err error) {
 	return
 }
 
-func (vc *voiceChannel) GetNowPlayingName() string {
-	return vc.NowPlaying.Name
-}
-
-func (vc *voiceChannel) GetNext() *playlist.Song {
-	return vc.Next
-}
-
-func (vc *voiceChannel) SetNext(s *playlist.Song) {
-	vc.Next = s
-}
-
-func (vc *voiceChannel) GetAbortChannel() chan string {
-	return vc.AbortChannel
-}
-
-func (vc *voiceChannel) IsPlayingMusic() bool {
-	return vc.MusicActive
-}
-
-func (vc *voiceChannel) StopMusic() {
-	vc.AbortChannel <- "stop"
-}
-
 func AddSong(youtubeID string, guildID string) (title string, err error) {
 	title, exists := database.SongExists(youtubeID)
 
@@ -185,36 +143,4 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 	newSong := playlist.LyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
 	MaybeSetNext(guildID, newSong)
 	return
-}
-
-type Connectable interface {
-	GetVoiceConnections() map[string]Connection
-}
-
-type Connection interface {
-	Disconnect() (err error)
-	GetGuildID() string
-}
-
-type Channel interface {
-	RemoveNowPlaying()
-	GetNext() *playlist.Song
-	SetNext(*playlist.Song)
-	SetNowPlaying(s *playlist.Song)
-	GetAbortChannel() chan string
-	IsPlayingMusic() bool
-	GetNowPlayingName() string
-	StopMusic()
-}
-
-type DGVoiceConnection struct {
-	Connection *discordgo.VoiceConnection
-}
-
-func (vc DGVoiceConnection) Disconnect() error {
-	return vc.Connection.Disconnect()
-}
-
-func (vc DGVoiceConnection) GetGuildID() string {
-	return vc.Connection.GuildID
 }
