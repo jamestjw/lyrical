@@ -7,17 +7,7 @@ import (
 	"github.com/golang/mock/gomock"
 	mock_voice "github.com/jamestjw/lyrical/mocks/mock_voice"
 	"github.com/jamestjw/lyrical/voice"
-	"github.com/stretchr/testify/mock"
 )
-
-type voiceConnectionMock struct {
-	mock.Mock
-}
-
-func (m *voiceConnectionMock) Disconnect() error {
-	args := m.Called()
-	return args.Error(0)
-}
 
 func disconnectAllVoiceConnectionsSetup(ctrl *gomock.Controller) map[string]voice.Connection {
 	voice.ActiveVoiceChannels = voice.NewActiveVoiceChannels()
