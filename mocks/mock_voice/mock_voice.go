@@ -48,6 +48,21 @@ func (mr *MockConnectableMockRecorder) GetVoiceConnections() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetVoiceConnections", reflect.TypeOf((*MockConnectable)(nil).GetVoiceConnections))
 }
 
+// JoinVoiceChannel mocks base method.
+func (m *MockConnectable) JoinVoiceChannel(guildID, voiceChannelID string) (voice.Connection, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "JoinVoiceChannel", guildID, voiceChannelID)
+	ret0, _ := ret[0].(voice.Connection)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// JoinVoiceChannel indicates an expected call of JoinVoiceChannel.
+func (mr *MockConnectableMockRecorder) JoinVoiceChannel(guildID, voiceChannelID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JoinVoiceChannel", reflect.TypeOf((*MockConnectable)(nil).JoinVoiceChannel), guildID, voiceChannelID)
+}
+
 // MockConnection is a mock of Connection interface.
 type MockConnection struct {
 	ctrl     *gomock.Controller
@@ -97,6 +112,20 @@ func (m *MockConnection) GetGuildID() string {
 func (mr *MockConnectionMockRecorder) GetGuildID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGuildID", reflect.TypeOf((*MockConnection)(nil).GetGuildID))
+}
+
+// GetAudioInputChannel mocks base method.
+func (m *MockConnection) GetAudioInputChannel() chan []byte {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAudioInputChannel")
+	ret0, _ := ret[0].(chan []byte)
+	return ret0
+}
+
+// GetAudioInputChannel indicates an expected call of GetAudioInputChannel.
+func (mr *MockConnectionMockRecorder) GetAudioInputChannel() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAudioInputChannel", reflect.TypeOf((*MockConnection)(nil).GetAudioInputChannel))
 }
 
 // MockChannel is a mock of Channel interface.

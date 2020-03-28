@@ -4,11 +4,13 @@ import "github.com/jamestjw/lyrical/playlist"
 
 type Connectable interface {
 	GetVoiceConnections() map[string]Connection
+	JoinVoiceChannel(guildID string, voiceChannelID string) (Connection, error)
 }
 
 type Connection interface {
 	Disconnect() (err error)
 	GetGuildID() string
+	GetAudioInputChannel() chan []byte
 }
 
 type Channel interface {

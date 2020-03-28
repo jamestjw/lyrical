@@ -50,7 +50,7 @@ func main() {
 	case <-sc:
 		log.Println("Received signal to terminate, cleaning up...")
 		// Cleanly close down the Discord session.
-		voice.DisconnectAllVoiceConnections(dg)
+		voice.DisconnectAllVoiceConnections(dg.(voice.Connectable))
 		database.Connection.Close()
 		log.Println("Exit successful!")
 		return

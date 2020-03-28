@@ -10,7 +10,6 @@ import (
 // Session that represents current session of discord bot
 type Session interface {
 	CloseConnection() error
-	GetVoiceConnections() map[string]voice.Connection
 	ListenAndServe() error
 	AddHandler(interface{}) func()
 }
@@ -26,11 +25,11 @@ func NewSession(discordToken string) (s Session, err error) {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
-	s = &botSession{dg}
+	s = botSession{dg}
 	return
 }
 
-func (s *botSession) GetVoiceConnections() map[string]voice.Connection {
+func (s botSession) GetVoiceConnections() map[string]voice.Connection {
 	vcMap := make(map[string]voice.Connection)
 	for key, value := range s.session.VoiceConnections {
 		vcMap[key] = voice.DGVoiceConnection{Connection: value}
@@ -38,14 +37,19 @@ func (s *botSession) GetVoiceConnections() map[string]voice.Connection {
 	return vcMap
 }
 
-func (s *botSession) CloseConnection() error {
+func (s botSession) CloseConnection() error {
 	return s.session.Close()
 }
 
-func (s *botSession) ListenAndServe() error {
+func (s botSession) ListenAndServe() error {
 	return s.session.Open()
 }
 
-func (s *botSession) AddHandler(handler interface{}) func() {
+func (s botSession) AddHandler(handler interface{}) func() {
 	return s.session.AddHandler(handler)
+}
+
+func (s botSession) JoinVoiceChannel(guildID string, voiceChannelID string) (voice.Connection, error) {
+	vc, err := s.session.ChannelVoiceJoin(guildID, voiceChannelID, false, false)
+	return voice.DGVoiceConnection{Connection: vc}, err
 }
