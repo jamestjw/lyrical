@@ -5,8 +5,8 @@
 package mock_main
 
 import (
-	discordgo "github.com/bwmarrin/discordgo"
 	gomock "github.com/golang/mock/gomock"
+	voice "github.com/jamestjw/lyrical/voice"
 	reflect "reflect"
 )
 
@@ -48,10 +48,10 @@ func (mr *MockSessionMockRecorder) CloseConnection() *gomock.Call {
 }
 
 // GetVoiceConnections mocks base method.
-func (m *MockSession) GetVoiceConnections() map[string]*discordgo.VoiceConnection {
+func (m *MockSession) GetVoiceConnections() map[string]voice.Connection {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetVoiceConnections")
-	ret0, _ := ret[0].(map[string]*discordgo.VoiceConnection)
+	ret0, _ := ret[0].(map[string]voice.Connection)
 	return ret0
 }
 

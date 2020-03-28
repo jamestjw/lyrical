@@ -22,7 +22,7 @@ func init() {
 
 type voiceChannels struct {
 	// Maps GuildID to voiceChannel
-	ChannelMap map[string]*voiceChannel
+	ChannelMap map[string]Channel
 }
 
 type voiceChannel struct {
@@ -34,7 +34,7 @@ type voiceChannel struct {
 
 func NewActiveVoiceChannels() *voiceChannels {
 	var vcs voiceChannels
-	vcs.ChannelMap = make(map[string]*voiceChannel)
+	vcs.ChannelMap = make(map[string]Channel)
 	return &vcs
 }
 
@@ -61,8 +61,8 @@ func MaybeSetNext(guildID string, s *playlist.Song) {
 	}
 
 	vc := ActiveVoiceChannels.ChannelMap[guildID]
-	if vc.Next == nil {
-		vc.Next = s
+	if vc.GetNext() == nil {
+		vc.SetNext(s)
 	}
 }
 
@@ -90,6 +90,8 @@ func PlayMusic(vc *discordgo.VoiceConnection, song *playlist.Song) error {
 	ActiveVoiceChannels.ChannelMap[vc.GuildID].SetNowPlaying(song)
 	defer ActiveVoiceChannels.ChannelMap[vc.GuildID].RemoveNowPlaying()
 
+	abortChannel := ActiveVoiceChannels.ChannelMap[vc.GuildID].GetAbortChannel()
+
 	for {
 		frame, err := decoder.OpusFrame()
 		if err != nil {
@@ -103,7 +105,7 @@ func PlayMusic(vc *discordgo.VoiceConnection, song *playlist.Song) error {
 		// Do something with the frame, in this example were sending it to discord
 		select {
 		case vc.OpusSend <- frame:
-		case <-ActiveVoiceChannels.ChannelMap[vc.GuildID].AbortChannel:
+		case <-abortChannel:
 			return nil
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
@@ -145,6 +147,26 @@ func (vc *voiceChannel) GetNowPlayingName() string {
 	return vc.NowPlaying.Name
 }
 
+func (vc *voiceChannel) GetNext() *playlist.Song {
+	return vc.Next
+}
+
+func (vc *voiceChannel) SetNext(s *playlist.Song) {
+	vc.Next = s
+}
+
+func (vc *voiceChannel) GetAbortChannel() chan string {
+	return vc.AbortChannel
+}
+
+func (vc *voiceChannel) IsPlayingMusic() bool {
+	return vc.MusicActive
+}
+
+func (vc *voiceChannel) StopMusic() {
+	vc.AbortChannel <- "stop"
+}
+
 func AddSong(youtubeID string, guildID string) (title string, err error) {
 	title, exists := database.SongExists(youtubeID)
 
@@ -172,6 +194,17 @@ type Connectable interface {
 type Connection interface {
 	Disconnect() (err error)
 	GetGuildID() string
+}
+
+type Channel interface {
+	RemoveNowPlaying()
+	GetNext() *playlist.Song
+	SetNext(*playlist.Song)
+	SetNowPlaying(s *playlist.Song)
+	GetAbortChannel() chan string
+	IsPlayingMusic() bool
+	GetNowPlayingName() string
+	StopMusic()
 }
 
 type DGVoiceConnection struct {
