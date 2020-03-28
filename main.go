@@ -7,17 +7,21 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/database"
+	"github.com/jamestjw/lyrical/voice"
 )
 
+func init() {
+	database.InitialiseDatabase()
+}
+
 func main() {
-	dg, err := discordgo.New("Bot " + config.DiscordToken)
+	dg, err := NewSession(config.DiscordToken)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)
 		return
 	}
-	defer dg.Close()
+	defer dg.CloseConnection()
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(dummyMessageCreate)
@@ -31,7 +35,7 @@ func main() {
 	dg.AddHandler(helpRequest)
 
 	// Open a websocket connection to Discord and begin listening.
-	err = dg.Open()
+	err = dg.ListenAndServe()
 	if err != nil {
 		log.Println("error opening connection,", err)
 		return
@@ -46,7 +50,7 @@ func main() {
 	case <-sc:
 		log.Println("Received signal to terminate, cleaning up...")
 		// Cleanly close down the Discord session.
-		disconnectAllVoiceConnections(dg)
+		voice.DisconnectAllVoiceConnections(dg)
 		database.Connection.Close()
 		log.Println("Exit successful!")
 		return

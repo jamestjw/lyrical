@@ -11,7 +11,7 @@ import (
 // Connection is the connection to our Sqlite database
 var Connection *sql.DB
 
-func init() {
+func InitialiseDatabase() {
 	var err error
 	Connection, err = sql.Open("sqlite3", "db/discordbot.db")
 	if err != nil {
