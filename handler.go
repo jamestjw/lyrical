@@ -65,7 +65,7 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID)
 
 		vc := voice.JoinVoiceChannel(s, m.GuildID, channel.ID)
-		nextSong := voice.ActiveVoiceChannels.ChannelMap[m.GuildID].Next
+		nextSong := voice.ActiveVoiceChannels.ChannelMap[m.GuildID].GetNext()
 		if nextSong == nil {
 			s.ChannelMessageSend(m.ChannelID, "Playlist is still empty.")
 		} else {
@@ -139,13 +139,13 @@ func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet.")
 		} else {
 			thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
-			if thisVoiceChannel.MusicActive {
+			if thisVoiceChannel.IsPlayingMusic() {
 				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
 			} else {
-				if thisVoiceChannel.Next == nil {
+				if thisVoiceChannel.GetNext() == nil {
 					s.ChannelMessageSend(m.ChannelID, "Playlist is currently empty.")
 				} else {
-					go voice.PlayMusic(vc, thisVoiceChannel.Next)
+					go voice.PlayMusic(vc, thisVoiceChannel.GetNext())
 					s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
 				}
 			}
@@ -160,8 +160,8 @@ func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
 		} else {
 			voiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
-			if voiceChannel.MusicActive {
-				voiceChannel.AbortChannel <- "stop"
+			if voiceChannel.IsPlayingMusic() {
+				voiceChannel.StopMusic()
 				s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
 			} else {
 				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
@@ -176,7 +176,7 @@ func nowPlayingRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !connected {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
 		} else {
-			if voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].MusicActive {
+			if voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].IsPlayingMusic() {
 				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: **%s**", voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].GetNowPlayingName()))
 			} else {
 				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
@@ -192,11 +192,11 @@ func skipMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet. 😔")
 		} else {
 			thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
-			if thisVoiceChannel.MusicActive {
-				thisVoiceChannel.AbortChannel <- "stop"
+			if thisVoiceChannel.IsPlayingMusic() {
+				thisVoiceChannel.StopMusic()
 				s.ChannelMessageSend(m.ChannelID, "Skipping song... ❌")
-				if thisVoiceChannel.Next != nil {
-					go voice.PlayMusic(vc, thisVoiceChannel.Next)
+				if thisVoiceChannel.GetNext() != nil {
+					go voice.PlayMusic(vc, thisVoiceChannel.GetNext())
 				}
 			} else {
 				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")

@@ -33,7 +33,7 @@ func NewSession(discordToken string) (s Session, err error) {
 func (s *botSession) GetVoiceConnections() map[string]voice.Connection {
 	vcMap := make(map[string]voice.Connection)
 	for key, value := range s.session.VoiceConnections {
-		vcMap[key] = voice.DGVoiceConnection{value}
+		vcMap[key] = voice.DGVoiceConnection{Connection: value}
 	}
 	return vcMap
 }
