@@ -1,4 +1,4 @@
-package main
+package playlist
 
 // Song is a type that contains information about a song saved in the bot
 type Song struct {
@@ -12,7 +12,7 @@ type Playlist struct {
 	Songs []*Song
 }
 
-var lyricalPlaylist = &Playlist{}
+var LyricalPlaylist = &Playlist{}
 
 // IsEmpty is a method on a playlist to check if it is empty
 func (p *Playlist) IsEmpty() bool {
