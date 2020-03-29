@@ -26,6 +26,8 @@ func InitialiseSearchService(apiKey string) {
 // GetVideoID returns the first youtubeID of a
 // video that matches the query
 func GetVideoID(query string) (youtubeID string, err error) {
+	ensureSearcherInitialised()
+
 	call := searchService.List("id, snippet").
 		Type("video").
 		Q(query).
@@ -45,4 +47,11 @@ func GetVideoID(query string) (youtubeID string, err error) {
 	result := res.Items[0]
 	youtubeID = result.Id.VideoId
 	return
+}
+
+func ensureSearcherInitialised() {
+	if searchService == nil {
+		log.Fatal(`Searcher is not initialised yet! InitialiseSearchService should 
+		be executed first before using functionality from this package.`)
+	}
 }
