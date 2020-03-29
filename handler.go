@@ -58,7 +58,7 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 
-	if voice.AlreadyInVoiceChannel(s, m.GuildID) {
+	if voice.AlreadyInVoiceChannel(botSession{s}, m.GuildID) {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("I am already in Voice Channel within Guild ID: %s", m.GuildID))
 	} else {
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v \n", m.GuildID, channel.ID))

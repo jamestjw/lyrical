@@ -7,23 +7,31 @@ import (
 	"log"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/ytmp3"
 	"github.com/jonas747/dca"
 )
 
+// ActiveVoiceChannels is a global struct containing information
+// on the active voice channels belonging to each guild.
 var ActiveVoiceChannels *voiceChannels
 
 func init() {
 	ActiveVoiceChannels = NewActiveVoiceChannels()
 }
 
-func AlreadyInVoiceChannel(s *discordgo.Session, guildID string) bool {
-	_, connected := s.VoiceConnections[guildID]
+// AlreadyInVoiceChannel checks if a Connectable object is currently
+// connected to a voice channel that belongs to a particular guild.
+func AlreadyInVoiceChannel(s Connectable, guildID string) bool {
+	vcs := s.GetVoiceConnections()
+	_, connected := vcs[guildID]
 	return connected
 }
 
+// DisconnectAllVoiceConnections will disconnect all voice channels belonging
+// to a Connectable object. It will also remove the actively playing music
+// status and the NowPlaying song of each voice channel in the global
+// ActiveVoiceChannels object.
 func DisconnectAllVoiceConnections(s Connectable) error {
 	for _, channel := range s.GetVoiceConnections() {
 		err := channel.Disconnect()
@@ -38,7 +46,7 @@ func DisconnectAllVoiceConnections(s Connectable) error {
 
 func maybeSetNext(guildID string, s *playlist.Song) {
 	if _, exists := ActiveVoiceChannels.ChannelMap[guildID]; !exists {
-		InitialiseVoiceChannelForGuild(guildID)
+		initialiseVoiceChannelForGuild(guildID)
 	}
 
 	vc := ActiveVoiceChannels.ChannelMap[guildID]
@@ -47,17 +55,10 @@ func maybeSetNext(guildID string, s *playlist.Song) {
 	}
 }
 
-func (vc *voiceChannel) SetNowPlaying(s *playlist.Song) {
-	vc.MusicActive = true
-	vc.NowPlaying = s
-	vc.Next = s.Next
-}
-
-func (vc *voiceChannel) RemoveNowPlaying() {
-	vc.MusicActive = false
-	vc.NowPlaying = nil
-}
-
+// PlayMusic plays a given song into an input Audio Channel that belongs to a guild
+// with guildID. The given song will be set as the currently playing song of the guild and
+// the voice channel of the guild will be marked as active..It will also automatically play
+// the next song if there is one.
 func PlayMusic(input chan []byte, guildID string, song *playlist.Song) error {
 	encodeSession, err := dca.EncodeFile(ytmp3.PathToAudio(song.YoutubeID), dca.StdEncodeOptions)
 	if err != nil {
@@ -102,6 +103,9 @@ func PlayMusic(input chan []byte, guildID string, song *playlist.Song) error {
 	return nil
 }
 
+// JoinVoiceChannel invokes the JoinVoiceChannel method of a Connectable object.
+// It also initialises an entry in the ChannelMap of the global ActiveVoiceChannels
+// struct.
 func JoinVoiceChannel(s Connectable, guildID string, voiceChannelID string) Connection {
 	vc, err := s.JoinVoiceChannel(guildID, voiceChannelID)
 	if err != nil {
@@ -109,21 +113,20 @@ func JoinVoiceChannel(s Connectable, guildID string, voiceChannelID string) Conn
 	}
 
 	if _, exists := ActiveVoiceChannels.ChannelMap[guildID]; !exists {
-		InitialiseVoiceChannelForGuild(guildID)
+		initialiseVoiceChannelForGuild(guildID)
 	}
 	return vc
 }
 
-func InitialiseVoiceChannelForGuild(guildID string) {
+func initialiseVoiceChannelForGuild(guildID string) {
 	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
 	ActiveVoiceChannels.ChannelMap[guildID] = vcd
 }
 
-func DownloadByYoutubeID(youtubeID string) (title string, err error) {
-	title, err = ytmp3.Download(youtubeID)
-	return
-}
-
+// AddSong will download a song based on the youtubeID for the guild
+// with guildID if it has not already been downloaded. It will
+// also add a database entry of it and add it to the playlist
+// of the guild.
 func AddSong(youtubeID string, guildID string) (title string, err error) {
 	title, exists := DB.SongExists(youtubeID)
 
