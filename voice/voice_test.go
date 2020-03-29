@@ -34,8 +34,8 @@ func TestDisconnectAllVoiceConnections(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSession := mock_voice.NewMockConnectable(ctrl)
 	voiceConnectionMap := disconnectAllVoiceConnectionsSetup(ctrl)
+	mockSession := mock_voice.NewMockConnectable(ctrl)
 	mockSession.EXPECT().GetVoiceConnections().Times(1).Return(voiceConnectionMap)
 
 	voice.DisconnectAllVoiceConnections(mockSession)
