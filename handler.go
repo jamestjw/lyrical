@@ -6,14 +6,25 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
-	"github.com/jamestjw/lyrical/matcher"
 	"github.com/jamestjw/lyrical/searcher"
 	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
 
+var defaultMux = &Mux{}
+
 func init() {
 	searcher.InitialiseSearchService(config.YoutubeAPIKey)
+
+	defaultMux = NewMux()
+	defaultMux.RegisterHandler(joinChannelRequestMatcher, joinVoiceChannelRequest)
+	defaultMux.RegisterHandler(leaveVoiceMatcher, leaveVoiceChannelRequest)
+	defaultMux.RegisterHandler(addPlaylistRequestMatcher, addToPlaylistRequest)
+	defaultMux.RegisterHandler(playMusicMatcher, playMusicRequest)
+	defaultMux.RegisterHandler(stopMusicMatcher, stopMusicRequest)
+	defaultMux.RegisterHandler(skipMusicMatcher, skipMusicRequest)
+	defaultMux.RegisterHandler(nowPlayingMatcher, nowPlayingRequest)
+	defaultMux.RegisterHandler(helpMatcher, helpRequest)
 }
 
 func dummyMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -33,22 +44,7 @@ func dummyMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	matched, channelName, err := matcher.Match(matcher.JoinChannelRequestRe, m.Content, "!join-voice", "channel-name")
-
-	if !matched {
-		return
-	}
-
-	if err != nil {
-		s.ChannelMessageSend(m.ChannelID, err.Error())
-		return
-	}
-
+func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate, channelName string) {
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Connecting to channel name: %s", channelName))
 
 	channel, err := utils.FindVoiceChannel(s, m.GuildID, channelName)
@@ -75,37 +71,17 @@ func joinVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
-func leaveVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
+func leaveVoiceChannelRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
 	// TODO: Leave voice channel of current guild only.
-	if m.Content == "!leave-voice" {
-		s.ChannelMessageSend(m.ChannelID, "Leaving voice channel 👋🏼")
-		err := voice.DisconnectAllVoiceConnections(botSession{s})
-
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, err.Error())
-		}
-	}
-}
-
-func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	matched, query, err := matcher.Match(matcher.AddPlaylistRequestRe, m.Content, "!add-playlist", "youtube-id")
-
-	if !matched {
-		return
-	}
+	s.ChannelMessageSend(m.ChannelID, "Leaving voice channel 👋🏼")
+	err := voice.DisconnectAllVoiceConnections(botSession{s})
 
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())
-		return
 	}
+}
 
+func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate, query string) {
 	youtubeID, err := searcher.GetVideoID(query)
 	if err != nil {
 		s.ChannelMessageSend(m.ChannelID, err.Error())
@@ -122,85 +98,71 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song **%s** was added 👍", title))
 }
 
-func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-
-	if m.Content == "!help" {
-		s.ChannelMessageSend(m.ChannelID, help.Message())
-	}
+func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
+	s.ChannelMessageSend(m.ChannelID, help.Message())
 }
 
-func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "!play-music" {
-		vc, connected := s.VoiceConnections[m.GuildID]
-		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet.")
+func playMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
+	vc, connected := s.VoiceConnections[m.GuildID]
+	if !connected {
+		s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet.")
+	} else {
+		thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		if thisVoiceChannel.IsPlayingMusic() {
+			s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
 		} else {
-			thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
-			if thisVoiceChannel.IsPlayingMusic() {
-				s.ChannelMessageSend(m.ChannelID, "I am already playing music 😁")
+			if thisVoiceChannel.GetNext() == nil {
+				s.ChannelMessageSend(m.ChannelID, "Playlist is currently empty.")
 			} else {
-				if thisVoiceChannel.GetNext() == nil {
-					s.ChannelMessageSend(m.ChannelID, "Playlist is currently empty.")
-				} else {
-					go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
-					s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
-				}
+				go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
+				s.ChannelMessageSend(m.ChannelID, "Starting music... 🎵")
 			}
 		}
 	}
 }
 
-func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "!stop-music" {
-		vc, connected := s.VoiceConnections[m.GuildID]
-		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
+func stopMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
+	vc, connected := s.VoiceConnections[m.GuildID]
+	if !connected {
+		s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
+	} else {
+		voiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		if voiceChannel.IsPlayingMusic() {
+			voiceChannel.StopMusic()
+			s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
 		} else {
-			voiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
-			if voiceChannel.IsPlayingMusic() {
-				voiceChannel.StopMusic()
-				s.ChannelMessageSend(m.ChannelID, "OK, Shutting up now...")
-			} else {
-				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
-			}
+			s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
 		}
 	}
 }
 
-func nowPlayingRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "!now-playing" {
-		vc, connected := s.VoiceConnections[m.GuildID]
-		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
+func nowPlayingRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
+	vc, connected := s.VoiceConnections[m.GuildID]
+	if !connected {
+		s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel. 😔")
+	} else {
+		if voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].IsPlayingMusic() {
+			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: **%s**", voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].GetNowPlayingName()))
 		} else {
-			if voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].IsPlayingMusic() {
-				s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Now playing: **%s**", voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].GetNowPlayingName()))
-			} else {
-				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
-			}
+			s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
 		}
 	}
 }
 
-func skipMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate) {
-	if m.Content == "!skip-music" {
-		vc, connected := s.VoiceConnections[m.GuildID]
-		if !connected {
-			s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet. 😔")
-		} else {
-			thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
-			if thisVoiceChannel.IsPlayingMusic() {
-				thisVoiceChannel.StopMusic()
-				s.ChannelMessageSend(m.ChannelID, "Skipping song... ❌")
-				if thisVoiceChannel.GetNext() != nil {
-					go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
-				}
-			} else {
-				s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
+func skipMusicRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
+	vc, connected := s.VoiceConnections[m.GuildID]
+	if !connected {
+		s.ChannelMessageSend(m.ChannelID, "Hey I dont remember being invited to a voice channel yet. 😔")
+	} else {
+		thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		if thisVoiceChannel.IsPlayingMusic() {
+			thisVoiceChannel.StopMusic()
+			s.ChannelMessageSend(m.ChannelID, "Skipping song... ❌")
+			if thisVoiceChannel.GetNext() != nil {
+				go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
 			}
+		} else {
+			s.ChannelMessageSend(m.ChannelID, "Well I am not playing any music currently 🤔")
 		}
 	}
 }
