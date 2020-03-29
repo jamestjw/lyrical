@@ -2,15 +2,9 @@ package matcher
 
 import (
 	"fmt"
+	"log"
 	"regexp"
 	"strings"
-)
-
-var (
-	// JoinChannelRequestRe is a regex to match request to join voice channels
-	JoinChannelRequestRe = regexp.MustCompile(`^!join-voice(\s+(.*)$)?`)
-	// AddPlaylistRequestRe is a regex to match request to add songs to playlists
-	AddPlaylistRequestRe = regexp.MustCompile(`^!(?:add-playlist|add-music)(\s+(.*)$)?`)
 )
 
 // Error is the error returned from matcher when invalid
@@ -20,13 +14,30 @@ type Error struct {
 	argument string
 }
 
+// Matcher is a struct that will match commands from users
+type Matcher struct {
+	matchRegex *regexp.Regexp
+	name       string
+	argument   string
+}
+
+// NewMatcher creates a new matcher
+func NewMatcher(name string, argument string, matchRegex string) *Matcher {
+	r := regexp.MustCompile(matchRegex)
+	return &Matcher{
+		matchRegex: r,
+		name:       name,
+		argument:   argument,
+	}
+}
+
 func (e Error) Error() string {
 	return fmt.Sprintf("whoops `%s` requires a parameter of `%s` 😅", e.name, e.argument)
 }
 
 // Match will match a message to a regex
-func Match(matchRegex *regexp.Regexp, message string, name string, argument string) (matched bool, arg string, err error) {
-	matches := matchRegex.FindStringSubmatch(message)
+func (m *Matcher) Match(message string) (matched bool, arg string, err error) {
+	matches := m.matchRegex.FindStringSubmatch(message)
 	if matches == nil {
 		matched = false
 		return
@@ -34,9 +45,19 @@ func Match(matchRegex *regexp.Regexp, message string, name string, argument stri
 
 	matched = true
 
+	if m.argument == "" {
+		return
+	} else if len(matches) == 0 {
+		log.Fatal("Expected argument but did not set it up in the regex.")
+	}
+
 	arg = strings.TrimSpace(matches[1])
 	if arg == "" {
-		err = Error{name: name, argument: argument}
+		err = Error{name: m.name, argument: m.argument}
 	}
 	return
+}
+
+func (m *Matcher) GetName() string {
+	return m.name
 }

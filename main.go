@@ -25,14 +25,7 @@ func main() {
 
 	// Register the messageCreate func as a callback for MessageCreate events.
 	dg.AddHandler(dummyMessageCreate)
-	dg.AddHandler(joinVoiceChannelRequest)
-	dg.AddHandler(leaveVoiceChannelRequest)
-	dg.AddHandler(stopMusicRequest)
-	dg.AddHandler(playMusicRequest)
-	dg.AddHandler(skipMusicRequest)
-	dg.AddHandler(addToPlaylistRequest)
-	dg.AddHandler(nowPlayingRequest)
-	dg.AddHandler(helpRequest)
+	dg.AddHandler(defaultMux.Route)
 
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.ListenAndServe()
