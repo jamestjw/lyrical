@@ -29,8 +29,8 @@ func (p *Playlist) Last() *Song {
 	return p.Songs[len(p.Songs)-1]
 }
 
-// AddSongWithYoutubeID adds a song with this youtubeID to a playlist
-func (p *Playlist) AddSongWithYoutubeID(songName string, youtubeID string) *Song {
+// AddSong adds a song with this youtubeID to a playlist
+func (p *Playlist) AddSong(songName string, youtubeID string) *Song {
 	newSong := &Song{
 		YoutubeID: youtubeID,
 		Name:      songName,

@@ -142,7 +142,7 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 		}
 	}
 
-	newSong := playlist.LyricalPlaylist.AddSongWithYoutubeID(title, youtubeID)
+	newSong := playlist.LyricalPlaylist.AddSong(title, youtubeID)
 	maybeSetNext(guildID, newSong)
 	return
 }
