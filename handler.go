@@ -27,20 +27,20 @@ func init() {
 	defaultMux.RegisterHandler(helpMatcher, helpRequest)
 }
 
-func dummyMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 	// If the message is "ping" reply with "Pong!"
 	if m.Content == "!ping" {
 		s.ChannelMessageSend(m.ChannelID, "Pong!")
-		s.ChannelMessageSend(m.ChannelID, "Try running !pong ;)")
+		s.ChannelMessageSend(m.ChannelID, "I am alive!")
 	}
 
 	// If the message is "pong" reply with "Ping!"
 	if m.Content == "!pong" {
 		s.ChannelMessageSend(m.ChannelID, "Ping!")
-		s.ChannelMessageSend(m.ChannelID, "Try running !ping ;)")
+		s.ChannelMessageSend(m.ChannelID, "I am alive!")
 	}
 }
 
@@ -96,6 +96,15 @@ func addToPlaylistRequest(s *discordgo.Session, m *discordgo.MessageCreate, quer
 		return
 	}
 	s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Your song **%s** was added 👍", title))
+
+	vc, connected := s.VoiceConnections[m.GuildID]
+	if connected {
+		thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		if !thisVoiceChannel.IsPlayingMusic() && thisVoiceChannel.GetNext() != nil {
+			go voice.PlayMusic(vc.OpusSend, m.GuildID, thisVoiceChannel.GetNext())
+			s.ChannelMessageSend(m.ChannelID, "Playing next song in the playlist... 🎵")
+		}
+	}
 }
 
 func helpRequest(s *discordgo.Session, m *discordgo.MessageCreate, _ string) {
