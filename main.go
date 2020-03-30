@@ -24,7 +24,7 @@ func main() {
 	defer dg.CloseConnection()
 
 	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(dummyMessageCreate)
+	dg.AddHandler(heartbeatHandlerFunc)
 	dg.AddHandler(defaultMux.Route)
 
 	// Open a websocket connection to Discord and begin listening.
