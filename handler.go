@@ -6,6 +6,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
+	"github.com/jamestjw/lyrical/matcher"
 	"github.com/jamestjw/lyrical/searcher"
 	"github.com/jamestjw/lyrical/voice"
 )
@@ -16,14 +17,14 @@ func init() {
 	searcher.InitialiseSearchService(config.YoutubeAPIKey)
 
 	defaultMux = NewMux()
-	defaultMux.RegisterHandler(joinChannelRequestMatcher, joinVoiceChannelRequest)
-	defaultMux.RegisterHandler(leaveVoiceMatcher, leaveVoiceChannelRequest)
-	defaultMux.RegisterHandler(addPlaylistRequestMatcher, addToPlaylistRequest)
-	defaultMux.RegisterHandler(playMusicMatcher, playMusicRequest)
-	defaultMux.RegisterHandler(stopMusicMatcher, stopMusicRequest)
-	defaultMux.RegisterHandler(skipMusicMatcher, skipMusicRequest)
-	defaultMux.RegisterHandler(nowPlayingMatcher, nowPlayingRequest)
-	defaultMux.RegisterHandler(helpMatcher, helpRequest)
+	defaultMux.RegisterHandler(matcher.JoinChannelRequestMatcher, joinVoiceChannelRequest)
+	defaultMux.RegisterHandler(matcher.LeaveVoiceMatcher, leaveVoiceChannelRequest)
+	defaultMux.RegisterHandler(matcher.AddPlaylistRequestMatcher, addToPlaylistRequest)
+	defaultMux.RegisterHandler(matcher.PlayMusicMatcher, playMusicRequest)
+	defaultMux.RegisterHandler(matcher.StopMusicMatcher, stopMusicRequest)
+	defaultMux.RegisterHandler(matcher.SkipMusicMatcher, skipMusicRequest)
+	defaultMux.RegisterHandler(matcher.NowPlayingMatcher, nowPlayingRequest)
+	defaultMux.RegisterHandler(matcher.HelpMatcher, helpRequest)
 }
 
 func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {

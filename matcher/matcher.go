@@ -58,6 +58,7 @@ func (m *Matcher) Match(message string) (matched bool, arg string, err error) {
 	return
 }
 
+// GetName returns name of the Matcher
 func (m *Matcher) GetName() string {
 	return m.name
 }

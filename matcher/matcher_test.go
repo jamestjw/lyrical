@@ -4,6 +4,8 @@ import (
 	"reflect"
 	"regexp"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 const checkMark = "\u2713"
@@ -14,6 +16,12 @@ var (
 	testCommandWithArgAndAliasRe = regexp.MustCompile(`^!(?:test-command|alternative-command)(\s+(.*)$)?`)
 	testCommandWithNoArgRe       = regexp.MustCompile(`^!test-command`)
 )
+
+func TestNewMatcher(t *testing.T) {
+	m := NewMatcher("name", "arg", "!nowplaying")
+	assert.IsType(t, &Matcher{}, m, "should receive new pointer to Matcher")
+	assert.Equal(t, "name", m.GetName(), "should return name of matcher")
+}
 
 // TestMatch validates that the Matcher function matches a command
 // and returns the right arguments, or produces the right error when
