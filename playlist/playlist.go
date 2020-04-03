@@ -9,7 +9,9 @@ type Song struct {
 
 // Playlist contains all the songs available for the guild
 type Playlist struct {
-	Songs []*Song
+	Songs      []*Song
+	NowPlaying *Song
+	Next       *Song
 }
 
 // IsEmpty is a method on a playlist to check if it is empty
