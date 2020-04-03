@@ -60,29 +60,3 @@ set :branch, "staging"
 #     auth_methods: %w(publickey password)
 #     # password: "please use keys"
 #   }
-
-
-after 'deploy:updated', 'go:build' do
-  on roles(:app) do
-    execute "cd #{release_path} && /usr/local/go/bin/go build -o #{release_path}/bin/lyrical-bot ."
-  end
-end
-
-after 'go:build', 'go:stop-previous' do
-  on roles(:app) do
-    old_pid = capture(:ps, :aux, '|', :grep, "bin/#{fetch(:application)}", '|', :grep, '-v grep', '|', :awk, "'{print $2}'", '|', :tail, '-n1')
-    if old_pid && !old_pid.empty?
-      info "Found PID: #{old_pid}"
-      execute :kill, '-s', 'SIGINT', old_pid
-      sleep 3
-    end
-  end
-end
-
-after 'go:stop-previous', 'go:deploy-new' do
-  on roles(:app) do
-    log_path = "#{release_path}/log/discordbot.log"
-    execute "touch #{log_path}"
-    execute "cd #{release_path}; screen -dmS discordbot sh -c './bin/lyrical-bot 2>&1 | tee -a #{log_path}'"
-  end
-end
