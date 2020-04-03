@@ -2,22 +2,18 @@ package voice
 
 import "github.com/jamestjw/lyrical/playlist"
 
-type voiceChannels struct {
-	// Maps GuildID to voiceChannel
-	ChannelMap map[string]Channel
-}
-
 type voiceChannel struct {
 	NowPlaying   *playlist.Song
 	Next         *playlist.Song
 	AbortChannel chan string
 	MusicActive  bool
+	Playlist     *playlist.Playlist
 }
 
-func NewActiveVoiceChannels() *voiceChannels {
-	var vcs voiceChannels
-	vcs.ChannelMap = make(map[string]Channel)
-	return &vcs
+// NewActiveVoiceChannels is a factory method to create voice channels map
+func NewActiveVoiceChannels() map[string]Channel {
+	vcs := make(map[string]Channel)
+	return vcs
 }
 
 func (vc *voiceChannel) GetNowPlayingName() string {
@@ -53,4 +49,8 @@ func (vc *voiceChannel) SetNowPlaying(s *playlist.Song) {
 func (vc *voiceChannel) RemoveNowPlaying() {
 	vc.MusicActive = false
 	vc.NowPlaying = nil
+}
+
+func (vc *voiceChannel) FetchPlaylist() *playlist.Playlist {
+	return vc.Playlist
 }
