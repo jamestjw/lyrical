@@ -3,10 +3,7 @@ package voice
 import "github.com/jamestjw/lyrical/playlist"
 
 type voiceChannel struct {
-	NowPlaying   *playlist.Song
-	Next         *playlist.Song
 	AbortChannel chan string
-	MusicActive  bool
 	Playlist     *playlist.Playlist
 }
 
@@ -17,15 +14,15 @@ func NewActiveVoiceChannels() map[string]Channel {
 }
 
 func (vc *voiceChannel) GetNowPlayingName() string {
-	return vc.NowPlaying.Name
+	return vc.Playlist.NowPlaying.Name
 }
 
 func (vc *voiceChannel) GetNext() *playlist.Song {
-	return vc.Next
+	return vc.Playlist.Next
 }
 
 func (vc *voiceChannel) SetNext(s *playlist.Song) {
-	vc.Next = s
+	vc.Playlist.Next = s
 }
 
 func (vc *voiceChannel) GetAbortChannel() chan string {
@@ -33,7 +30,7 @@ func (vc *voiceChannel) GetAbortChannel() chan string {
 }
 
 func (vc *voiceChannel) IsPlayingMusic() bool {
-	return vc.MusicActive
+	return vc.Playlist.NowPlaying != nil
 }
 
 func (vc *voiceChannel) StopMusic() {
@@ -41,14 +38,12 @@ func (vc *voiceChannel) StopMusic() {
 }
 
 func (vc *voiceChannel) SetNowPlaying(s *playlist.Song) {
-	vc.MusicActive = true
-	vc.NowPlaying = s
-	vc.Next = s.Next
+	vc.Playlist.NowPlaying = s
+	vc.Playlist.Next = s.Next
 }
 
 func (vc *voiceChannel) RemoveNowPlaying() {
-	vc.MusicActive = false
-	vc.NowPlaying = nil
+	vc.Playlist.NowPlaying = nil
 }
 
 func (vc *voiceChannel) FetchPlaylist() *playlist.Playlist {
