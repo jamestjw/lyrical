@@ -8,7 +8,7 @@ import (
 
 // Mux is a multiplexer that routes requests to the right handler
 type Mux struct {
-	handlers map[string]func(s *discordgo.Session, m *discordgo.MessageCreate, param string)
+	handlers map[string]func(event Event, param string)
 	matchers map[string]Matcher
 }
 
@@ -21,14 +21,14 @@ type Matcher interface {
 // NewMux creates a new instance of a Mux
 func NewMux() *Mux {
 	m := Mux{}
-	m.handlers = make(map[string]func(s *discordgo.Session, m *discordgo.MessageCreate, param string))
+	m.handlers = make(map[string]func(event Event, param string))
 	m.matchers = make(map[string]Matcher)
 
 	return &m
 }
 
 // RegisterHandler will register a handler along with its matcher in a Mux
-func (mux *Mux) RegisterHandler(matcher Matcher, handlerFunc func(*discordgo.Session, *discordgo.MessageCreate, string)) {
+func (mux *Mux) RegisterHandler(matcher Matcher, handlerFunc func(event Event, param string)) {
 	name := matcher.GetName()
 	mux.handlers[name] = handlerFunc
 	mux.matchers[name] = matcher
@@ -58,7 +58,7 @@ func (mux *Mux) Route(s *discordgo.Session, m *discordgo.MessageCreate) {
 			log.Fatal("Handler matched but no handler func registered.")
 		}
 
-		handlerFunc(s, m, arg)
+		handlerFunc(Event{s, m}, arg)
 		return
 	}
 }
