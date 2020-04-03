@@ -72,11 +72,14 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 
 func leaveVoiceChannelRequest(event Event, _ string) {
 	// TODO: Leave voice channel of current guild only.
-	event.SendMessage("Leaving voice channel 👋🏼")
-	err := voice.DisconnectAllVoiceConnections(event.getSession())
 
-	if err != nil {
-		event.SendMessage(err.Error())
+	vc, connected := event.getVoiceConnection()
+
+	if connected {
+		event.SendMessage("Leaving voice channel 👋🏼")
+		vc.Disconnect()
+	} else {
+		event.SendMessage("I am not in a voice channel.")
 	}
 }
 

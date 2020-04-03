@@ -38,9 +38,9 @@ func DisconnectAllVoiceConnections(s Connectable) error {
 		if err != nil {
 			return err
 		}
-		log.Println("Disconnected from voice channel...")
 		ActiveVoiceChannels[channel.GetGuildID()].RemoveNowPlaying()
 	}
+	log.Println("Disconnected from voice channel...")
 	return nil
 }
 
