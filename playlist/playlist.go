@@ -12,8 +12,6 @@ type Playlist struct {
 	Songs []*Song
 }
 
-var LyricalPlaylist = &Playlist{}
-
 // IsEmpty is a method on a playlist to check if it is empty
 func (p *Playlist) IsEmpty() bool {
 	return len(p.Songs) == 0

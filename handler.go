@@ -60,7 +60,7 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", event.getGuildID(), channelID)
 
 		vc := voice.JoinVoiceChannel(event.getSession(), event.getGuildID(), channelID)
-		nextSong := voice.ActiveVoiceChannels.ChannelMap[event.getGuildID()].GetNext()
+		nextSong := voice.ActiveVoiceChannels[event.getGuildID()].GetNext()
 		if nextSong == nil {
 			event.SendMessage("Playlist is still empty.")
 		} else {
@@ -98,7 +98,7 @@ func addToPlaylistRequest(event Event, query string) {
 
 	vc, connected := event.getVoiceConnection()
 	if connected {
-		thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		thisVoiceChannel := voice.ActiveVoiceChannels[vc.GuildID]
 		if !thisVoiceChannel.IsPlayingMusic() && thisVoiceChannel.GetNext() != nil {
 			go voice.PlayMusic(vc.OpusSend, event.getGuildID(), thisVoiceChannel.GetNext())
 			event.SendMessage("Playing next song in the playlist... 🎵")
@@ -115,7 +115,7 @@ func playMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel yet.")
 	} else {
-		thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		thisVoiceChannel := voice.ActiveVoiceChannels[vc.GuildID]
 		if thisVoiceChannel.IsPlayingMusic() {
 			event.SendMessage("I am already playing music 😁")
 		} else {
@@ -134,7 +134,7 @@ func stopMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel. 😔")
 	} else {
-		voiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		voiceChannel := voice.ActiveVoiceChannels[vc.GuildID]
 		if voiceChannel.IsPlayingMusic() {
 			voiceChannel.StopMusic()
 			event.SendMessage("OK, Shutting up now...")
@@ -149,8 +149,8 @@ func nowPlayingRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel. 😔")
 	} else {
-		if voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].IsPlayingMusic() {
-			event.SendMessage(fmt.Sprintf("Now playing: **%s**", voice.ActiveVoiceChannels.ChannelMap[vc.GuildID].GetNowPlayingName()))
+		if voice.ActiveVoiceChannels[vc.GuildID].IsPlayingMusic() {
+			event.SendMessage(fmt.Sprintf("Now playing: **%s**", voice.ActiveVoiceChannels[vc.GuildID].GetNowPlayingName()))
 		} else {
 			event.SendMessage("Well I am not playing any music currently 🤔")
 		}
@@ -162,7 +162,7 @@ func skipMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel yet. 😔")
 	} else {
-		thisVoiceChannel := voice.ActiveVoiceChannels.ChannelMap[vc.GuildID]
+		thisVoiceChannel := voice.ActiveVoiceChannels[vc.GuildID]
 		if thisVoiceChannel.IsPlayingMusic() {
 			thisVoiceChannel.StopMusic()
 			event.SendMessage("Skipping song... ❌")

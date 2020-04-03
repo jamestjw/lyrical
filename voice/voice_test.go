@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	mock_voice "github.com/jamestjw/lyrical/mocks/mock_voice"
-	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/voice"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,7 +22,7 @@ func disconnectAllVoiceConnectionsSetup(ctrl *gomock.Controller) map[string]voic
 
 		channel := mock_voice.NewMockChannel(ctrl)
 		channel.EXPECT().RemoveNowPlaying().Times(1)
-		voice.ActiveVoiceChannels.ChannelMap[guildID] = channel
+		voice.ActiveVoiceChannels[guildID] = channel
 	}
 	return voiceConnectionMap
 }
@@ -54,7 +53,7 @@ func TestJoinVoiceChannel(t *testing.T) {
 
 	voice.JoinVoiceChannel(mockSession, "guildID", "channelID")
 
-	assert.NotNil(t, voice.ActiveVoiceChannels.ChannelMap["guildID"], "channel should be initiated")
+	assert.NotNil(t, voice.ActiveVoiceChannels["guildID"], "channel should be initiated")
 }
 
 func TestAddSongThatAlreadyExists(t *testing.T) {
@@ -68,11 +67,11 @@ func TestAddSongThatAlreadyExists(t *testing.T) {
 	voice.DB = mockDatabase
 	voice.AddSong("youtubeID", "guildID")
 
-	if assert.Equal(t, playlist.LyricalPlaylist.IsEmpty(), false) {
-		assert.Equal(t, playlist.LyricalPlaylist.Songs[0].YoutubeID, "youtubeID")
+	if assert.Equal(t, voice.ActiveVoiceChannels["guildID"].FetchPlaylist().IsEmpty(), false) {
+		assert.Equal(t, voice.ActiveVoiceChannels["guildID"].FetchPlaylist().First().YoutubeID, "youtubeID")
 	}
 
-	assert.Equal(t, voice.ActiveVoiceChannels.ChannelMap["guildID"].GetNext().YoutubeID, "youtubeID")
+	assert.Equal(t, voice.ActiveVoiceChannels["guildID"].GetNext().YoutubeID, "youtubeID")
 }
 
 func TestAddSongThatDoesNotExistYet(t *testing.T) {
@@ -92,11 +91,11 @@ func TestAddSongThatDoesNotExistYet(t *testing.T) {
 
 	voice.AddSong("youtubeID", "guildID")
 
-	if assert.Equal(t, playlist.LyricalPlaylist.IsEmpty(), false) {
-		assert.Equal(t, playlist.LyricalPlaylist.Songs[0].YoutubeID, "youtubeID")
+	if assert.Equal(t, voice.ActiveVoiceChannels["guildID"].FetchPlaylist().IsEmpty(), false) {
+		assert.Equal(t, voice.ActiveVoiceChannels["guildID"].FetchPlaylist().First().YoutubeID, "youtubeID")
 	}
 
-	assert.Equal(t, voice.ActiveVoiceChannels.ChannelMap["guildID"].GetNext().YoutubeID, "youtubeID")
+	assert.Equal(t, voice.ActiveVoiceChannels["guildID"].GetNext().YoutubeID, "youtubeID")
 }
 
 func cleanActiveVoiceChannels() {

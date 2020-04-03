@@ -14,7 +14,7 @@ import (
 
 // ActiveVoiceChannels is a global struct containing information
 // on the active voice channels belonging to each guild.
-var ActiveVoiceChannels *voiceChannels
+var ActiveVoiceChannels map[string]Channel
 
 func init() {
 	ActiveVoiceChannels = NewActiveVoiceChannels()
@@ -39,17 +39,17 @@ func DisconnectAllVoiceConnections(s Connectable) error {
 			return err
 		}
 		log.Println("Disconnected from voice channel...")
-		ActiveVoiceChannels.ChannelMap[channel.GetGuildID()].RemoveNowPlaying()
+		ActiveVoiceChannels[channel.GetGuildID()].RemoveNowPlaying()
 	}
 	return nil
 }
 
 func maybeSetNext(guildID string, s *playlist.Song) {
-	if _, exists := ActiveVoiceChannels.ChannelMap[guildID]; !exists {
-		initialiseVoiceChannelForGuild(guildID)
+	if _, exists := ActiveVoiceChannels[guildID]; !exists {
+		initialiseVoiceChannelForGuildIfNotExists(guildID)
 	}
 
-	vc := ActiveVoiceChannels.ChannelMap[guildID]
+	vc := ActiveVoiceChannels[guildID]
 	if vc.GetNext() == nil {
 		vc.SetNext(s)
 	}
@@ -69,10 +69,10 @@ func PlayMusic(input chan []byte, guildID string, song *playlist.Song) error {
 
 	decoder := dca.NewDecoder(encodeSession)
 
-	ActiveVoiceChannels.ChannelMap[guildID].SetNowPlaying(song)
-	defer ActiveVoiceChannels.ChannelMap[guildID].RemoveNowPlaying()
+	ActiveVoiceChannels[guildID].SetNowPlaying(song)
+	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
 
-	abortChannel := ActiveVoiceChannels.ChannelMap[guildID].GetAbortChannel()
+	abortChannel := ActiveVoiceChannels[guildID].GetAbortChannel()
 
 	for {
 		frame, err := decoder.OpusFrame()
@@ -112,15 +112,21 @@ func JoinVoiceChannel(s Connectable, guildID string, voiceChannelID string) Conn
 		log.Fatal(err)
 	}
 
-	if _, exists := ActiveVoiceChannels.ChannelMap[guildID]; !exists {
-		initialiseVoiceChannelForGuild(guildID)
-	}
+	initialiseVoiceChannelForGuildIfNotExists(guildID)
+
 	return vc
 }
 
-func initialiseVoiceChannelForGuild(guildID string) {
-	vcd := &voiceChannel{AbortChannel: make(chan string, 1)}
-	ActiveVoiceChannels.ChannelMap[guildID] = vcd
+func initialiseVoiceChannelForGuildIfNotExists(guildID string) {
+	if _, exists := ActiveVoiceChannels[guildID]; exists {
+		return
+	}
+
+	vc := &voiceChannel{
+		AbortChannel: make(chan string, 1),
+		Playlist:     &playlist.Playlist{},
+	}
+	ActiveVoiceChannels[guildID] = vc
 }
 
 // AddSong will download a song based on the youtubeID for the guild
@@ -134,6 +140,7 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 		title, err = Dl.Download(youtubeID)
 		if err != nil {
 			err = fmt.Errorf("Error adding the song %s 🤨: %s", youtubeID, err.Error())
+			return
 		}
 
 		dbErr := DB.AddSongToDB(title, youtubeID)
@@ -142,7 +149,9 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 		}
 	}
 
-	newSong := playlist.LyricalPlaylist.AddSong(title, youtubeID)
+	initialiseVoiceChannelForGuildIfNotExists(guildID)
+	guildPlaylist := ActiveVoiceChannels[guildID].FetchPlaylist()
+	newSong := guildPlaylist.AddSong(title, youtubeID)
 	maybeSetNext(guildID, newSong)
 	return
 }

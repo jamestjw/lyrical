@@ -255,6 +255,20 @@ func (mr *MockChannelMockRecorder) StopMusic() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StopMusic", reflect.TypeOf((*MockChannel)(nil).StopMusic))
 }
 
+// FetchPlaylist mocks base method.
+func (m *MockChannel) FetchPlaylist() *playlist.Playlist {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FetchPlaylist")
+	ret0, _ := ret[0].(*playlist.Playlist)
+	return ret0
+}
+
+// FetchPlaylist indicates an expected call of FetchPlaylist.
+func (mr *MockChannelMockRecorder) FetchPlaylist() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchPlaylist", reflect.TypeOf((*MockChannel)(nil).FetchPlaylist))
+}
+
 // MockDatabase is a mock of Database interface.
 type MockDatabase struct {
 	ctrl     *gomock.Controller
