@@ -14,15 +14,15 @@ func NewActiveVoiceChannels() map[string]Channel {
 }
 
 func (vc *voiceChannel) GetNowPlayingName() string {
-	return vc.Playlist.NowPlaying.Name
+	return vc.Playlist.NowPlayingName()
 }
 
 func (vc *voiceChannel) GetNext() *playlist.Song {
-	return vc.Playlist.Next
+	return vc.Playlist.GetNext()
 }
 
 func (vc *voiceChannel) SetNext(s *playlist.Song) {
-	vc.Playlist.Next = s
+	vc.Playlist.QueueNext(s)
 }
 
 func (vc *voiceChannel) GetAbortChannel() chan string {
@@ -30,7 +30,7 @@ func (vc *voiceChannel) GetAbortChannel() chan string {
 }
 
 func (vc *voiceChannel) IsPlayingMusic() bool {
-	return vc.Playlist.NowPlaying != nil
+	return vc.Playlist.IsPlayingMusic()
 }
 
 func (vc *voiceChannel) StopMusic() {
@@ -38,12 +38,12 @@ func (vc *voiceChannel) StopMusic() {
 }
 
 func (vc *voiceChannel) SetNowPlaying(s *playlist.Song) {
-	vc.Playlist.NowPlaying = s
-	vc.Playlist.Next = s.Next
+	vc.Playlist.SetNowPlaying(s)
+	vc.Playlist.QueueNext(s.Next)
 }
 
 func (vc *voiceChannel) RemoveNowPlaying() {
-	vc.Playlist.NowPlaying = nil
+	vc.Playlist.RemoveNowPlaying()
 }
 
 func (vc *voiceChannel) FetchPlaylist() *playlist.Playlist {
