@@ -358,3 +358,38 @@ func (mr *MockDownloaderMockRecorder) Download(query interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockDownloader)(nil).Download), query)
 }
+
+// MockMusicPlayer is a mock of MusicPlayer interface.
+type MockMusicPlayer struct {
+	ctrl     *gomock.Controller
+	recorder *MockMusicPlayerMockRecorder
+}
+
+// MockMusicPlayerMockRecorder is the mock recorder for MockMusicPlayer.
+type MockMusicPlayerMockRecorder struct {
+	mock *MockMusicPlayer
+}
+
+// NewMockMusicPlayer creates a new mock instance.
+func NewMockMusicPlayer(ctrl *gomock.Controller) *MockMusicPlayer {
+	mock := &MockMusicPlayer{ctrl: ctrl}
+	mock.recorder = &MockMusicPlayerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockMusicPlayer) EXPECT() *MockMusicPlayerMockRecorder {
+	return m.recorder
+}
+
+// PlayMusic mocks base method.
+func (m *MockMusicPlayer) PlayMusic(input chan []byte, guildID string, song *playlist.Song) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "PlayMusic", input, guildID, song)
+}
+
+// PlayMusic indicates an expected call of PlayMusic.
+func (mr *MockMusicPlayerMockRecorder) PlayMusic(input, guildID, song interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayMusic", reflect.TypeOf((*MockMusicPlayer)(nil).PlayMusic), input, guildID, song)
+}

@@ -11,9 +11,13 @@ import (
 
 var searchService *youtube.SearchService
 
+type SearchService struct {
+	searchService *youtube.SearchService
+}
+
 // InitialiseSearchService initialises a youtube search object
 // with the given api key.
-func InitialiseSearchService(apiKey string) {
+func InitialiseSearchService(apiKey string) *SearchService {
 	ctx := context.Background()
 	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
@@ -21,14 +25,13 @@ func InitialiseSearchService(apiKey string) {
 	}
 	searchService = youtubeService.Search
 	log.Println("Sucessfully initialised Youtube Search Service.")
+	return &SearchService{searchService: searchService}
 }
 
 // GetVideoID returns the first youtubeID of a
 // video that matches the query
-func GetVideoID(query string) (youtubeID string, err error) {
-	ensureSearcherInitialised()
-
-	call := searchService.List("id, snippet").
+func (s *SearchService) GetVideoID(query string) (youtubeID string, err error) {
+	call := s.searchService.List("id, snippet").
 		Type("video").
 		Q(query).
 		MaxResults(1)
@@ -47,11 +50,4 @@ func GetVideoID(query string) (youtubeID string, err error) {
 	result := res.Items[0]
 	youtubeID = result.Id.VideoId
 	return
-}
-
-func ensureSearcherInitialised() {
-	if searchService == nil {
-		log.Fatal(`Searcher is not initialised yet! InitialiseSearchService should 
-		be executed first before using functionality from this package.`)
-	}
 }
