@@ -4,24 +4,25 @@ import (
 	"errors"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jamestjw/lyrical/voice"
 )
 
-// Event will be passed into handler functions and contains all
+// DiscordEvent will be passed into handler functions and contains all
 // that is necessary to respond accordingly.
-type Event struct {
+type DiscordEvent struct {
 	session *discordgo.Session
 	message *discordgo.MessageCreate
 }
 
 // SendMessage sends a message to the channel within
 // the guild that invoked this event.
-func (e Event) SendMessage(message string) {
+func (e DiscordEvent) SendMessage(message string) {
 	e.session.ChannelMessageSend(e.message.ChannelID, message)
 }
 
 // FindVoiceChannel tries to find a voice channel with this channel name
 // within the guild.
-func (e Event) FindVoiceChannel(channelName string) (channelID string, err error) {
+func (e DiscordEvent) FindVoiceChannel(channelName string) (channelID string, err error) {
 	channels, err := e.session.GuildChannels(e.message.GuildID)
 	if err != nil {
 		return
@@ -41,15 +42,15 @@ func (e Event) FindVoiceChannel(channelName string) (channelID string, err error
 	return
 }
 
-func (e Event) getSession() botSession {
+func (e DiscordEvent) getSession() voice.Connectable {
 	return botSession{e.session}
 }
 
-func (e Event) getGuildID() string {
+func (e DiscordEvent) getGuildID() string {
 	return e.message.GuildID
 }
 
-func (e Event) getVoiceConnection() (vc *discordgo.VoiceConnection, connected bool) {
-	vc, connected = e.session.VoiceConnections[e.getGuildID()]
-	return
+func (e DiscordEvent) getVoiceConnection() (voice.Connection, bool) {
+	vc, connected := e.session.VoiceConnections[e.getGuildID()]
+	return voice.DGVoiceConnection{vc}, connected
 }
