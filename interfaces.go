@@ -16,9 +16,13 @@ type Session interface {
 type Event interface {
 	SendMessage(message string)
 	FindVoiceChannel(channelName string) (channelID string, err error)
-	getSession() voice.Connectable
-	getGuildID() string
-	getVoiceConnection() (voice.Connection, bool)
+	GetSession() voice.Connectable
+	GetGuildID() string
+	GetVoiceConnection() (voice.Connection, bool)
+}
+
+type Searcher interface {
+	GetVideoID(string) (string, error)
 }
 
 type botSession struct {

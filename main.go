@@ -11,11 +11,9 @@ import (
 	"github.com/jamestjw/lyrical/voice"
 )
 
-func init() {
-	database.InitialiseDatabase()
-}
-
 func main() {
+	initialiseApplication()
+
 	dg, err := NewSession(config.DiscordToken)
 	if err != nil {
 		fmt.Println("error creating Discord session,", err)

@@ -41,7 +41,8 @@ func (c command) prettyName() string {
 	return fmt.Sprintf("`!%s`", c.Name)
 }
 
-func init() {
+// InitialiseHelpText should be called by application on startup
+func InitialiseHelpText() {
 	jsonFile, err := os.Open("help/help.json")
 	jsonBytes, _ := ioutil.ReadAll(jsonFile)
 	if err != nil {

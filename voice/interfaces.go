@@ -33,3 +33,7 @@ type Database interface {
 type Downloader interface {
 	Download(query string) (title string, err error)
 }
+
+type MusicPlayer interface {
+	PlayMusic(input chan []byte, guildID string, song *playlist.Song)
+}

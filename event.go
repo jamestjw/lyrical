@@ -42,15 +42,20 @@ func (e DiscordEvent) FindVoiceChannel(channelName string) (channelID string, er
 	return
 }
 
-func (e DiscordEvent) getSession() voice.Connectable {
+// GetSession returns a Connectable belonging to the guild of this event
+func (e DiscordEvent) GetSession() voice.Connectable {
 	return botSession{e.session}
 }
 
-func (e DiscordEvent) getGuildID() string {
+// GetGuildID returns the guild ID of the guild in which this event
+// was invoked.
+func (e DiscordEvent) GetGuildID() string {
 	return e.message.GuildID
 }
 
-func (e DiscordEvent) getVoiceConnection() (voice.Connection, bool) {
-	vc, connected := e.session.VoiceConnections[e.getGuildID()]
-	return voice.DGVoiceConnection{vc}, connected
+// GetVoiceConnection returns a Connection that the bot is connected to
+// in the guild in which this event was fired.
+func (e DiscordEvent) GetVoiceConnection() (voice.Connection, bool) {
+	vc, connected := e.session.VoiceConnections[e.GetGuildID()]
+	return voice.DGVoiceConnection{Connection: vc}, connected
 }
