@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 
 	"github.com/jamestjw/lyrical/utils"
-	"github.com/rylio/ytdl"
+	"github.com/jamestjw/ytdl"
 )
 
 // AudioPath is the path that contains all audio files
