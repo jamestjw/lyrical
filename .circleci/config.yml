@@ -3,7 +3,7 @@
 # Check https://circleci.com/docs/2.0/language-go/ for more details
 version: 2
 jobs:
-  build:
+  build:  
     docker:
       # specify the version
       - image: circleci/golang:1.14
@@ -15,13 +15,21 @@ jobs:
     working_directory: /go/src/github.com/jamestjw/lyrical
     steps:
       - checkout
+
       - restore_cache: # restores saved cache if no changes are detected since last run
           keys:
             - v1-pkg-cache
+
       # specify any bash command here prefixed with `run: `
-      - run: go get -v -t -d ./...
+      - run: 
+          name: Installing dependencies
+          command: go get -v -t -d ./...
+
       - save_cache: # Store cache in the /go/pkg directory
           key: v1-pkg-cache
           paths:
             - "/go/pkg"
-      - run: go test -v ./...
+
+      - run:
+          name: Running tests
+          command: go test -v ./...
