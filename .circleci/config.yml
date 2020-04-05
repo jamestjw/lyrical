@@ -1,0 +1,35 @@
+# Golang CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-go/ for more details
+version: 2
+jobs:
+  build:  
+    docker:
+      # specify the version
+      - image: circleci/golang:1.14
+
+      # Specify service dependencies here if necessary
+      # CircleCI maintains a library of pre-built images
+      # documented at https://circleci.com/docs/2.0/circleci-images/
+      # - image: circleci/postgres:9.4
+    working_directory: /go/src/github.com/jamestjw/lyrical
+    steps:
+      - checkout
+
+      - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - v1-pkg-cache
+
+      # specify any bash command here prefixed with `run: `
+      - run: 
+          name: Installing dependencies
+          command: go get -v -t -d ./...
+
+      - save_cache: # Store cache in the /go/pkg directory
+          key: v1-pkg-cache
+          paths:
+            - "/go/pkg"
+
+      - run:
+          name: Running tests
+          command: go test -v ./...
