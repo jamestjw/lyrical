@@ -42,3 +42,13 @@ func TestAddSongWhenNotEmpty(t *testing.T) {
 	assert.Equal(t, song, p.Songs[1], "last song should be this song")
 	assert.Equal(t, song, p.Songs[0].Next, "should set new song as last song of the previous")
 }
+
+func TestGetNextSongs(t *testing.T) {
+	p := playlist.Playlist{}
+	song1 := p.AddSong("songName1", "youtubeID1")
+	p.QueueNext(song1)
+	song2 := p.AddSong("songName2", "youtubeID2")
+	song3 := p.AddSong("songName3", "youtubeID3")
+
+	assert.ElementsMatch(t, p.GetNextSongs(), []*playlist.Song{song1, song2, song3})
+}

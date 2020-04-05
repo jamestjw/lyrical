@@ -1,8 +1,13 @@
 package voice
 
-import "github.com/jamestjw/lyrical/playlist"
+import (
+	"sync"
+
+	"github.com/jamestjw/lyrical/playlist"
+)
 
 type voiceChannel struct {
+	m            sync.Mutex
 	AbortChannel chan string
 	Playlist     *playlist.Playlist
 }
@@ -48,4 +53,10 @@ func (vc *voiceChannel) RemoveNowPlaying() {
 
 func (vc *voiceChannel) FetchPlaylist() *playlist.Playlist {
 	return vc.Playlist
+}
+
+func (vc *voiceChannel) GetNextSongs() (nextSongs []*playlist.Song, exists bool) {
+	nextSongs = vc.Playlist.GetNextSongs()
+	exists = len(nextSongs) > 0
+	return
 }

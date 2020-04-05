@@ -9,4 +9,5 @@ var (
 	PlayMusicMatcher          = NewMatcher("play-music", "", `^!play-music`)
 	HelpMatcher               = NewMatcher("help", "", `^!help`)
 	LeaveVoiceMatcher         = NewMatcher("leave-voice", "", `^!leave-voice`)
+	UpNextMatcher             = NewMatcher("up-next", "", `^!up-next`)
 )
