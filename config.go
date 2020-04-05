@@ -26,7 +26,3 @@ func loadConfig() {
 		log.Fatalln("Cannot get configuration from file", err)
 	}
 }
-
-func init() {
-	loadConfig()
-}

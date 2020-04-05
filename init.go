@@ -11,5 +11,6 @@ var searchService Searcher
 func initialiseApplication() {
 	help.InitialiseHelpText()
 	database.InitialiseDatabase()
+	loadConfig()
 	searchService = searcher.InitialiseSearchService(config.YoutubeAPIKey)
 }
