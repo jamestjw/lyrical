@@ -14,7 +14,7 @@
         {
             "description": "Add song to playlist",
             "name": "add-music",
-            "arguments": ["song-name"]
+            "arguments": ["song-name/youtube-id"]
         },
         {
             "description": "Resume playing music",
