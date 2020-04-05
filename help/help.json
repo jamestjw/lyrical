@@ -1,4 +1,5 @@
 {
+    "helpText": "To run a command, execute the command name together with its respective parameter. If the parameter is nil, you may skip it.",
     "commands": [
         {
             "description": "Join a voice channel",
@@ -12,8 +13,8 @@
         },
         {
             "description": "Add song to playlist",
-            "name": "add-playlist/add-music",
-            "arguments": ["song-name/youtube-id"]
+            "name": "add-music",
+            "arguments": ["song-name"]
         },
         {
             "description": "Resume playing music",
