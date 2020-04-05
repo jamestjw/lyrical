@@ -17,6 +17,7 @@ var HelpJSON helpJSON
 
 type helpJSON struct {
 	Commands []command `json:"commands"`
+	HelpText string    `json:"helpText"`
 }
 
 type command struct {
@@ -28,17 +29,17 @@ type command struct {
 func (c command) prettyArguments() string {
 	args := make([]string, 0)
 	for _, arg := range c.Arguments {
-		args = append(args, fmt.Sprintf("`<%s>`", arg))
+		args = append(args, fmt.Sprintf("<%s>", arg))
 	}
 
 	if len(args) > 0 {
 		return strings.Join(args, ",")
 	}
-	return "`nil`"
+	return "nil"
 }
 
 func (c command) prettyName() string {
-	return fmt.Sprintf("`!%s`", c.Name)
+	return fmt.Sprintf("!%s", c.Name)
 }
 
 // InitialiseHelpText should be called by application on startup
@@ -60,17 +61,7 @@ func Message() string {
 	var result bytes.Buffer
 	table := tablewriter.NewWriter(&result)
 	table.SetHeader([]string{"Description", "Name", "Parameters"})
-	table.SetAutoWrapText(false)
-	table.SetAutoFormatHeaders(true)
-	table.SetHeaderAlignment(tablewriter.ALIGN_LEFT)
-	table.SetAlignment(tablewriter.ALIGN_LEFT)
-	table.SetCenterSeparator("")
-	table.SetColumnSeparator("")
-	table.SetRowSeparator("")
-	table.SetHeaderLine(false)
-	table.SetBorder(false)
-	table.SetTablePadding("\t\t\t\t") // pad with tabs
-	table.SetNoWhiteSpace(true)
+	table.SetCaption(true, HelpJSON.HelpText)
 
 	for _, command := range HelpJSON.Commands {
 		v := []string{command.Description, command.prettyName(), command.prettyArguments()}
@@ -78,5 +69,10 @@ func Message() string {
 	}
 
 	table.Render()
-	return string(result.Bytes())
+	tableString := string(result.Bytes())
+	return codeBlockify(tableString)
+}
+
+func codeBlockify(msg string) string {
+	return fmt.Sprintf("```\n%s\n```", msg)
 }
