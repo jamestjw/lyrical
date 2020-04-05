@@ -20,7 +20,18 @@ jobs:
     working_directory: /go/src/github.com/jamestjw/lyrical
     steps:
       - checkout
+      
+      - restore_cache: # restores saved cache if no changes are detected since last run
+      # Read about caching dependencies: https://circleci.com/docs/2.0/caching/
+          keys:
+            - v1-pkg-cache
 
       # specify any bash command here prefixed with `run: `
       - run: go get -v -t -d ./...
+
+      - save_cache: # Store cache in the /go/pkg directory
+        key: v1-pkg-cache
+        paths:
+          - "/go/pkg"
+
       - run: go test -v ./...
