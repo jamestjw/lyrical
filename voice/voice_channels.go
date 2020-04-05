@@ -54,3 +54,9 @@ func (vc *voiceChannel) RemoveNowPlaying() {
 func (vc *voiceChannel) FetchPlaylist() *playlist.Playlist {
 	return vc.Playlist
 }
+
+func (vc *voiceChannel) GetNextSongs() (nextSongs []*playlist.Song, exists bool) {
+	nextSongs = vc.Playlist.GetNextSongs()
+	exists = len(nextSongs) > 0
+	return
+}

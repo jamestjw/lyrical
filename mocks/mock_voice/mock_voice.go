@@ -269,6 +269,21 @@ func (mr *MockChannelMockRecorder) FetchPlaylist() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FetchPlaylist", reflect.TypeOf((*MockChannel)(nil).FetchPlaylist))
 }
 
+// GetNextSongs mocks base method.
+func (m *MockChannel) GetNextSongs() ([]*playlist.Song, bool) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetNextSongs")
+	ret0, _ := ret[0].([]*playlist.Song)
+	ret1, _ := ret[1].(bool)
+	return ret0, ret1
+}
+
+// GetNextSongs indicates an expected call of GetNextSongs.
+func (mr *MockChannelMockRecorder) GetNextSongs() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextSongs", reflect.TypeOf((*MockChannel)(nil).GetNextSongs))
+}
+
 // MockDatabase is a mock of Database interface.
 type MockDatabase struct {
 	ctrl     *gomock.Controller

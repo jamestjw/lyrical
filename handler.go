@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
@@ -22,6 +23,7 @@ func init() {
 	defaultMux.RegisterHandler(matcher.SkipMusicMatcher, skipMusicRequest)
 	defaultMux.RegisterHandler(matcher.NowPlayingMatcher, nowPlayingRequest)
 	defaultMux.RegisterHandler(matcher.HelpMatcher, helpRequest)
+	defaultMux.RegisterHandler(matcher.UpNextMatcher, upNextRequest)
 }
 
 func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -178,4 +180,27 @@ func skipMusicRequest(event Event, _ string) {
 			event.SendMessage("Well I am not playing any music currently 🤔")
 		}
 	}
+}
+
+func upNextRequest(event Event, _ string) {
+	thisVoiceChannel, exists := voice.ActiveVoiceChannels[event.GetGuildID()]
+	if !exists {
+		event.SendMessage("Playlist is currently empty.")
+		return
+	}
+
+	nextSongs, hasSongs := thisVoiceChannel.GetNextSongs()
+
+	if !hasSongs {
+		event.SendMessage("Playlist is currently empty.")
+		return
+	}
+
+	songMessages := []string{"Coming Up Next:"}
+
+	for i, song := range nextSongs {
+		songMessages = append(songMessages, fmt.Sprintf("%v. %s", i+1, song.Name))
+	}
+
+	event.SendMessage(strings.Join(songMessages, "\n"))
 }

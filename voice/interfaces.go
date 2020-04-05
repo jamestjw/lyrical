@@ -23,6 +23,7 @@ type Channel interface {
 	GetNowPlayingName() string
 	StopMusic()
 	FetchPlaylist() *playlist.Playlist
+	GetNextSongs() ([]*playlist.Song, bool)
 }
 
 type Database interface {

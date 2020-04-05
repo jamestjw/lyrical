@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"sync"
 	"testing"
 
@@ -284,4 +285,32 @@ func TestJoinChannelRequest(t *testing.T) {
 		mockEvent.EXPECT().SendMessage("Playlist is still empty."),
 	)
 	joinVoiceChannelRequest(mockEvent, "channel-name")
+}
+
+func TestUpNextRequest(t *testing.T) {
+	var songs []*playlist.Song
+
+	for i := 0; i < 2; i++ {
+		songName := fmt.Sprintf("Song %v", i)
+		song := &playlist.Song{
+			YoutubeID: "",
+			Name:      songName,
+			Next:      nil,
+		}
+		songs = append(songs, song)
+	}
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockChannel := mock_voice.NewMockChannel(ctrl)
+	mockChannel.EXPECT().GetNextSongs().Return(songs, true)
+	voice.ActiveVoiceChannels["guildID"] = mockChannel
+
+	mockEvent := mock_main.NewMockEvent(ctrl)
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
+	gomock.InOrder(
+		mockEvent.EXPECT().SendMessage("Coming Up Next:\n1. Song 0\n2. Song 1"),
+	)
+	upNextRequest(mockEvent, "")
 }

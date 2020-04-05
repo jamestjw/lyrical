@@ -120,6 +120,19 @@ func TestLeaveVoiceMatcher(t *testing.T) {
 	tableTest(t, tables, matcher)
 }
 
+func TestUpNextMatcher(t *testing.T) {
+	matcher := UpNextMatcher
+
+	tables := []Example{
+		{"!up-next", true, "", false},
+		{"!up-next    ", true, "", false},
+		{"!up-next  useless arguments", true, "", false},
+		{"!unrelated-join-voice test-arg", false, "", false},
+	}
+
+	tableTest(t, tables, matcher)
+}
+
 func tableTest(t *testing.T, tables []Example, matcher *Matcher) {
 	for _, table := range tables {
 		matched, arg, err := matcher.Match(table.input)
