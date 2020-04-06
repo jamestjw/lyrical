@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/jamestjw/lyrical/database"
+	"github.com/jamestjw/lyrical/playlist"
 )
 
 var DB Database
@@ -43,4 +44,28 @@ func (SongDatabase) SongExists(youtubeID string) (name string, exists bool) {
 		exists = true
 	}
 	return
+}
+
+// LoadPlaylist will load a playlist from the database.
+func (SongDatabase) LoadPlaylist() *playlist.Playlist {
+	rows, err := database.Connection.Query("SELECT youtube_id, name from songs")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer rows.Close()
+
+	p := &playlist.Playlist{}
+
+	for rows.Next() {
+		var youtubeID, name string
+		err = rows.Scan(&youtubeID, &name)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		p.AddSong(name, youtubeID)
+	}
+
+	return p
 }

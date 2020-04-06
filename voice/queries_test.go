@@ -71,3 +71,16 @@ func TestAddSongToDatabase(t *testing.T) {
 	assert.True(t, exists)
 	assert.Equal(t, name, "Song Name")
 }
+
+func TestLoadPlaylist(t *testing.T) {
+	cleanSongs()
+
+	voice.DB.AddSongToDB("Song Name 1", "Youtube ID 1")
+	voice.DB.AddSongToDB("Song Name 2", "Youtube ID 2")
+
+	p := voice.DB.LoadPlaylist()
+	assert.Equal(t, "Song Name 1", p.First().Name)
+	assert.Equal(t, "Youtube ID 1", p.First().YoutubeID)
+	assert.Equal(t, "Song Name 2", p.First().Next.Name)
+	assert.Equal(t, "Youtube ID 2", p.First().Next.YoutubeID)
+}

@@ -7,9 +7,10 @@ import (
 )
 
 type voiceChannel struct {
-	m            sync.Mutex
-	AbortChannel chan string
-	Playlist     *playlist.Playlist
+	m              sync.Mutex
+	AbortChannel   chan string
+	Playlist       *playlist.Playlist
+	BackupPlaylist *playlist.Playlist
 }
 
 // NewActiveVoiceChannels is a factory method to create voice channels map
@@ -28,6 +29,15 @@ func (vc *voiceChannel) GetNext() *playlist.Song {
 	return s
 }
 
+func (vc *voiceChannel) GetBackupNext() *playlist.Song {
+	s := vc.BackupPlaylist.GetNext()
+	vc.Playlist.SetNowPlaying(s)
+	return s
+}
+
+func (vc *voiceChannel) ExistsBackupNext() bool {
+	return vc.BackupPlaylist.GetNext() != nil
+}
 func (vc *voiceChannel) ExistsNext() bool {
 	return vc.Playlist.GetNext() != nil
 }

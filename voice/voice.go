@@ -60,19 +60,27 @@ func maybeSetNext(guildID string, s *playlist.Song) {
 
 // PlayMusic plays a given song into an input Audio Channel that belongs to a guild
 // with guildID. The given song will be set as the currently playing song of the guild and
-// the voice channel of the guild will be marked as active..It will also automatically play
+// the voice channel of the guild will be marked as active. It will also automatically play
 // the next song if there is one.
-func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Channel) {
-	if !vc.ExistsNext() {
+func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Channel, mainPlaylist bool) {
+	if !vc.ExistsNext() && mainPlaylist {
 		panic("Song does not exist in playlist but PlayMusic was called.")
 	}
 
-	song := vc.GetNext()
+	var song *playlist.Song
+
+	if mainPlaylist {
+		song = vc.GetNext()
+	} else {
+		song = vc.GetBackupNext()
+	}
 
 	// LIFO, so we have to remove now playing before playing next
 	defer func() {
 		if vc.ExistsNext() {
-			go d.PlayMusic(input, guildID, vc)
+			go d.PlayMusic(input, guildID, vc, true)
+		} else if vc.ExistsBackupNext() {
+			go d.PlayMusic(input, guildID, vc, false)
 		}
 	}()
 	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
@@ -132,9 +140,11 @@ func initialiseVoiceChannelForGuildIfNotExists(guildID string) {
 	}
 
 	vc := &voiceChannel{
-		AbortChannel: make(chan string, 1),
-		Playlist:     &playlist.Playlist{},
+		AbortChannel:   make(chan string, 1),
+		Playlist:       &playlist.Playlist{},
+		BackupPlaylist: DB.LoadPlaylist(),
 	}
+
 	ActiveVoiceChannels[guildID] = vc
 }
 
@@ -165,6 +175,7 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 	return
 }
 
+// PlayMusic plays the next song in a given Channel
 func PlayMusic(input chan []byte, guildID string, vc Channel) {
-	go DefaultMusicPlayer.PlayMusic(input, guildID, vc)
+	go DefaultMusicPlayer.PlayMusic(input, guildID, vc, true)
 }

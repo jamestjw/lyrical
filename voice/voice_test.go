@@ -63,6 +63,7 @@ func TestAddSongThatAlreadyExists(t *testing.T) {
 	defer ctrl.Finish()
 	mockDatabase := mock_voice.NewMockDatabase(ctrl)
 	mockDatabase.EXPECT().SongExists("youtubeID").Times(1).Return("Song Name", true)
+	mockDatabase.EXPECT().LoadPlaylist().Return(nil)
 
 	voice.DB = mockDatabase
 	voice.AddSong("youtubeID", "guildID")
@@ -85,6 +86,7 @@ func TestAddSongThatDoesNotExistYet(t *testing.T) {
 	mockDatabase := mock_voice.NewMockDatabase(ctrl)
 	mockDatabase.EXPECT().SongExists("youtubeID").Times(1).Return("", false)
 	mockDatabase.EXPECT().AddSongToDB("New Song", "youtubeID").Times(1).Return(nil)
+	mockDatabase.EXPECT().LoadPlaylist().Return(nil)
 
 	voice.Dl = mockDownloader
 	voice.DB = mockDatabase

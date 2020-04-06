@@ -152,7 +152,7 @@ func TestPlayMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 	voice.ActiveVoiceChannels["guildID"] = mockChannel
 
 	mockPlayer := mock_voice.NewMockMusicPlayer(ctrl)
-	mockPlayer.EXPECT().PlayMusic(audiochan, "guildID", mockChannel).Do(func(chan []byte, string, voice.Channel) { wg.Done() })
+	mockPlayer.EXPECT().PlayMusic(audiochan, "guildID", mockChannel, true).Do(func(chan []byte, string, voice.Channel, bool) { wg.Done() })
 
 	mockConnection := mock_voice.NewMockConnection(ctrl)
 	mockConnection.EXPECT().GetGuildID().Return("guildID")
@@ -178,22 +178,6 @@ func (s *mockSearchService) GetVideoID(id string) (string, error) {
 	return args.String(0), args.Error(1)
 }
 
-type mockSongDatabase struct {
-	mock.Mock
-}
-
-// AddSongToDB adds song details to the database
-func (m *mockSongDatabase) AddSongToDB(name string, youtubeID string) error {
-	args := m.Called(name, youtubeID)
-	return args.Error(0)
-}
-
-// SongExists checks if a given youtubeID corresponds to a song in the database
-func (m *mockSongDatabase) SongExists(youtubeID string) (name string, exists bool) {
-	args := m.Called(youtubeID)
-	return args.String(0), args.Bool(1)
-}
-
 type mockMusicDownloader struct {
 	mock.Mock
 }
@@ -210,9 +194,9 @@ func TestAddToPlaylist(t *testing.T) {
 	mockSS := new(mockSearchService)
 	mockSS.On("GetVideoID", "song name").Return("video id", nil)
 
-	mockDB := new(mockSongDatabase)
-	mockDB.On("AddSongToDB", "song name", "video id").Return(nil)
-	mockDB.On("SongExists", "video id").Return("", false)
+	mockDB := mock_voice.NewMockDatabase(ctrl)
+	mockDB.EXPECT().AddSongToDB("song name", "video id").Return(nil)
+	mockDB.EXPECT().SongExists("video id").Return("", false)
 
 	mockDl := new(mockMusicDownloader)
 	mockDl.On("Download", "video id").Return("song name", nil)
@@ -234,7 +218,7 @@ func TestAddToPlaylist(t *testing.T) {
 	mockChannel.EXPECT().IsPlayingMusic().Return(false)
 
 	mockPlayer := mock_voice.NewMockMusicPlayer(ctrl)
-	mockPlayer.EXPECT().PlayMusic(audiochan, "guildID", mockChannel).Do(func(chan []byte, string, voice.Channel) { wg.Done() })
+	mockPlayer.EXPECT().PlayMusic(audiochan, "guildID", mockChannel, true).Do(func(chan []byte, string, voice.Channel, bool) { wg.Done() })
 
 	mockConnection := mock_voice.NewMockConnection(ctrl)
 	mockConnection.EXPECT().GetGuildID().Return("guildID")

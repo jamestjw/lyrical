@@ -298,6 +298,34 @@ func (mr *MockChannelMockRecorder) ExistsNext() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsNext", reflect.TypeOf((*MockChannel)(nil).ExistsNext))
 }
 
+// ExistsBackupNext mocks base method.
+func (m *MockChannel) ExistsBackupNext() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistsBackupNext")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// ExistsBackupNext indicates an expected call of ExistsBackupNext.
+func (mr *MockChannelMockRecorder) ExistsBackupNext() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsBackupNext", reflect.TypeOf((*MockChannel)(nil).ExistsBackupNext))
+}
+
+// GetBackupNext mocks base method.
+func (m *MockChannel) GetBackupNext() *playlist.Song {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetBackupNext")
+	ret0, _ := ret[0].(*playlist.Song)
+	return ret0
+}
+
+// GetBackupNext indicates an expected call of GetBackupNext.
+func (mr *MockChannelMockRecorder) GetBackupNext() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBackupNext", reflect.TypeOf((*MockChannel)(nil).GetBackupNext))
+}
+
 // MockDatabase is a mock of Database interface.
 type MockDatabase struct {
 	ctrl     *gomock.Controller
@@ -348,6 +376,20 @@ func (m *MockDatabase) AddSongToDB(name, youtubeID string) error {
 func (mr *MockDatabaseMockRecorder) AddSongToDB(name, youtubeID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSongToDB", reflect.TypeOf((*MockDatabase)(nil).AddSongToDB), name, youtubeID)
+}
+
+// LoadPlaylist mocks base method.
+func (m *MockDatabase) LoadPlaylist() *playlist.Playlist {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "LoadPlaylist")
+	ret0, _ := ret[0].(*playlist.Playlist)
+	return ret0
+}
+
+// LoadPlaylist indicates an expected call of LoadPlaylist.
+func (mr *MockDatabaseMockRecorder) LoadPlaylist() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPlaylist", reflect.TypeOf((*MockDatabase)(nil).LoadPlaylist))
 }
 
 // MockDownloader is a mock of Downloader interface.
@@ -412,13 +454,13 @@ func (m *MockMusicPlayer) EXPECT() *MockMusicPlayerMockRecorder {
 }
 
 // PlayMusic mocks base method.
-func (m *MockMusicPlayer) PlayMusic(input chan []byte, guildID string, song voice.Channel) {
+func (m *MockMusicPlayer) PlayMusic(input chan []byte, guildID string, song voice.Channel, main bool) {
 	m.ctrl.T.Helper()
-	m.ctrl.Call(m, "PlayMusic", input, guildID, song)
+	m.ctrl.Call(m, "PlayMusic", input, guildID, song, main)
 }
 
 // PlayMusic indicates an expected call of PlayMusic.
-func (mr *MockMusicPlayerMockRecorder) PlayMusic(input, guildID, song interface{}) *gomock.Call {
+func (mr *MockMusicPlayerMockRecorder) PlayMusic(input, guildID, song, main interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayMusic", reflect.TypeOf((*MockMusicPlayer)(nil).PlayMusic), input, guildID, song)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PlayMusic", reflect.TypeOf((*MockMusicPlayer)(nil).PlayMusic), input, guildID, song, main)
 }
