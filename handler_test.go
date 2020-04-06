@@ -104,6 +104,7 @@ func TestSkipMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 	mockChannel.EXPECT().IsPlayingMusic().Return(true)
 	mockChannel.EXPECT().StopMusic()
 	mockChannel.EXPECT().ExistsNext().Return(false)
+	mockChannel.EXPECT().ExistsBackupNext().Return(false)
 	voice.ActiveVoiceChannels["guildID"] = mockChannel
 
 	mockConnection := mock_voice.NewMockConnection(ctrl)

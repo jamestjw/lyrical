@@ -83,4 +83,6 @@ func TestLoadPlaylist(t *testing.T) {
 	assert.Equal(t, "Youtube ID 1", p.First().YoutubeID)
 	assert.Equal(t, "Song Name 2", p.First().Next.Name)
 	assert.Equal(t, "Youtube ID 2", p.First().Next.YoutubeID)
+
+	assert.Equal(t, "Song Name 1", p.GetNext().Name)
 }

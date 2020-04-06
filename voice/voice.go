@@ -176,6 +176,6 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 }
 
 // PlayMusic plays the next song in a given Channel
-func PlayMusic(input chan []byte, guildID string, vc Channel) {
+func PlayMusic(input chan []byte, guildID string, vc Channel, main bool) {
 	go DefaultMusicPlayer.PlayMusic(input, guildID, vc, true)
 }

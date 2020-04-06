@@ -32,6 +32,7 @@ func (vc *voiceChannel) GetNext() *playlist.Song {
 func (vc *voiceChannel) GetBackupNext() *playlist.Song {
 	s := vc.BackupPlaylist.GetNext()
 	vc.Playlist.SetNowPlaying(s)
+	vc.BackupPlaylist.QueueNext(s.Next)
 	return s
 }
 

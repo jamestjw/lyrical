@@ -66,6 +66,6 @@ func (SongDatabase) LoadPlaylist() *playlist.Playlist {
 
 		p.AddSong(name, youtubeID)
 	}
-
+	p.QueueNext(p.First())
 	return p
 }
