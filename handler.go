@@ -121,12 +121,12 @@ func playMusicRequest(event Event, _ string) {
 		if thisVoiceChannel.IsPlayingMusic() {
 			event.SendMessage("I am already playing music 😁")
 		} else {
-			if !thisVoiceChannel.ExistsNext() {
+			if !thisVoiceChannel.ExistsNext() && !thisVoiceChannel.ExistsBackupNext() {
 				event.SendMessage("Playlist is currently empty.")
-			} else {
-				voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, true)
-				event.SendMessage("Starting music... 🎵")
+				return
 			}
+			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, thisVoiceChannel.ExistsNext())
+			event.SendMessage("Starting music... 🎵")
 		}
 	}
 }

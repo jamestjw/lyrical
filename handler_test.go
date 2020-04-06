@@ -149,7 +149,7 @@ func TestPlayMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 
 	mockChannel := mock_voice.NewMockChannel(ctrl)
 	mockChannel.EXPECT().IsPlayingMusic().Return(false)
-	mockChannel.EXPECT().ExistsNext().Return(true)
+	mockChannel.EXPECT().ExistsNext().AnyTimes().Return(true)
 	voice.ActiveVoiceChannels["guildID"] = mockChannel
 
 	mockPlayer := mock_voice.NewMockMusicPlayer(ctrl)
