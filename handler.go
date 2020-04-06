@@ -136,7 +136,7 @@ func stopMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel. 😔")
 	} else {
-		voiceChannel := voice.ActiveVoiceChannels[vc.GetGuildID()]
+		voiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if voiceChannel.IsPlayingMusic() {
 			voiceChannel.StopMusic()
 			event.SendMessage("OK, Shutting up now...")
@@ -165,7 +165,7 @@ func skipMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel yet. 😔")
 	} else {
-		thisVoiceChannel := voice.ActiveVoiceChannels[vc.GetGuildID()]
+		thisVoiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if thisVoiceChannel.IsPlayingMusic() {
 			thisVoiceChannel.StopMusic()
 			event.SendMessage("Skipping song... ❌")

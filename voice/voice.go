@@ -23,6 +23,16 @@ func init() {
 
 type defaultMusicPlayer struct{}
 
+// ActiveVoiceChannelForGuild will create or fetch the channel for this guild
+func ActiveVoiceChannelForGuild(guildID string) Channel {
+	if c, exists := ActiveVoiceChannels[guildID]; exists {
+		return c
+	}
+
+	initialiseVoiceChannelForGuildIfNotExists(guildID)
+	return ActiveVoiceChannels[guildID]
+}
+
 // AlreadyInVoiceChannel checks if a Connectable object is currently
 // connected to a voice channel that belongs to a particular guild.
 func AlreadyInVoiceChannel(s Connectable, guildID string) bool {
@@ -48,11 +58,7 @@ func DisconnectAllVoiceConnections(s Connectable) error {
 }
 
 func maybeSetNext(guildID string, s *playlist.Song) {
-	if _, exists := ActiveVoiceChannels[guildID]; !exists {
-		initialiseVoiceChannelForGuildIfNotExists(guildID)
-	}
-
-	vc := ActiveVoiceChannels[guildID]
+	vc := ActiveVoiceChannelForGuild(guildID)
 	if !vc.ExistsNext() {
 		vc.SetNext(s)
 	}
@@ -177,5 +183,5 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 
 // PlayMusic plays the next song in a given Channel
 func PlayMusic(input chan []byte, guildID string, vc Channel, main bool) {
-	go DefaultMusicPlayer.PlayMusic(input, guildID, vc, true)
+	go DefaultMusicPlayer.PlayMusic(input, guildID, vc, main)
 }
