@@ -71,9 +71,12 @@ func maybeSetNext(guildID string, s *playlist.Song) {
 func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Channel, mainPlaylist bool) {
 	if !vc.ExistsNext() && mainPlaylist {
 		panic("Song does not exist in playlist but PlayMusic was called.")
+	} else if !vc.ExistsBackupNext() && !mainPlaylist {
+		panic("Song does not exist in backup playlist but PlayMusic was called.")
 	}
 
 	var song *playlist.Song
+	var aborted bool
 
 	if mainPlaylist {
 		song = vc.GetNext()
@@ -83,6 +86,9 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Cha
 
 	// LIFO, so we have to remove now playing before playing next
 	defer func() {
+		if aborted {
+			return
+		}
 		if vc.ExistsNext() {
 			go d.PlayMusic(input, guildID, vc, true)
 		} else if vc.ExistsBackupNext() {
@@ -115,6 +121,7 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Cha
 		select {
 		case input <- frame:
 		case <-abortChannel:
+			aborted = true
 			return
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
