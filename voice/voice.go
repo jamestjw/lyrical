@@ -53,7 +53,7 @@ func maybeSetNext(guildID string, s *playlist.Song) {
 	}
 
 	vc := ActiveVoiceChannels[guildID]
-	if vc.GetNext() == nil {
+	if !vc.ExistsNext() {
 		vc.SetNext(s)
 	}
 }
@@ -62,7 +62,21 @@ func maybeSetNext(guildID string, s *playlist.Song) {
 // with guildID. The given song will be set as the currently playing song of the guild and
 // the voice channel of the guild will be marked as active..It will also automatically play
 // the next song if there is one.
-func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *playlist.Song) {
+func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Channel) {
+	if !vc.ExistsNext() {
+		panic("Song does not exist in playlist but PlayMusic was called.")
+	}
+
+	song := vc.GetNext()
+
+	// LIFO, so we have to remove now playing before playing next
+	defer func() {
+		if vc.ExistsNext() {
+			go d.PlayMusic(input, guildID, vc)
+		}
+	}()
+	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
+
 	encodeSession, err := dca.EncodeFile(ytmp3.PathToAudio(song.YoutubeID), dca.StdEncodeOptions)
 	if err != nil {
 		log.Print(err)
@@ -71,10 +85,6 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *
 	defer encodeSession.Cleanup()
 
 	decoder := dca.NewDecoder(encodeSession)
-
-	ActiveVoiceChannels[guildID].SetNowPlaying(song)
-	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
-
 	abortChannel := ActiveVoiceChannels[guildID].GetAbortChannel()
 
 	for {
@@ -99,10 +109,6 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *
 		}
 	}
 
-	// Being able to get here means that audio clip has ended
-	if song.Next != nil {
-		go d.PlayMusic(input, guildID, song.Next)
-	}
 	return
 }
 
@@ -159,6 +165,6 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 	return
 }
 
-func PlayMusic(input chan []byte, guildID string, song *playlist.Song) {
-	go DefaultMusicPlayer.PlayMusic(input, guildID, song)
+func PlayMusic(input chan []byte, guildID string, vc Channel) {
+	go DefaultMusicPlayer.PlayMusic(input, guildID, vc)
 }

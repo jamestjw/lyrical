@@ -23,7 +23,13 @@ func (vc *voiceChannel) GetNowPlayingName() string {
 }
 
 func (vc *voiceChannel) GetNext() *playlist.Song {
-	return vc.Playlist.GetNext()
+	s := vc.Playlist.GetNext()
+	vc.SetNowPlaying(s)
+	return s
+}
+
+func (vc *voiceChannel) ExistsNext() bool {
+	return vc.Playlist.GetNext() != nil
 }
 
 func (vc *voiceChannel) SetNext(s *playlist.Song) {

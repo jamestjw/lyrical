@@ -284,6 +284,20 @@ func (mr *MockChannelMockRecorder) GetNextSongs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextSongs", reflect.TypeOf((*MockChannel)(nil).GetNextSongs))
 }
 
+// ExistsNext mocks base method.
+func (m *MockChannel) ExistsNext() bool {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExistsNext")
+	ret0, _ := ret[0].(bool)
+	return ret0
+}
+
+// ExistsNext indicates an expected call of ExistsNext.
+func (mr *MockChannelMockRecorder) ExistsNext() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExistsNext", reflect.TypeOf((*MockChannel)(nil).ExistsNext))
+}
+
 // MockDatabase is a mock of Database interface.
 type MockDatabase struct {
 	ctrl     *gomock.Controller
@@ -398,7 +412,7 @@ func (m *MockMusicPlayer) EXPECT() *MockMusicPlayerMockRecorder {
 }
 
 // PlayMusic mocks base method.
-func (m *MockMusicPlayer) PlayMusic(input chan []byte, guildID string, song *playlist.Song) {
+func (m *MockMusicPlayer) PlayMusic(input chan []byte, guildID string, song voice.Channel) {
 	m.ctrl.T.Helper()
 	m.ctrl.Call(m, "PlayMusic", input, guildID, song)
 }

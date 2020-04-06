@@ -24,6 +24,7 @@ type Channel interface {
 	StopMusic()
 	FetchPlaylist() *playlist.Playlist
 	GetNextSongs() ([]*playlist.Song, bool)
+	ExistsNext() bool
 }
 
 type Database interface {
@@ -36,5 +37,5 @@ type Downloader interface {
 }
 
 type MusicPlayer interface {
-	PlayMusic(input chan []byte, guildID string, song *playlist.Song)
+	PlayMusic(input chan []byte, guildID string, song Channel)
 }
