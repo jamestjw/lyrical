@@ -273,6 +273,8 @@ func TestJoinChannelRequest(t *testing.T) {
 }
 
 func TestUpNextRequest(t *testing.T) {
+	config.UpNextMaxSongsCount = 2
+
 	var songs []*playlist.Song
 
 	for i := 0; i < 2; i++ {

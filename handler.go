@@ -181,7 +181,6 @@ func skipMusicRequest(event Event, _ string) {
 }
 
 func upNextRequest(event Event, _ string) {
-	loadConfig()
 	thisVoiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 
 	nextSongs, hasSongs := thisVoiceChannel.GetNextSongs()

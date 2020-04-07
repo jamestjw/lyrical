@@ -37,6 +37,11 @@ func (vc *voiceChannel) GetBackupNext() *playlist.Song {
 }
 
 func (vc *voiceChannel) ExistsBackupNext() bool {
+	// If BackupPlaylist has been completely used up, load again from DB.
+	if vc.BackupPlaylist.GetNext() == nil {
+		vc.BackupPlaylist = DB.LoadPlaylist()
+	}
+
 	return vc.BackupPlaylist.GetNext() != nil
 }
 func (vc *voiceChannel) ExistsNext() bool {
