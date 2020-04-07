@@ -251,6 +251,7 @@ func TestJoinChannelRequest(t *testing.T) {
 
 	mockChannel := mock_voice.NewMockChannel(ctrl)
 	mockChannel.EXPECT().ExistsNext().Return(false)
+	mockChannel.EXPECT().ExistsBackupNext().Return(false)
 	voice.ActiveVoiceChannels["guildID"] = mockChannel
 
 	mockConnection := mock_voice.NewMockConnection(ctrl)
@@ -289,6 +290,7 @@ func TestUpNextRequest(t *testing.T) {
 
 	mockChannel := mock_voice.NewMockChannel(ctrl)
 	mockChannel.EXPECT().GetNextSongs().Return(songs, true)
+	mockChannel.EXPECT().GetNextBackupSongs().Return([]*playlist.Song{}, false)
 	voice.ActiveVoiceChannels["guildID"] = mockChannel
 
 	mockEvent := mock_main.NewMockEvent(ctrl)

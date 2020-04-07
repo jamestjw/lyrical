@@ -27,6 +27,7 @@ type Channel interface {
 	ExistsNext() bool
 	ExistsBackupNext() bool
 	GetBackupNext() *playlist.Song
+	GetNextBackupSongs() (nextSongs []*playlist.Song, exists bool)
 }
 
 type Database interface {

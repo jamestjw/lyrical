@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
+	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
 
@@ -61,10 +61,10 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 		vc := voice.JoinVoiceChannel(event.GetSession(), event.GetGuildID(), channelID)
 		thisChannel := voice.ActiveVoiceChannels[event.GetGuildID()]
 
-		if !thisChannel.ExistsNext() {
+		if !thisChannel.ExistsNext() && !thisChannel.ExistsBackupNext() {
 			event.SendMessage("Playlist is still empty.")
 		} else {
-			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisChannel, true)
+			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisChannel, thisChannel.ExistsNext())
 			event.SendMessage("Starting music... 🎵")
 		}
 	}
@@ -181,24 +181,18 @@ func skipMusicRequest(event Event, _ string) {
 }
 
 func upNextRequest(event Event, _ string) {
-	thisVoiceChannel, exists := voice.ActiveVoiceChannels[event.GetGuildID()]
-	if !exists {
-		event.SendMessage("Playlist is currently empty.")
-		return
-	}
+	thisVoiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 
 	nextSongs, hasSongs := thisVoiceChannel.GetNextSongs()
+	nextBackupSongs, hasBackupSongs := thisVoiceChannel.GetNextBackupSongs()
 
-	if !hasSongs {
+	if !hasSongs && !hasBackupSongs {
 		event.SendMessage("Playlist is currently empty.")
 		return
 	}
 
-	songMessages := []string{"Coming Up Next:"}
+	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, 8)
 
-	for i, song := range nextSongs {
-		songMessages = append(songMessages, fmt.Sprintf("%v. %s", i+1, song.Name))
-	}
-
-	event.SendMessage(strings.Join(songMessages, "\n"))
+	message := utils.FormatNowPlayingText(allSongs, "Coming Up Next:")
+	event.SendMessage(message)
 }

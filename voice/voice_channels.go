@@ -77,3 +77,9 @@ func (vc *voiceChannel) GetNextSongs() (nextSongs []*playlist.Song, exists bool)
 	exists = len(nextSongs) > 0
 	return
 }
+
+func (vc *voiceChannel) GetNextBackupSongs() (nextSongs []*playlist.Song, exists bool) {
+	nextSongs = vc.BackupPlaylist.GetNextSongs()
+	exists = len(nextSongs) > 0
+	return
+}
