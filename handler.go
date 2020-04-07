@@ -181,6 +181,7 @@ func skipMusicRequest(event Event, _ string) {
 }
 
 func upNextRequest(event Event, _ string) {
+	loadConfig()
 	thisVoiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 
 	nextSongs, hasSongs := thisVoiceChannel.GetNextSongs()
@@ -191,8 +192,7 @@ func upNextRequest(event Event, _ string) {
 		return
 	}
 
-	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, 8)
-
+	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, config.UpNextMaxSongsCount)
 	message := utils.FormatNowPlayingText(allSongs, "Coming Up Next:")
 	event.SendMessage(message)
 }
