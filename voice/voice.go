@@ -14,6 +14,8 @@ import (
 // ActiveVoiceChannels is a global struct containing information
 // on the active voice channels belonging to each guild.
 var ActiveVoiceChannels map[string]Channel
+
+// DefaultMusicPlayer handles playing music to a given channel.
 var DefaultMusicPlayer MusicPlayer
 
 func init() {

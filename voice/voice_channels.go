@@ -19,6 +19,8 @@ func NewActiveVoiceChannels() map[string]Channel {
 	return vcs
 }
 
+// NewVoiceChannel returns a pointer to a voiceChannel with initialised
+// but empty playlist
 func NewVoiceChannel() *voiceChannel {
 	return &voiceChannel{
 		AbortChannel:   make(chan string, 1),
