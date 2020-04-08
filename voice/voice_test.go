@@ -53,7 +53,7 @@ func TestJoinVoiceChannel(t *testing.T) {
 	mockSession.EXPECT().JoinVoiceChannel("guildID", "channelID").Times(1).Return(mockConnection, nil)
 
 	mockDB := mock_voice.NewMockDatabase(ctrl)
-	mockDB.EXPECT().LoadPlaylist().Return(&playlist.Playlist{})
+	mockDB.EXPECT().LoadPlaylist(gomock.AssignableToTypeOf(&playlist.Playlist{}))
 
 	voice.DB = mockDB
 
@@ -69,7 +69,7 @@ func TestAddSongThatAlreadyExists(t *testing.T) {
 	defer ctrl.Finish()
 	mockDatabase := mock_voice.NewMockDatabase(ctrl)
 	mockDatabase.EXPECT().SongExists("youtubeID").Times(1).Return("Song Name", true)
-	mockDatabase.EXPECT().LoadPlaylist().Return(nil)
+	mockDatabase.EXPECT().LoadPlaylist(gomock.AssignableToTypeOf(&playlist.Playlist{}))
 
 	voice.DB = mockDatabase
 	voice.AddSong("youtubeID", "guildID")
@@ -92,7 +92,7 @@ func TestAddSongThatDoesNotExistYet(t *testing.T) {
 	mockDatabase := mock_voice.NewMockDatabase(ctrl)
 	mockDatabase.EXPECT().SongExists("youtubeID").Times(1).Return("", false)
 	mockDatabase.EXPECT().AddSongToDB("New Song", "youtubeID").Times(1).Return(nil)
-	mockDatabase.EXPECT().LoadPlaylist().Return(nil)
+	mockDatabase.EXPECT().LoadPlaylist(gomock.AssignableToTypeOf(&playlist.Playlist{}))
 
 	voice.Dl = mockDownloader
 	voice.DB = mockDatabase

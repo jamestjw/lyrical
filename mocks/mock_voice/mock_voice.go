@@ -394,17 +394,15 @@ func (mr *MockDatabaseMockRecorder) AddSongToDB(name, youtubeID interface{}) *go
 }
 
 // LoadPlaylist mocks base method.
-func (m *MockDatabase) LoadPlaylist() *playlist.Playlist {
+func (m *MockDatabase) LoadPlaylist(arg0 *playlist.Playlist) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "LoadPlaylist")
-	ret0, _ := ret[0].(*playlist.Playlist)
-	return ret0
+	m.ctrl.Call(m, "LoadPlaylist", arg0)
 }
 
 // LoadPlaylist indicates an expected call of LoadPlaylist.
-func (mr *MockDatabaseMockRecorder) LoadPlaylist() *gomock.Call {
+func (mr *MockDatabaseMockRecorder) LoadPlaylist(arg0 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPlaylist", reflect.TypeOf((*MockDatabase)(nil).LoadPlaylist))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LoadPlaylist", reflect.TypeOf((*MockDatabase)(nil).LoadPlaylist), arg0)
 }
 
 // MockDownloader is a mock of Downloader interface.

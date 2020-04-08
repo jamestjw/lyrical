@@ -31,7 +31,7 @@ func TestExistsBackupNextWithEmptyDB(t *testing.T) {
 	vc := voice.NewVoiceChannel()
 
 	mockDB := mock_voice.NewMockDatabase(ctrl)
-	mockDB.EXPECT().LoadPlaylist().Return(&playlist.Playlist{})
+	mockDB.EXPECT().LoadPlaylist(&playlist.Playlist{})
 	voice.DB = mockDB
 
 	assert.False(t, vc.ExistsBackupNext(), "no songs exists initially")
@@ -50,11 +50,8 @@ func TestExistsBackupNextWithPopulatedDB(t *testing.T) {
 
 	vc := voice.NewVoiceChannel()
 
-	stubbedPlaylist := &playlist.Playlist{}
-	stubbedPlaylist.QueueNext(&playlist.Song{})
-
 	mockDB := mock_voice.NewMockDatabase(ctrl)
-	mockDB.EXPECT().LoadPlaylist().Return(stubbedPlaylist)
+	mockDB.EXPECT().LoadPlaylist(vc.BackupPlaylist).Do(func(v *playlist.Playlist) { v.QueueNext(&playlist.Song{}) })
 	voice.DB = mockDB
 
 	assert.True(t, vc.ExistsBackupNext(), "songs populated from DB")

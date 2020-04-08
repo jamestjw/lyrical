@@ -47,15 +47,13 @@ func (SongDatabase) SongExists(youtubeID string) (name string, exists bool) {
 }
 
 // LoadPlaylist will load a playlist from the database.
-func (SongDatabase) LoadPlaylist() *playlist.Playlist {
+func (SongDatabase) LoadPlaylist(p *playlist.Playlist) {
 	rows, err := database.Connection.Query("SELECT youtube_id, name from songs order by random() limit 10")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	defer rows.Close()
-
-	p := &playlist.Playlist{}
 
 	for rows.Next() {
 		var youtubeID, name string
@@ -67,5 +65,4 @@ func (SongDatabase) LoadPlaylist() *playlist.Playlist {
 		p.AddSong(name, youtubeID)
 	}
 	p.QueueNext(p.First())
-	return p
 }

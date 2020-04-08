@@ -33,7 +33,7 @@ type Channel interface {
 type Database interface {
 	SongExists(youtubeID string) (string, bool)
 	AddSongToDB(name string, youtubeID string) error
-	LoadPlaylist() *playlist.Playlist
+	LoadPlaylist(*playlist.Playlist)
 }
 
 type Downloader interface {

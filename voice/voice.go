@@ -152,10 +152,13 @@ func initialiseVoiceChannelForGuildIfNotExists(guildID string) {
 		return
 	}
 
+	backupPlaylist := &playlist.Playlist{}
+	DB.LoadPlaylist(backupPlaylist)
+
 	vc := &voiceChannel{
 		AbortChannel:   make(chan string, 1),
 		Playlist:       &playlist.Playlist{},
-		BackupPlaylist: DB.LoadPlaylist(),
+		BackupPlaylist: backupPlaylist,
 	}
 
 	ActiveVoiceChannels[guildID] = vc
