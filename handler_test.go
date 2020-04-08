@@ -27,12 +27,19 @@ func TestLeaveVoiceChannelRequestWhenConnected(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockChannel := mock_voice.NewMockChannel(ctrl)
+	mockChannel.EXPECT().IsPlayingMusic().Return(true)
+	mockChannel.EXPECT().StopMusic()
+	voice.ActiveVoiceChannels["guildID"] = mockChannel
+
 	mockConnection := mock_voice.NewMockConnection(ctrl)
 	mockConnection.EXPECT().Disconnect().Times(1)
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
-	mockEvent.EXPECT().SendMessage("Leaving voice channel 👋🏼")
+	mockEvent.EXPECT().GetGuildID().Return("guildID")
+	mockEvent.EXPECT().SendMessage("Stopping music...")
+	mockEvent.EXPECT().SendMessage("Left voice channel 👋🏼")
 
 	leaveVoiceChannelRequest(mockEvent, "")
 }

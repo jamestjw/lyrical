@@ -74,8 +74,13 @@ func leaveVoiceChannelRequest(event Event, _ string) {
 	vc, connected := event.GetVoiceConnection()
 
 	if connected {
-		event.SendMessage("Leaving voice channel 👋🏼")
+		voiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
+		if voiceChannel.IsPlayingMusic() {
+			event.SendMessage("Stopping music...")
+			voiceChannel.StopMusic()
+		}
 		vc.Disconnect()
+		event.SendMessage("Left voice channel 👋🏼")
 	} else {
 		event.SendMessage("I am not in a voice channel.")
 	}
