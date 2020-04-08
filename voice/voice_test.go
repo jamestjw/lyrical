@@ -6,6 +6,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	mock_voice "github.com/jamestjw/lyrical/mocks/mock_voice"
+	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/voice"
 	"github.com/stretchr/testify/assert"
 )
@@ -46,10 +47,15 @@ func TestJoinVoiceChannel(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSession := mock_voice.NewMockConnectable(ctrl)
 	mockConnection := mock_voice.NewMockConnection(ctrl)
 
+	mockSession := mock_voice.NewMockConnectable(ctrl)
 	mockSession.EXPECT().JoinVoiceChannel("guildID", "channelID").Times(1).Return(mockConnection, nil)
+
+	mockDB := mock_voice.NewMockDatabase(ctrl)
+	mockDB.EXPECT().LoadPlaylist(gomock.AssignableToTypeOf(&playlist.Playlist{}))
+
+	voice.DB = mockDB
 
 	voice.JoinVoiceChannel(mockSession, "guildID", "channelID")
 
@@ -63,6 +69,7 @@ func TestAddSongThatAlreadyExists(t *testing.T) {
 	defer ctrl.Finish()
 	mockDatabase := mock_voice.NewMockDatabase(ctrl)
 	mockDatabase.EXPECT().SongExists("youtubeID").Times(1).Return("Song Name", true)
+	mockDatabase.EXPECT().LoadPlaylist(gomock.AssignableToTypeOf(&playlist.Playlist{}))
 
 	voice.DB = mockDatabase
 	voice.AddSong("youtubeID", "guildID")
@@ -85,6 +92,7 @@ func TestAddSongThatDoesNotExistYet(t *testing.T) {
 	mockDatabase := mock_voice.NewMockDatabase(ctrl)
 	mockDatabase.EXPECT().SongExists("youtubeID").Times(1).Return("", false)
 	mockDatabase.EXPECT().AddSongToDB("New Song", "youtubeID").Times(1).Return(nil)
+	mockDatabase.EXPECT().LoadPlaylist(gomock.AssignableToTypeOf(&playlist.Playlist{}))
 
 	voice.Dl = mockDownloader
 	voice.DB = mockDatabase

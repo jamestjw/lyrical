@@ -14,6 +14,8 @@ import (
 // ActiveVoiceChannels is a global struct containing information
 // on the active voice channels belonging to each guild.
 var ActiveVoiceChannels map[string]Channel
+
+// DefaultMusicPlayer handles playing music to a given channel.
 var DefaultMusicPlayer MusicPlayer
 
 func init() {
@@ -22,6 +24,16 @@ func init() {
 }
 
 type defaultMusicPlayer struct{}
+
+// ActiveVoiceChannelForGuild will create or fetch the channel for this guild
+func ActiveVoiceChannelForGuild(guildID string) Channel {
+	if c, exists := ActiveVoiceChannels[guildID]; exists {
+		return c
+	}
+
+	initialiseVoiceChannelForGuildIfNotExists(guildID)
+	return ActiveVoiceChannels[guildID]
+}
 
 // AlreadyInVoiceChannel checks if a Connectable object is currently
 // connected to a voice channel that belongs to a particular guild.
@@ -48,21 +60,45 @@ func DisconnectAllVoiceConnections(s Connectable) error {
 }
 
 func maybeSetNext(guildID string, s *playlist.Song) {
-	if _, exists := ActiveVoiceChannels[guildID]; !exists {
-		initialiseVoiceChannelForGuildIfNotExists(guildID)
-	}
-
-	vc := ActiveVoiceChannels[guildID]
-	if vc.GetNext() == nil {
+	vc := ActiveVoiceChannelForGuild(guildID)
+	if !vc.ExistsNext() {
 		vc.SetNext(s)
 	}
 }
 
 // PlayMusic plays a given song into an input Audio Channel that belongs to a guild
 // with guildID. The given song will be set as the currently playing song of the guild and
-// the voice channel of the guild will be marked as active..It will also automatically play
+// the voice channel of the guild will be marked as active. It will also automatically play
 // the next song if there is one.
-func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *playlist.Song) {
+func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Channel, mainPlaylist bool) {
+	if !vc.ExistsNext() && mainPlaylist {
+		panic("Song does not exist in playlist but PlayMusic was called.")
+	} else if !vc.ExistsBackupNext() && !mainPlaylist {
+		panic("Song does not exist in backup playlist but PlayMusic was called.")
+	}
+
+	var song *playlist.Song
+	var aborted bool
+
+	if mainPlaylist {
+		song = vc.GetNext()
+	} else {
+		song = vc.GetBackupNext()
+	}
+
+	// LIFO, so we have to remove now playing before playing next
+	defer func() {
+		if aborted {
+			return
+		}
+		if vc.ExistsNext() {
+			go d.PlayMusic(input, guildID, vc, true)
+		} else if vc.ExistsBackupNext() {
+			go d.PlayMusic(input, guildID, vc, false)
+		}
+	}()
+	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
+
 	encodeSession, err := dca.EncodeFile(ytmp3.PathToAudio(song.YoutubeID), dca.StdEncodeOptions)
 	if err != nil {
 		log.Print(err)
@@ -71,10 +107,6 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *
 	defer encodeSession.Cleanup()
 
 	decoder := dca.NewDecoder(encodeSession)
-
-	ActiveVoiceChannels[guildID].SetNowPlaying(song)
-	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
-
 	abortChannel := ActiveVoiceChannels[guildID].GetAbortChannel()
 
 	for {
@@ -91,6 +123,7 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *
 		select {
 		case input <- frame:
 		case <-abortChannel:
+			aborted = true
 			return
 		case <-time.After(time.Second):
 			// We haven't been able to send a frame in a second, assume the connection is borked
@@ -99,10 +132,6 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, song *
 		}
 	}
 
-	// Being able to get here means that audio clip has ended
-	if song.Next != nil {
-		go d.PlayMusic(input, guildID, song.Next)
-	}
 	return
 }
 
@@ -125,10 +154,15 @@ func initialiseVoiceChannelForGuildIfNotExists(guildID string) {
 		return
 	}
 
+	backupPlaylist := &playlist.Playlist{}
+	DB.LoadPlaylist(backupPlaylist)
+
 	vc := &voiceChannel{
-		AbortChannel: make(chan string, 1),
-		Playlist:     &playlist.Playlist{},
+		AbortChannel:   make(chan string, 1),
+		Playlist:       &playlist.Playlist{},
+		BackupPlaylist: backupPlaylist,
 	}
+
 	ActiveVoiceChannels[guildID] = vc
 }
 
@@ -159,6 +193,7 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 	return
 }
 
-func PlayMusic(input chan []byte, guildID string, song *playlist.Song) {
-	go DefaultMusicPlayer.PlayMusic(input, guildID, song)
+// PlayMusic plays the next song in a given Channel
+func PlayMusic(input chan []byte, guildID string, vc Channel, main bool) {
+	go DefaultMusicPlayer.PlayMusic(input, guildID, vc, main)
 }

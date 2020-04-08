@@ -3,11 +3,11 @@ package main
 import (
 	"fmt"
 	"log"
-	"strings"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
+	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
 
@@ -59,20 +59,18 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 		log.Printf("Joining Guild ID: %s ChannelID: %v \n", event.GetGuildID(), channelID)
 
 		vc := voice.JoinVoiceChannel(event.GetSession(), event.GetGuildID(), channelID)
-		nextSong := voice.ActiveVoiceChannels[event.GetGuildID()].GetNext()
+		thisChannel := voice.ActiveVoiceChannels[event.GetGuildID()]
 
-		if nextSong == nil {
+		if !thisChannel.ExistsNext() && !thisChannel.ExistsBackupNext() {
 			event.SendMessage("Playlist is still empty.")
 		} else {
-			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), nextSong)
+			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisChannel, thisChannel.ExistsNext())
 			event.SendMessage("Starting music... 🎵")
 		}
 	}
 }
 
 func leaveVoiceChannelRequest(event Event, _ string) {
-	// TODO: Leave voice channel of current guild only.
-
 	vc, connected := event.GetVoiceConnection()
 
 	if connected {
@@ -102,10 +100,9 @@ func addToPlaylistRequest(event Event, query string) {
 	vc, connected := event.GetVoiceConnection()
 	if connected {
 		thisVoiceChannel := voice.ActiveVoiceChannels[vc.GetGuildID()]
-		nextSong := thisVoiceChannel.GetNext()
 
-		if !thisVoiceChannel.IsPlayingMusic() && nextSong != nil {
-			go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), nextSong)
+		if !thisVoiceChannel.IsPlayingMusic() && thisVoiceChannel.ExistsNext() {
+			go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, true)
 			event.SendMessage("Playing next song in the playlist... 🎵")
 		}
 	}
@@ -124,13 +121,12 @@ func playMusicRequest(event Event, _ string) {
 		if thisVoiceChannel.IsPlayingMusic() {
 			event.SendMessage("I am already playing music 😁")
 		} else {
-			nextSong := thisVoiceChannel.GetNext()
-			if nextSong == nil {
+			if !thisVoiceChannel.ExistsNext() && !thisVoiceChannel.ExistsBackupNext() {
 				event.SendMessage("Playlist is currently empty.")
-			} else {
-				voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), nextSong)
-				event.SendMessage("Starting music... 🎵")
+				return
 			}
+			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, thisVoiceChannel.ExistsNext())
+			event.SendMessage("Starting music... 🎵")
 		}
 	}
 }
@@ -140,7 +136,7 @@ func stopMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel. 😔")
 	} else {
-		voiceChannel := voice.ActiveVoiceChannels[vc.GetGuildID()]
+		voiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if voiceChannel.IsPlayingMusic() {
 			voiceChannel.StopMusic()
 			event.SendMessage("OK, Shutting up now...")
@@ -169,12 +165,14 @@ func skipMusicRequest(event Event, _ string) {
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel yet. 😔")
 	} else {
-		thisVoiceChannel := voice.ActiveVoiceChannels[vc.GetGuildID()]
+		thisVoiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if thisVoiceChannel.IsPlayingMusic() {
 			thisVoiceChannel.StopMusic()
 			event.SendMessage("Skipping song... ❌")
-			if thisVoiceChannel.GetNext() != nil {
-				go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel.GetNext())
+			if thisVoiceChannel.ExistsNext() {
+				go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, true)
+			} else if thisVoiceChannel.ExistsBackupNext() {
+				go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, false)
 			}
 		} else {
 			event.SendMessage("Well I am not playing any music currently 🤔")
@@ -183,24 +181,17 @@ func skipMusicRequest(event Event, _ string) {
 }
 
 func upNextRequest(event Event, _ string) {
-	thisVoiceChannel, exists := voice.ActiveVoiceChannels[event.GetGuildID()]
-	if !exists {
-		event.SendMessage("Playlist is currently empty.")
-		return
-	}
+	thisVoiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 
 	nextSongs, hasSongs := thisVoiceChannel.GetNextSongs()
+	nextBackupSongs, hasBackupSongs := thisVoiceChannel.GetNextBackupSongs()
 
-	if !hasSongs {
+	if !hasSongs && !hasBackupSongs {
 		event.SendMessage("Playlist is currently empty.")
 		return
 	}
 
-	songMessages := []string{"Coming Up Next:"}
-
-	for i, song := range nextSongs {
-		songMessages = append(songMessages, fmt.Sprintf("%v. %s", i+1, song.Name))
-	}
-
-	event.SendMessage(strings.Join(songMessages, "\n"))
+	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, config.UpNextMaxSongsCount)
+	message := utils.FormatNowPlayingText(allSongs, "Coming Up Next:")
+	event.SendMessage(message)
 }

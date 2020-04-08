@@ -24,11 +24,16 @@ type Channel interface {
 	StopMusic()
 	FetchPlaylist() *playlist.Playlist
 	GetNextSongs() ([]*playlist.Song, bool)
+	ExistsNext() bool
+	ExistsBackupNext() bool
+	GetBackupNext() *playlist.Song
+	GetNextBackupSongs() (nextSongs []*playlist.Song, exists bool)
 }
 
 type Database interface {
 	SongExists(youtubeID string) (string, bool)
 	AddSongToDB(name string, youtubeID string) error
+	LoadPlaylist(*playlist.Playlist)
 }
 
 type Downloader interface {
@@ -36,5 +41,5 @@ type Downloader interface {
 }
 
 type MusicPlayer interface {
-	PlayMusic(input chan []byte, guildID string, song *playlist.Song)
+	PlayMusic(input chan []byte, guildID string, song Channel, main bool)
 }

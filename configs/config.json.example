@@ -1,3 +1,5 @@
 {
-    "discordToken": ""
+    "discordToken": "",
+    "youtubeApiKey": "",
+    "upNextMaxSongsCount": 8
 }
