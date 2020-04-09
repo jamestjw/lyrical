@@ -9,25 +9,25 @@ import (
 var DB Database
 
 type SongDatabase struct {
-	connection *gorm.DB
+	Connection *gorm.DB
 }
 
-func ConnectToDatabase() {
-	DB = SongDatabase{database.InitialiseDatabase()}
+func ConnectToDatabase(env string) {
+	DB = SongDatabase{database.InitialiseDatabase(env)}
 }
 
 // AddSongToDB adds song details to the database
 func (db SongDatabase) AddSongToDB(name string, youtubeID string) error {
 	song := &database.Song{Name: name, YoutubeID: youtubeID}
 
-	db.connection.Create(song)
+	db.Connection.Create(song)
 	return nil
 }
 
 // SongExists checks if a given youtubeID corresponds to a song in the database
 func (db SongDatabase) SongExists(youtubeID string) (name string, exists bool) {
 	var song database.Song
-	db.connection.Where(&database.Song{YoutubeID: youtubeID}).First(&song)
+	db.Connection.Where(&database.Song{YoutubeID: youtubeID}).First(&song)
 	if song != (database.Song{}) {
 		exists = true
 		name = song.Name
@@ -38,7 +38,7 @@ func (db SongDatabase) SongExists(youtubeID string) (name string, exists bool) {
 // LoadPlaylist will load a playlist from the database.
 func (db SongDatabase) LoadPlaylist(p *playlist.Playlist) {
 	var songs []database.Song
-	db.connection.Order("random()").Limit(10).Find(&songs)
+	db.Connection.Order("random()").Limit(10).Find(&songs)
 
 	for _, song := range songs {
 		p.AddSong(song.Name, song.YoutubeID)

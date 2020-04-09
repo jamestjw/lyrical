@@ -10,7 +10,7 @@ var searchService Searcher
 
 func initialiseApplication() {
 	help.InitialiseHelpText()
-	voice.ConnectToDatabase()
+	voice.ConnectToDatabase("production")
 	loadConfig()
 	searchService = searcher.InitialiseSearchService(config.YoutubeAPIKey)
 }

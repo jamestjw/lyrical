@@ -13,8 +13,14 @@ type Song struct {
 
 var Connection *gorm.DB
 
-func InitialiseDatabase() *gorm.DB {
-	db, err := gorm.Open("sqlite3", "db/discordbot.db")
+func InitialiseDatabase(env string) *gorm.DB {
+	DbEnvMap := map[string]string{
+		"production": "db/discordbot.db",
+		"test":       "../db/test.db",
+	}
+
+	db, err := gorm.Open("sqlite3", DbEnvMap[env])
+
 	if err != nil {
 		panic("failed to connect database")
 	}
