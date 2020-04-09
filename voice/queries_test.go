@@ -1,8 +1,6 @@
 package voice_test
 
 import (
-	"database/sql"
-	"log"
 	"os"
 	"testing"
 
@@ -16,27 +14,14 @@ func setup() {
 	voice.ConnectToDatabase("test")
 }
 
-func teardown(c *sql.DB) {
-	statement, err := c.Prepare("DROP TABLE IF EXISTS songs")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer statement.Close()
-	statement.Exec()
-}
-
 func cleanSongs() {
 	voice.DB.(voice.SongDatabase).Connection.Delete(database.Song{})
 }
 
 func TestMain(m *testing.M) {
 	setup()
-
 	os.Exit(m.Run())
-
-	// teardown(c)
+	cleanSongs()
 }
 func TestAddSongToDatabase(t *testing.T) {
 	cleanSongs()
