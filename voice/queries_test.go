@@ -1,8 +1,6 @@
 package voice_test
 
 import (
-	"database/sql"
-	"log"
 	"os"
 	"testing"
 
@@ -12,52 +10,18 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setup() *sql.DB {
-	testConnection, err := sql.Open("sqlite3", "../db/test.db")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	database.Connection = testConnection
-
-	statement, err := testConnection.Prepare("CREATE TABLE IF NOT EXISTS songs (id INTEGER PRIMARY KEY, youtube_id TEXT, name TEXT, created_at TIMESTAMP)")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer statement.Close()
-	statement.Exec()
-
-	return testConnection
-}
-
-func teardown(c *sql.DB) {
-	statement, err := c.Prepare("DROP TABLE IF EXISTS songs")
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer statement.Close()
-	statement.Exec()
+func setup() {
+	voice.ConnectToDatabase("test")
 }
 
 func cleanSongs() {
-	statement, err := database.Connection.Prepare("DELETE FROM songs")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer statement.Close()
-	statement.Exec()
+	voice.DB.(voice.SongDatabase).Connection.Delete(database.Song{})
 }
 
 func TestMain(m *testing.M) {
-	c := setup()
-
+	setup()
 	os.Exit(m.Run())
-
-	teardown(c)
+	cleanSongs()
 }
 func TestAddSongToDatabase(t *testing.T) {
 	cleanSongs()

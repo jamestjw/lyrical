@@ -1,24 +1,32 @@
 package database
 
 import (
-	"database/sql"
-	"log"
-
-	// Load Sqlite driver
-	_ "github.com/mattn/go-sqlite3"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-// Connection is the connection to our Sqlite database
-var Connection *sql.DB
+type Song struct {
+	gorm.Model
+	YoutubeID string `gorm:"unique;not null"`
+	Name      string
+}
 
-func InitialiseDatabase() {
-	var err error
-	Connection, err = sql.Open("sqlite3", "db/discordbot.db")
-	if err != nil {
-		log.Fatal(err)
+var Connection *gorm.DB
+
+func InitialiseDatabase(env string) *gorm.DB {
+	DbEnvMap := map[string]string{
+		"production": "db/discordbot.db",
+		"test":       "../db/test.db",
 	}
 
-	statement, _ := Connection.Prepare("CREATE TABLE IF NOT EXISTS songs (id INTEGER PRIMARY KEY, youtube_id TEXT, name TEXT, created_at TIMESTAMP)")
-	defer statement.Close()
-	statement.Exec()
+	db, err := gorm.Open("sqlite3", DbEnvMap[env])
+
+	if err != nil {
+		panic("failed to connect database")
+	}
+
+	// Migrate the schema
+	db.AutoMigrate(&Song{})
+
+	return db
 }
