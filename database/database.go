@@ -13,7 +13,7 @@ type Song struct {
 
 var Connection *gorm.DB
 
-func InitialiseDatabase() {
+func InitialiseDatabase() *gorm.DB {
 	db, err := gorm.Open("sqlite3", "db/discordbot.db")
 	if err != nil {
 		panic("failed to connect database")
@@ -22,5 +22,5 @@ func InitialiseDatabase() {
 	// Migrate the schema
 	db.AutoMigrate(&Song{})
 
-	Connection = db
+	return db
 }
