@@ -216,14 +216,14 @@ func newVoteRequest(event Event, pollParams string) {
 
 	defer func() {
 		time.Sleep(15 * time.Second)
-		finalMsg, err := event.GetMessageByMessageID(sentMessage.ChannelID)
+		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
 		if err != nil {
 			log.Print(err)
 		}
 
-		for _, reaction := range finalMsg.Reactions {
-			output := fmt.Sprintf("Count: %v ID: %s Name: %s", reaction.Count, reaction.Emoji.ID, reaction.Emoji.Name)
-			event.SendMessage(output)
-		}
+		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
+		p.AddResult(counts)
+
+		event.SendMessage(p.GetVerdict())
 	}()
 }

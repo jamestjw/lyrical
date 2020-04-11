@@ -6,6 +6,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/playlist"
 )
 
@@ -58,5 +59,15 @@ func LimitSongsArrayLengths(songs1 []*playlist.Song, songs2 []*playlist.Song, li
 	for _, song := range songs2[:takeFromSecond] {
 		res = append(res, song)
 	}
+	return res
+}
+
+func ExtractEmojiCounts(reactions []*discordgo.MessageReactions) map[string]int {
+	res := make(map[string]int)
+
+	for _, reaction := range reactions {
+		res[reaction.Emoji.Name] = reaction.Count
+	}
+
 	return res
 }

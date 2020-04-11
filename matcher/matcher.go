@@ -60,7 +60,7 @@ func (m *Matcher) Match(message string) (matched bool, arg string, err error) {
 	} else if len(matches) == 0 {
 		log.Fatal("Expected argument but did not set it up in the regex.")
 	}
-	fmt.Println(matches)
+
 	arg = strings.TrimSpace(matches[1])
 	if arg == "" {
 		err = Error{name: m.name, arguments: m.arguments}
