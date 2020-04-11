@@ -17,16 +17,16 @@ type Poll struct {
 }
 
 var numberToEmoji = map[int]string{
-	1:  ":one:",
-	2:  ":two:",
-	3:  ":three:",
-	4:  ":four:",
-	5:  ":five",
-	6:  ":six",
-	7:  ":seven:",
-	8:  ":eight:",
-	9:  ":nine:",
-	10: ":ten",
+	1:  "1️⃣",
+	2:  "2️⃣",
+	3:  "3️⃣",
+	4:  "4️⃣",
+	5:  "5️⃣",
+	6:  "6️⃣",
+	7:  "7️⃣",
+	8:  "8️⃣",
+	9:  "9️⃣",
+	10: "🔟",
 }
 
 func FromStringParams(params string) (p *Poll, err error) {
@@ -82,7 +82,7 @@ func (p *Poll) GetVerdict() string {
 	}
 
 	sort.Slice(options, func(i, j int) bool {
-		return options[i].count < options[j].count
+		return options[i].count > options[j].count
 	})
 
 	results := []string{"Results:"}
@@ -91,6 +91,9 @@ func (p *Poll) GetVerdict() string {
 		formattedResult := fmt.Sprintf("%s: %v", option.name, option.count)
 		results = append(results, formattedResult)
 	}
+
+	verdictMessage := fmt.Sprintf("The people have spoken, **%s** it shall be", options[0].name)
+	results = append(results, verdictMessage)
 
 	return strings.Join(results, "\n")
 }
