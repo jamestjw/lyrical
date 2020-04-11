@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
@@ -211,5 +212,18 @@ func newVoteRequest(event Event, pollParams string) {
 		return
 	}
 
-	event.SendMessage(p.GeneratePollMessage())
+	sentMessage := event.SendMessage(p.GeneratePollMessage())
+
+	defer func() {
+		time.Sleep(15 * time.Second)
+		finalMsg, err := event.GetMessageByMessageID(sentMessage.ChannelID)
+		if err != nil {
+			log.Print(err)
+		}
+
+		for _, reaction := range finalMsg.Reactions {
+			output := fmt.Sprintf("Count: %v ID: %s Name: %s", reaction.Count, reaction.Emoji.ID, reaction.Emoji.Name)
+			event.SendMessage(output)
+		}
+	}()
 }

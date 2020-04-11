@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"log"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/voice"
@@ -16,8 +17,12 @@ type DiscordEvent struct {
 
 // SendMessage sends a message to the channel within
 // the guild that invoked this event.
-func (e DiscordEvent) SendMessage(message string) {
-	e.session.ChannelMessageSend(e.message.ChannelID, message)
+func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
+	m, err := e.session.ChannelMessageSend(e.message.ChannelID, message)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return m
 }
 
 // FindVoiceChannel tries to find a voice channel with this channel name
@@ -58,4 +63,14 @@ func (e DiscordEvent) GetGuildID() string {
 func (e DiscordEvent) GetVoiceConnection() (voice.Connection, bool) {
 	vc, connected := e.session.VoiceConnections[e.GetGuildID()]
 	return voice.DGVoiceConnection{Connection: vc}, connected
+}
+
+func (e DiscordEvent) GetChannelID() string {
+	return e.message.ChannelID
+}
+
+func (e DiscordEvent) GetMessageByMessageID(messageID string) (*discordgo.Message, error) {
+	m, err := e.session.ChannelMessage(e.GetChannelID(), messageID)
+	return m, err
+
 }
