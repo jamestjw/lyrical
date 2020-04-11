@@ -5,15 +5,20 @@ import (
 	"fmt"
 	"regexp"
 	"sort"
+	"strconv"
 	"strings"
+	"time"
+
+	"github.com/jamestjw/lyrical/utils"
 )
 
 var pollParamsRegex = regexp.MustCompile(`(?m)((?:("[^"]+"|[^\s"]+))?)(?:\s+|$)`)
 
 type Poll struct {
-	title         string
-	options       []string
-	emojiToOption map[string]*Option
+	title             string
+	options           []string
+	emojiToOption     map[string]*Option
+	durationInSeconds int
 }
 
 var numberToEmoji = map[int]string{
@@ -37,22 +42,32 @@ func FromStringParams(params string) (p *Poll, err error) {
 		parsedParams = append(parsedParams, res)
 	}
 
-	if len(parsedParams) <= 2 {
-		err = errors.New("aside from a `title`, please provide at least two other options for a vote to make sense")
+	if len(parsedParams) <= 3 {
+		err = errors.New("aside from a `title` and `poll-duration`, please provide at least two other options for a vote to make sense")
+		return
+	}
+
+	duration, err := strconv.Atoi(parsedParams[1])
+	if err != nil {
+		err = errors.New("`poll-duration` needs to be an integer")
 		return
 	}
 
 	p = &Poll{
-		title:         parsedParams[0],
-		options:       parsedParams[1:],
-		emojiToOption: make(map[string]*Option),
+		title:             parsedParams[0],
+		options:           parsedParams[2:],
+		emojiToOption:     make(map[string]*Option),
+		durationInSeconds: duration,
 	}
 
 	return
 }
 
 func (p *Poll) GeneratePollMessage() string {
-	messages := []string{p.title}
+	messages := []string{
+		"A poll has been started!",
+		utils.Bold(p.title),
+	}
 
 	for index, option := range p.options {
 		emoji := numberToEmoji[index+1]
@@ -61,6 +76,10 @@ func (p *Poll) GeneratePollMessage() string {
 		formattedOption := fmt.Sprintf("%s. %s", emoji, option)
 		messages = append(messages, formattedOption)
 	}
+
+	finalMessage := fmt.Sprintf("Exercise your right to vote by reacting accordingly! The poll will close in %s.", p.GetDuration())
+
+	messages = append(messages, finalMessage)
 
 	return strings.Join(messages, "\n")
 }
@@ -95,7 +114,7 @@ func (p *Poll) GetVerdict() string {
 	var verdictMessage string
 
 	if options[0].count == 0 {
-		verdictMessage = "Unfortunately no votes were received and a decision was unable to be made."
+		verdictMessage = "Unfortunately no votes were received, hence decision was unable to be made."
 	} else if options[0].count == options[1].count {
 		verdictMessage = fmt.Sprintf("Looks like we have a tie between **%s** and **%s**", options[0].name, options[1].name)
 	} else {
@@ -105,4 +124,8 @@ func (p *Poll) GetVerdict() string {
 	results = append(results, verdictMessage)
 
 	return strings.Join(results, "\n")
+}
+
+func (p *Poll) GetDuration() time.Duration {
+	return time.Duration(p.durationInSeconds) * time.Second
 }

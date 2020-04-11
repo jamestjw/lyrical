@@ -71,3 +71,7 @@ func ExtractEmojiCounts(reactions []*discordgo.MessageReactions) map[string]int 
 
 	return res
 }
+
+func Bold(s string) string {
+	return fmt.Sprintf("**%s**", s)
+}

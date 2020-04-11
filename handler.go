@@ -215,7 +215,7 @@ func newVoteRequest(event Event, pollParams string) {
 	sentMessage := event.SendMessage(p.GeneratePollMessage())
 
 	defer func() {
-		time.Sleep(15 * time.Second)
+		time.Sleep(p.GetDuration())
 		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
 		if err != nil {
 			log.Print(err)
