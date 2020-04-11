@@ -40,9 +40,10 @@ func (db SongDatabase) LoadPlaylist(p *playlist.Playlist) {
 	var songs []database.Song
 	db.Connection.Order("random()").Limit(10).Find(&songs)
 
-	for _, song := range songs {
-		p.AddSong(song.Name, song.YoutubeID)
+	for i, song := range songs {
+		newSong := p.AddSong(song.Name, song.YoutubeID)
+		if i == 0 && p.GetNext() == nil {
+			p.QueueNext(newSong)
+		}
 	}
-
-	p.QueueNext(p.First())
 }
