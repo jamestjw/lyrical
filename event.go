@@ -72,5 +72,4 @@ func (e DiscordEvent) GetChannelID() string {
 func (e DiscordEvent) GetMessageByMessageID(messageID string) (*discordgo.Message, error) {
 	m, err := e.session.ChannelMessage(e.GetChannelID(), messageID)
 	return m, err
-
 }

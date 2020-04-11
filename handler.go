@@ -219,6 +219,8 @@ func newVoteRequest(event Event, pollParams string) {
 		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
 		if err != nil {
 			log.Print(err)
+			event.SendMessage("Unable to find the poll, was the message deleted? :eyes:")
+			return
 		}
 
 		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
