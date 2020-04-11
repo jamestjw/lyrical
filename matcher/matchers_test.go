@@ -133,6 +133,19 @@ func TestUpNextMatcher(t *testing.T) {
 	tableTest(t, tables, matcher)
 }
 
+func TestVoteMatcher(t *testing.T) {
+	matcher := VoteMatcher
+
+	tables := []Example{
+		{"!vote", true, "", true},
+		{"!vote    ", true, "", true},
+		{"!vote  useless arguments", true, "useless arguments", false},
+		{"!unrelated-join-voice test-arg", false, "", false},
+	}
+
+	tableTest(t, tables, matcher)
+}
+
 func tableTest(t *testing.T, tables []Example, matcher *Matcher) {
 	for _, table := range tables {
 		matched, arg, err := matcher.Match(table.input)

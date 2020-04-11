@@ -24,6 +24,7 @@ func init() {
 	defaultMux.RegisterHandler(matcher.NowPlayingMatcher, nowPlayingRequest)
 	defaultMux.RegisterHandler(matcher.HelpMatcher, helpRequest)
 	defaultMux.RegisterHandler(matcher.UpNextMatcher, upNextRequest)
+	defaultMux.RegisterHandler(matcher.VoteMatcher, newVoteRequest)
 }
 
 func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -199,4 +200,10 @@ func upNextRequest(event Event, _ string) {
 	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, config.UpNextMaxSongsCount)
 	message := utils.FormatNowPlayingText(allSongs, "Coming Up Next:")
 	event.SendMessage(message)
+}
+
+func newVoteRequest(event Event, voteParams string) {
+	voteMessage := voteParams
+
+	event.SendMessage(voteMessage)
 }
