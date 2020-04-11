@@ -85,14 +85,23 @@ func (p *Poll) GetVerdict() string {
 		return options[i].count > options[j].count
 	})
 
-	results := []string{"Results:"}
+	results := []string{"**Results:**"}
 
 	for _, option := range options {
 		formattedResult := fmt.Sprintf("%s: %v", option.name, option.count)
 		results = append(results, formattedResult)
 	}
 
-	verdictMessage := fmt.Sprintf("The people have spoken, **%s** it shall be", options[0].name)
+	var verdictMessage string
+
+	if options[0].count == 0 {
+		verdictMessage = "Unfortunately no votes were received and a decision was unable to be made."
+	} else if options[0].count == options[1].count {
+		verdictMessage = fmt.Sprintf("Looks like we have a tie between **%s** and **%s**", options[0].name, options[1].name)
+	} else {
+		verdictMessage = fmt.Sprintf("The people have spoken, **%s** it shall be.", options[0].name)
+	}
+
 	results = append(results, verdictMessage)
 
 	return strings.Join(results, "\n")
