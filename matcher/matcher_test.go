@@ -123,6 +123,24 @@ func TestMatchTwoCommands(t *testing.T) {
 	}
 }
 
+func TestErrorString(t *testing.T) {
+	name := "command-name"
+	args := []string{"arg-1", "arg-2"}
+	expectedError := "whoops `command-name` requires the following parameter(s) `arg-1`, `arg-2` 😅"
+
+	e := Error{name, args}
+	assert.Equal(t, expectedError, e.Error())
+}
+
+func TestMatcherWithTwoArgsErrorMessage(t *testing.T) {
+	matcher := NewMatcher("command-name", `^!command-name(\s+(.*)$)?`, "arg-1", "arg-2")
+
+	expectedError := "whoops `command-name` requires the following parameter(s) `arg-1`, `arg-2` 😅"
+	matched, _, error := matcher.Match("!command-name")
+	assert.True(t, matched)
+	assert.Equal(t, expectedError, error.Error())
+}
+
 func TestMatchCommandWithNoArgument(t *testing.T) {
 	command := "test-command"
 	var argumentName []string
@@ -169,24 +187,6 @@ func TestMatchCommandWithNoArgument(t *testing.T) {
 			}
 		}
 	}
-}
-
-func TestErrorString(t *testing.T) {
-	name := "command-name"
-	args := []string{"arg-1", "arg-2"}
-	expectedError := "whoops `command-name` requires the following parameter(s) `arg-1`, `arg-2` 😅"
-
-	e := Error{name, args}
-	assert.Equal(t, expectedError, e.Error())
-}
-
-func TestMatcherWithTwoArgsError(t *testing.T) {
-	matcher := NewMatcher("command-name", `^!command-name(\s+(.*)$)?`, "arg-1", "arg-2")
-
-	expectedError := "whoops `command-name` requires the following parameter(s) `arg-1`, `arg-2` 😅"
-	matched, _, error := matcher.Match("!command-name")
-	assert.True(t, matched)
-	assert.Equal(t, expectedError, error.Error())
 }
 
 func IsInstanceOf(objectPtr, typePtr interface{}) bool {
