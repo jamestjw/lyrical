@@ -45,6 +45,9 @@ func FromStringParams(params string) (p *Poll, err error) {
 	if len(parsedParams) <= 3 {
 		err = errors.New("aside from a `title` and `poll-duration`, please provide at least two other options for a vote to make sense")
 		return
+	} else if len(parsedParams) > 12 {
+		err = errors.New("we currently only support a maximum number of **10** options in a poll")
+		return
 	}
 
 	duration, err := strconv.Atoi(parsedParams[1])
