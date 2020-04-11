@@ -67,7 +67,10 @@ func (p *Poll) GeneratePollMessage() string {
 
 func (p *Poll) AddResult(reactionCounts map[string]int) {
 	for emoji, count := range reactionCounts {
-		p.emojiToOption[emoji].SetCount(count)
+		option, exists := p.emojiToOption[emoji]
+		if exists {
+			option.SetCount(count)
+		}
 	}
 }
 
