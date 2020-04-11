@@ -10,5 +10,5 @@ var (
 	HelpMatcher               = NewMatcher("help", `^!help`)
 	LeaveVoiceMatcher         = NewMatcher("leave-voice", `^!leave-voice`)
 	UpNextMatcher             = NewMatcher("up-next", `^!up-next`)
-	VoteMatcher               = NewMatcher("vote", `^!vote(\s+(.*)$)?`, "title", "option1", "option2", "...")
+	VoteMatcher               = NewMatcher("poll", `^!poll(\s+(.*)$)?`, "title", "option1", "option2", "...")
 )

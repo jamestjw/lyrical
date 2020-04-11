@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
+	lyrical_poll "github.com/jamestjw/lyrical/poll"
 	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
@@ -202,8 +203,13 @@ func upNextRequest(event Event, _ string) {
 	event.SendMessage(message)
 }
 
-func newVoteRequest(event Event, voteParams string) {
-	voteMessage := voteParams
+func newVoteRequest(event Event, pollParams string) {
+	p, err := lyrical_poll.FromStringParams(pollParams)
 
-	event.SendMessage(voteMessage)
+	if err != nil {
+		event.SendMessage(err.Error())
+		return
+	}
+
+	event.SendMessage(p.GeneratePollMessage())
 }

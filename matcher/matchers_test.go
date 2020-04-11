@@ -137,9 +137,9 @@ func TestVoteMatcher(t *testing.T) {
 	matcher := VoteMatcher
 
 	tables := []Example{
-		{"!vote", true, "", true},
-		{"!vote    ", true, "", true},
-		{"!vote  useless arguments", true, "useless arguments", false},
+		{"!poll", true, "", true},
+		{"!poll    ", true, "", true},
+		{"!poll  useless arguments", true, "useless arguments", false},
 		{"!unrelated-join-voice test-arg", false, "", false},
 	}
 
