@@ -26,7 +26,7 @@ func init() {
 	defaultMux.RegisterHandler(matcher.NowPlayingMatcher, nowPlayingRequest)
 	defaultMux.RegisterHandler(matcher.HelpMatcher, helpRequest)
 	defaultMux.RegisterHandler(matcher.UpNextMatcher, upNextRequest)
-	defaultMux.RegisterHandler(matcher.VoteMatcher, newVoteRequest)
+	defaultMux.RegisterHandler(matcher.VoteMatcher, newPollRequest)
 }
 
 func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -204,7 +204,7 @@ func upNextRequest(event Event, _ string) {
 	event.SendMessage(message)
 }
 
-func newVoteRequest(event Event, pollParams string) {
+func newPollRequest(event Event, pollParams string) {
 	p, err := lyrical_poll.FromStringParams(pollParams)
 
 	if err != nil {

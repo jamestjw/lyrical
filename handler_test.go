@@ -5,6 +5,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/bwmarrin/discordgo"
 	"github.com/golang/mock/gomock"
 	mock_main "github.com/jamestjw/lyrical/mocks/mock_main"
 	mock_voice "github.com/jamestjw/lyrical/mocks/mock_voice"
@@ -308,4 +309,25 @@ func TestUpNextRequest(t *testing.T) {
 		mockEvent.EXPECT().SendMessage("Coming Up Next:\n1. Song 0\n2. Song 1"),
 	)
 	upNextRequest(mockEvent, "")
+}
+
+func TestNewPollRequest(t *testing.T) {
+	// Waiting is required because we call a goroutine.
+	var wg sync.WaitGroup
+	wg.Add(1)
+	defer wg.Wait()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	sentMessage := &discordgo.Message{ID: "id"}
+
+	mockEvent := mock_main.NewMockEvent(ctrl)
+	gomock.InOrder(
+		mockEvent.EXPECT().SendMessage("A poll has been started!\n**title**\n1️⃣. option1\n2️⃣. option2\nExercise your right to vote by reacting accordingly! The poll will close in 1s.").Return(sentMessage),
+		mockEvent.EXPECT().SendMessage("**Results:**\nUnfortunately no votes were received, hence a decision was unable to be made.").Do(func(string) { wg.Done() }),
+	)
+	mockEvent.EXPECT().GetMessageByMessageID("id").Return(sentMessage, nil)
+	params := "title 1 option1 option2"
+	newPollRequest(mockEvent, params)
 }

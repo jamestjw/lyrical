@@ -133,7 +133,7 @@ func TestUpNextMatcher(t *testing.T) {
 	tableTest(t, tables, matcher)
 }
 
-func TestVoteMatcher(t *testing.T) {
+func TestPollMatcher(t *testing.T) {
 	matcher := VoteMatcher
 
 	tables := []Example{
