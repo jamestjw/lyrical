@@ -114,7 +114,7 @@ func (p *Poll) GetVerdict() string {
 	if options[0].count == 0 {
 		verdictMessage = "Unfortunately no votes were received, hence a decision was unable to be made."
 	} else if options[0].count == options[1].count {
-		verdictMessage = fmt.Sprintf("Looks like we have a tie between **%s** and **%s**", options[0].name, options[1].name)
+		verdictMessage = fmt.Sprintf("Looks like we have a tie between %s", getTiedOptions(options))
 	} else {
 		verdictMessage = fmt.Sprintf("The people have spoken, **%s** it shall be.", options[0].name)
 	}
@@ -124,6 +124,26 @@ func (p *Poll) GetVerdict() string {
 	return strings.Join(results, "\n")
 }
 
+// GetDuration returns a time.Duration corresponding to how long
+// the poll should last.
 func (p *Poll) GetDuration() time.Duration {
 	return time.Duration(p.durationInSeconds) * time.Second
+}
+
+// GetTiedOptions returns a string with the options that are tied on a particular
+// score. tiedScore should be a sorted array of Options in descending order
+// of count.
+func getTiedOptions(options []Option) string {
+	tiedScore := options[0].count
+	var tiedNames []string
+
+	for _, o := range options {
+		if o.count == tiedScore {
+			tiedNames = append(tiedNames, utils.Bold(o.name))
+		} else {
+			break
+		}
+	}
+
+	return strings.Join(tiedNames, ", ")
 }
