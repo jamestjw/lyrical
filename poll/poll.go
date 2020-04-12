@@ -34,6 +34,8 @@ var numberToEmoji = map[int]string{
 	10: "🔟",
 }
 
+// FromStringParams is a factory method to generate a poll
+// based on a string of params
 func FromStringParams(params string) (p *Poll, err error) {
 	var parsedParams []string
 
@@ -87,6 +89,8 @@ func (p *Poll) GeneratePollMessage() string {
 	return strings.Join(messages, "\n")
 }
 
+// AddResult accepts a map of emojis to counts and updates the results
+// of the poll.
 func (p *Poll) AddResult(reactionCounts map[string]int) {
 	for emoji, count := range reactionCounts {
 		option, exists := p.emojiToOption[emoji]
@@ -96,6 +100,9 @@ func (p *Poll) AddResult(reactionCounts map[string]int) {
 	}
 }
 
+// GetVerdict produces a string that contains the verdict of the poll
+// given the current scores of the poll. This will only make sense if
+// AddResult was called prior to this.
 func (p *Poll) GetVerdict() string {
 	options := []Option{}
 
