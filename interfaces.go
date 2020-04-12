@@ -14,11 +14,12 @@ type Session interface {
 
 // Event is an interface for a discord message event
 type Event interface {
-	SendMessage(message string)
+	SendMessage(message string) *discordgo.Message
 	FindVoiceChannel(channelName string) (channelID string, err error)
 	GetSession() voice.Connectable
 	GetGuildID() string
 	GetVoiceConnection() (voice.Connection, bool)
+	GetMessageByMessageID(messageID string) (*discordgo.Message, error)
 }
 
 type Searcher interface {

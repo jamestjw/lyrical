@@ -3,10 +3,12 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
+	lyrical_poll "github.com/jamestjw/lyrical/poll"
 	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
@@ -24,6 +26,7 @@ func init() {
 	defaultMux.RegisterHandler(matcher.NowPlayingMatcher, nowPlayingRequest)
 	defaultMux.RegisterHandler(matcher.HelpMatcher, helpRequest)
 	defaultMux.RegisterHandler(matcher.UpNextMatcher, upNextRequest)
+	defaultMux.RegisterHandler(matcher.VoteMatcher, newPollRequest)
 }
 
 func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
@@ -199,4 +202,30 @@ func upNextRequest(event Event, _ string) {
 	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, config.UpNextMaxSongsCount)
 	message := utils.FormatNowPlayingText(allSongs, "Coming Up Next:")
 	event.SendMessage(message)
+}
+
+func newPollRequest(event Event, pollParams string) {
+	p, err := lyrical_poll.FromStringParams(pollParams)
+
+	if err != nil {
+		event.SendMessage(err.Error())
+		return
+	}
+
+	sentMessage := event.SendMessage(p.GeneratePollMessage())
+
+	defer func() {
+		time.Sleep(p.GetDuration())
+		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
+		if err != nil {
+			log.Print(err)
+			event.SendMessage("Unable to find the poll, was the message deleted? :eyes:")
+			return
+		}
+
+		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
+		p.AddResult(counts)
+
+		event.SendMessage(p.GetVerdict())
+	}()
 }

@@ -18,7 +18,7 @@ var (
 )
 
 func TestNewMatcher(t *testing.T) {
-	m := NewMatcher("name", "arg", "!nowplaying")
+	m := NewMatcher("name", "!nowplaying", "arg")
 	assert.IsType(t, &Matcher{}, m, "should receive new pointer to Matcher")
 	assert.Equal(t, "name", m.GetName(), "should return name of matcher")
 }
@@ -28,7 +28,7 @@ func TestNewMatcher(t *testing.T) {
 // a required argument is not given.
 func TestMatchOneCommand(t *testing.T) {
 	command := "test-command"
-	argumentName := "expected-arg"
+	argumentName := []string{"expected-arg"}
 
 	tables := []struct {
 		input           string
@@ -77,7 +77,7 @@ func TestMatchOneCommand(t *testing.T) {
 
 func TestMatchTwoCommands(t *testing.T) {
 	command := "test-command"
-	argumentName := "expected-arg"
+	argumentName := []string{"expected-arg"}
 
 	tables := []struct {
 		input           string
@@ -123,9 +123,27 @@ func TestMatchTwoCommands(t *testing.T) {
 	}
 }
 
+func TestErrorString(t *testing.T) {
+	name := "command-name"
+	args := []string{"arg-1", "arg-2"}
+	expectedError := "whoops `command-name` requires the following parameter(s) `arg-1`, `arg-2` 😅"
+
+	e := Error{name, args}
+	assert.Equal(t, expectedError, e.Error())
+}
+
+func TestMatcherWithTwoArgsErrorMessage(t *testing.T) {
+	matcher := NewMatcher("command-name", `^!command-name(\s+(.*)$)?`, "arg-1", "arg-2")
+
+	expectedError := "whoops `command-name` requires the following parameter(s) `arg-1`, `arg-2` 😅"
+	matched, _, error := matcher.Match("!command-name")
+	assert.True(t, matched)
+	assert.Equal(t, expectedError, error.Error())
+}
+
 func TestMatchCommandWithNoArgument(t *testing.T) {
 	command := "test-command"
-	argumentName := ""
+	var argumentName []string
 
 	tables := []struct {
 		input           string
