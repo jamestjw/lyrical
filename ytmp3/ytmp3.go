@@ -21,9 +21,11 @@ func init() {
 
 // Download a MP3 file based on youtube ID
 func Download(youtubeID string) (title string, err error) {
+	utils.LogInfo("download", utils.KvForEvent("ytmp3", utils.SingleKV("youtubeID", youtubeID)))
+
 	vid, err := ytdl.GetVideoInfo("https://www.youtube.com/watch?v=" + youtubeID)
 	if err != nil {
-		log.Println("Failed to get video info")
+		log.Error("Failed to get video info: " + youtubeID)
 		return "", errors.New("video ID is invalid")
 	}
 	ffmpeg, err := exec.LookPath("ffmpeg")
@@ -45,13 +47,16 @@ func Download(youtubeID string) (title string, err error) {
 
 	vid.Download(vid.Formats[0], file)
 
-	log.Println("Video is ready.")
+	utils.LogInfo("video_ready", utils.KVs("name", title, "youtubeID", youtubeID, "event", "ytmp3"))
+
 	cmd := exec.Command(ffmpeg, "-y", "-loglevel", "quiet", "-i", videoFname, "-vn", mp3Fname)
 	if err := cmd.Run(); err != nil {
-		log.Println("Failed to extract audio:", err)
+		utils.LogError("failed audio_extraction", utils.KVs("err", err.Error(), "youtubeID", youtubeID, "event", "ytmp3"))
 		return "", err
 	}
-	log.Println("Extracted audio:", mp3Fname)
+
+	utils.LogInfo("audio_extracted", utils.KVs("filename", mp3Fname, "youtubeID", youtubeID, "event", "ytmp3"))
+
 	return title, nil
 }
 
