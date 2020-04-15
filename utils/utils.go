@@ -8,6 +8,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/playlist"
+	log "github.com/sirupsen/logrus"
 )
 
 // VideoDurationValid parses the duration of a YouTube video
@@ -84,4 +85,11 @@ func StringArrayMap(strs []string, f func(string) string) []string {
 	}
 
 	return res
+}
+
+func HandlerInfo(handler string, m string, guild string) {
+	log.WithFields(log.Fields{
+		"handler": handler,
+		"guildID": guild,
+	}).Info(m)
 }
