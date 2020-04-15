@@ -21,7 +21,7 @@ func init() {
 
 // Download a MP3 file based on youtube ID
 func Download(youtubeID string) (title string, err error) {
-	utils.LogInfo("download", utils.KvForEvent("ytmp3", utils.SingleKV("youtubeID", youtubeID)))
+	utils.LogInfo("download", utils.KvForEvent("ytmp3", utils.KVs("youtubeID", youtubeID)))
 
 	vid, err := ytdl.GetVideoInfo("https://www.youtube.com/watch?v=" + youtubeID)
 	if err != nil {

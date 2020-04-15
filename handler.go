@@ -46,7 +46,7 @@ func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func joinVoiceChannelRequest(event Event, channelName string) {
-	utils.LogInfo("request to join", utils.KvForHandler(event.GetGuildID(), "joinVoiceChannelRequest", utils.SingleKV("channelName", channelName)))
+	utils.LogInfo("request to join", utils.KvForHandler(event.GetGuildID(), "joinVoiceChannelRequest", utils.KVs("channelName", channelName)))
 
 	event.SendMessage(fmt.Sprintf("Connecting to channel name: %s", channelName))
 	channelID, err := event.FindVoiceChannel(channelName)
@@ -60,7 +60,7 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 		event.SendMessage(fmt.Sprintf("I am already in Voice Channel within Guild ID: %s", event.GetGuildID()))
 	} else {
 		vc := voice.JoinVoiceChannel(event.GetSession(), event.GetGuildID(), channelID)
-		utils.LogInfo("joined channel", utils.KvForHandler(event.GetGuildID(), "joinVoiceChannelRequest", utils.SingleKV("channelID", channelID)))
+		utils.LogInfo("joined channel", utils.KvForHandler(event.GetGuildID(), "joinVoiceChannelRequest", utils.KVs("channelID", channelID)))
 
 		thisChannel := voice.ActiveVoiceChannels[event.GetGuildID()]
 
