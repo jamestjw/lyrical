@@ -20,6 +20,7 @@ func TestHelpRequest(t *testing.T) {
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().SendMessage(gomock.Any())
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	helpRequest(mockEvent, "")
 }
@@ -38,7 +39,7 @@ func TestLeaveVoiceChannelRequestWhenConnected(t *testing.T) {
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
-	mockEvent.EXPECT().GetGuildID().Return("guildID")
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().SendMessage("Stopping music...")
 	mockEvent.EXPECT().SendMessage("Left voice channel 👋🏼")
 
@@ -50,6 +51,7 @@ func TestLeaveVoiceChannelRequestWhenNotConnected(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().GetVoiceConnection().Return(nil, false)
 	mockEvent.EXPECT().SendMessage("I am not in a voice channel.")
 
@@ -61,6 +63,7 @@ func TestNowPlayingRequestWhileNotConnected(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().GetVoiceConnection().Return(nil, false)
 	mockEvent.EXPECT().SendMessage("Hey I dont remember being invited to a voice channel. 😔")
 
@@ -82,6 +85,7 @@ func TestNowPlayingRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().SendMessage("Now playing: **current song name**")
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	nowPlayingRequest(mockEvent, "")
 }
@@ -100,6 +104,7 @@ func TestNowPlayingRequestWhileConnectedAndNotPlayingMusic(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().SendMessage("Well I am not playing any music currently 🤔")
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	nowPlayingRequest(mockEvent, "")
 }
@@ -121,6 +126,7 @@ func TestSkipMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().SendMessage("Skipping song... ❌")
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	skipMusicRequest(mockEvent, "")
 }
@@ -140,6 +146,7 @@ func TestStopMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().SendMessage("OK, Shutting up now...")
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	stopMusicRequest(mockEvent, "")
 }
@@ -169,7 +176,7 @@ func TestPlayMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
-	mockEvent.EXPECT().GetGuildID().Return("guildID")
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().SendMessage("Starting music... 🎵")
 
 	voice.DefaultMusicPlayer = mockPlayer
@@ -274,7 +281,6 @@ func TestJoinChannelRequest(t *testing.T) {
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	gomock.InOrder(
 		mockEvent.EXPECT().SendMessage("Connecting to channel name: channel-name"),
-		mockEvent.EXPECT().SendMessage("Joining Voice Channel: Guild ID: guildID ChannelID: channel-id"),
 		mockEvent.EXPECT().SendMessage("Playlist is still empty."),
 	)
 	joinVoiceChannelRequest(mockEvent, "channel-name")
@@ -327,6 +333,7 @@ func TestNewPollRequest(t *testing.T) {
 		mockEvent.EXPECT().SendMessage("A poll has been started!\n**title**\n1️⃣. option1\n2️⃣. option2\nExercise your right to vote by reacting accordingly! The poll will close in 1s.").Return(sentMessage),
 		mockEvent.EXPECT().SendMessage("**Results:**\nUnfortunately no votes were received, hence a decision was unable to be made.").Do(func(string) { wg.Done() }),
 	)
+	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().GetMessageByMessageID("id").Return(sentMessage, nil)
 	params := "title 1 option1 option2"
 	newPollRequest(mockEvent, params)

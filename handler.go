@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/bwmarrin/discordgo"
@@ -47,6 +46,8 @@ func heartbeatHandlerFunc(s *discordgo.Session, m *discordgo.MessageCreate) {
 }
 
 func joinVoiceChannelRequest(event Event, channelName string) {
+	utils.LogInfo("request to join", utils.KvForHandler(event.GetGuildID(), "joinVoiceChannelRequest", utils.KVs("channelName", channelName)))
+
 	event.SendMessage(fmt.Sprintf("Connecting to channel name: %s", channelName))
 	channelID, err := event.FindVoiceChannel(channelName)
 
@@ -58,10 +59,9 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 	if voice.AlreadyInVoiceChannel(event.GetSession(), event.GetGuildID()) {
 		event.SendMessage(fmt.Sprintf("I am already in Voice Channel within Guild ID: %s", event.GetGuildID()))
 	} else {
-		event.SendMessage(fmt.Sprintf("Joining Voice Channel: Guild ID: %s ChannelID: %v", event.GetGuildID(), channelID))
-		log.Printf("Joining Guild ID: %s ChannelID: %v \n", event.GetGuildID(), channelID)
-
 		vc := voice.JoinVoiceChannel(event.GetSession(), event.GetGuildID(), channelID)
+		utils.LogInfo("joined channel", utils.KvForHandler(event.GetGuildID(), "joinVoiceChannelRequest", utils.KVs("channelID", channelID)))
+
 		thisChannel := voice.ActiveVoiceChannels[event.GetGuildID()]
 
 		if !thisChannel.ExistsNext() && !thisChannel.ExistsBackupNext() {
@@ -74,6 +74,8 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 }
 
 func leaveVoiceChannelRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "leaveVoiceChannelRequest", nil))
+
 	vc, connected := event.GetVoiceConnection()
 
 	if connected {
@@ -90,6 +92,8 @@ func leaveVoiceChannelRequest(event Event, _ string) {
 }
 
 func addToPlaylistRequest(event Event, query string) {
+	utils.LogInfo(query, utils.KvForHandler(event.GetGuildID(), "addToPlaylistRequest", nil))
+
 	youtubeID, err := searchService.GetVideoID(query)
 	if err != nil {
 		event.SendMessage(err.Error())
@@ -117,10 +121,14 @@ func addToPlaylistRequest(event Event, query string) {
 }
 
 func helpRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "helpRequest", nil))
+
 	event.SendMessage(help.Message())
 }
 
 func playMusicRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "playMusicRequest", nil))
+
 	vc, connected := event.GetVoiceConnection()
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel yet.")
@@ -140,6 +148,8 @@ func playMusicRequest(event Event, _ string) {
 }
 
 func stopMusicRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "stopMusicRequest", nil))
+
 	vc, connected := event.GetVoiceConnection()
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel. 😔")
@@ -155,6 +165,8 @@ func stopMusicRequest(event Event, _ string) {
 }
 
 func nowPlayingRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "nowPlayingRequest", nil))
+
 	vconn, connected := event.GetVoiceConnection()
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel. 😔")
@@ -169,6 +181,8 @@ func nowPlayingRequest(event Event, _ string) {
 }
 
 func skipMusicRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "skipMusicRequest", nil))
+
 	vc, connected := event.GetVoiceConnection()
 	if !connected {
 		event.SendMessage("Hey I dont remember being invited to a voice channel yet. 😔")
@@ -189,6 +203,8 @@ func skipMusicRequest(event Event, _ string) {
 }
 
 func upNextRequest(event Event, _ string) {
+	utils.LogInfo("", utils.KvForHandler(event.GetGuildID(), "upNextRequest", nil))
+
 	thisVoiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 
 	nextSongs, hasSongs := thisVoiceChannel.GetNextSongs()
@@ -205,6 +221,8 @@ func upNextRequest(event Event, _ string) {
 }
 
 func newPollRequest(event Event, pollParams string) {
+	utils.LogInfo(pollParams, utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
+
 	p, err := lyrical_poll.FromStringParams(pollParams)
 
 	if err != nil {
@@ -218,7 +236,7 @@ func newPollRequest(event Event, pollParams string) {
 		time.Sleep(p.GetDuration())
 		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
 		if err != nil {
-			log.Print(err)
+			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
 			event.SendMessage("Unable to find the poll, was the message deleted? :eyes:")
 			return
 		}

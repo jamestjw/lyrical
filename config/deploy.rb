@@ -55,7 +55,7 @@ namespace :deploy do
 
       log_path = "#{release_path}/log/discordbot.log"
       execute "touch #{log_path}"
-      execute "cd #{release_path}; screen -dmS discordbot sh -c './bin/lyrical-bot 2>&1 | tee -a #{log_path}'"
+      execute "cd #{release_path}; screen -dmS discordbot sh -c './bin/lyrical-bot'"
     end
   end
 end
@@ -81,6 +81,6 @@ after 'go:stop-previous', 'go:deploy-new' do
   on roles(:app) do
     log_path = "#{release_path}/log/discordbot.log"
     execute "touch #{log_path}"
-    execute "cd #{release_path}; screen -dmS discordbot sh -c './bin/lyrical-bot 2>&1 | tee -a #{log_path}'"
+    execute "cd #{release_path}; screen -dmS discordbot sh -c './bin/lyrical-bot'"
   end
 end

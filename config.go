@@ -2,8 +2,9 @@ package main
 
 import (
 	"encoding/json"
-	"log"
 	"os"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var config Config

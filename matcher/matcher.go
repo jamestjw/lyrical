@@ -2,9 +2,10 @@ package matcher
 
 import (
 	"fmt"
-	"log"
 	"regexp"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Error is the error returned from matcher when invalid
