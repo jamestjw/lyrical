@@ -3,8 +3,9 @@ package voice
 import (
 	"fmt"
 	"io"
-	"log"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/ytmp3"

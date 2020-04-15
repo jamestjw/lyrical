@@ -2,7 +2,8 @@ package main
 
 import (
 	"errors"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/voice"

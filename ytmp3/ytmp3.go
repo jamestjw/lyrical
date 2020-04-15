@@ -2,10 +2,11 @@ package ytmp3
 
 import (
 	"errors"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/ytdl"

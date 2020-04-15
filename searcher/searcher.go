@@ -2,7 +2,8 @@ package searcher
 
 import (
 	"fmt"
-	"log"
+
+	log "github.com/sirupsen/logrus"
 
 	"golang.org/x/net/context"
 	"google.golang.org/api/option"
