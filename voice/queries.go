@@ -12,8 +12,8 @@ type SongDatabase struct {
 	Connection *gorm.DB
 }
 
-func ConnectToDatabase(env string) {
-	DB = SongDatabase{database.InitialiseDatabase(env)}
+func ConnectToDatabase(db *gorm.DB) {
+	DB = SongDatabase{db}
 }
 
 // AddSongToDB adds song details to the database

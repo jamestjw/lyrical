@@ -11,7 +11,7 @@ import (
 )
 
 func setup() {
-	voice.ConnectToDatabase("test")
+	voice.ConnectToDatabase(database.InitialiseDatabase("test"))
 }
 
 func cleanSongs() {

@@ -8,7 +8,6 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/jamestjw/lyrical/database"
 	"github.com/jamestjw/lyrical/voice"
 )
 
@@ -40,11 +39,7 @@ func main() {
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
 	select {
 	case <-sc:
-		log.Println("Received signal to terminate, cleaning up...")
-		// Cleanly close down the Discord session.
-		voice.DisconnectAllVoiceConnections(dg.(voice.Connectable))
-		database.Connection.Close()
-		log.Println("Exit successful!")
+		shutdownApplication(dg.(voice.Connectable))
 		return
 	}
 }
