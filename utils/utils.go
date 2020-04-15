@@ -87,9 +87,25 @@ func StringArrayMap(strs []string, f func(string) string) []string {
 	return res
 }
 
-func HandlerInfo(handler string, m string, guild string) {
-	log.WithFields(log.Fields{
-		"handler": handler,
-		"guildID": guild,
-	}).Info(m)
+func HandlerInfo(m string, kvs []LogKV) {
+	fields := log.Fields{}
+	for _, kv := range kvs {
+		fields[kv.key] = kv.value
+	}
+	log.WithFields(fields).Info(m)
+}
+
+func KvForHandler(guild string, handler string, kvs []LogKV) []LogKV {
+	kvs = append(kvs, LogKV{"guildID", guild}, LogKV{"event", handler})
+
+	return kvs
+}
+
+func SingleKV(k string, v string) []LogKV {
+	return []LogKV{LogKV{k, v}}
+}
+
+type LogKV struct {
+	key   string
+	value string
 }
