@@ -38,7 +38,7 @@ func (db SongDatabase) SongExists(youtubeID string) (name string, exists bool) {
 // LoadPlaylist will load a playlist from the database.
 func (db SongDatabase) LoadPlaylist(p *playlist.Playlist) {
 	var songs []database.Song
-	db.Connection.Order("random()").Limit(10).Find(&songs)
+	db.Connection.Order("random()").Limit(20).Find(&songs)
 
 	for i, song := range songs {
 		newSong := p.AddSong(song.Name, song.YoutubeID)
