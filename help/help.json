@@ -40,6 +40,11 @@
             "description": "Upcoming Songs",
             "name": "up-next",
             "arguments": ""   
+        },
+        {
+            "description": "Start a poll",
+            "name": "poll",
+            "arguments": ["title", "duration", "options..."]
         }
     ]
 }
