@@ -68,7 +68,6 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 			event.SendMessage("Playlist is still empty.")
 		} else {
 			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisChannel, thisChannel.ExistsNext())
-			event.SendMessage("Starting music... 🎵")
 		}
 	}
 }
@@ -81,7 +80,6 @@ func leaveVoiceChannelRequest(event Event, _ string) {
 	if connected {
 		voiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 		if voiceChannel.IsPlayingMusic() {
-			event.SendMessage("Stopping music...")
 			voiceChannel.StopMusic()
 		}
 		vc.Disconnect()
@@ -99,8 +97,6 @@ func addToPlaylistRequest(event Event, query string) {
 		event.SendMessage(err.Error())
 		return
 	}
-
-	event.SendMessage("Adding to playlist 😉")
 
 	title, err := voice.AddSong(youtubeID, event.GetGuildID())
 	if err != nil {
@@ -157,7 +153,6 @@ func stopMusicRequest(event Event, _ string) {
 		voiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if voiceChannel.IsPlayingMusic() {
 			voiceChannel.StopMusic()
-			event.SendMessage("OK, Shutting up now...")
 		} else {
 			event.SendMessage("Well I am not playing any music currently 🤔")
 		}
@@ -190,8 +185,6 @@ func skipMusicRequest(event Event, _ string) {
 		thisVoiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if thisVoiceChannel.IsPlayingMusic() {
 			thisVoiceChannel.StopMusic()
-			event.React("👌🏻")
-			event.SendMessage("Skipping song... ❌")
 			if thisVoiceChannel.ExistsNext() {
 				go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, true)
 			} else if thisVoiceChannel.ExistsBackupNext() {

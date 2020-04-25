@@ -57,8 +57,8 @@ func (mux *Mux) Route(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if !exists {
 			log.Fatal("Handler matched but no handler func registered.")
 		}
-
-		handlerFunc(DiscordEvent{s, m}, arg)
-		return
+		event := DiscordEvent{s, m}
+		event.React("👌🏻")
+		handlerFunc(event, arg)
 	}
 }
