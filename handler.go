@@ -235,6 +235,7 @@ func newPollRequest(event Event, pollParams string) {
 	defer func() {
 		time.Sleep(p.GetDuration())
 		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
+
 		if err != nil {
 			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
 			event.SendMessage("Unable to find the poll, was the message deleted? :eyes:")
@@ -244,6 +245,6 @@ func newPollRequest(event Event, pollParams string) {
 		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
 		p.AddResult(counts)
 
-		event.SendMessage(p.GetVerdict())
+		event.SendQuotedMessage(pollMessageContents, p.GetVerdict())
 	}()
 }

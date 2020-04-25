@@ -210,6 +210,20 @@ func (mr *MockEventMockRecorder) ReactToMessage(emoji, messageID interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReactToMessage", reflect.TypeOf((*MockEvent)(nil).ReactToMessage), emoji, messageID)
 }
 
+// SendQuotedMessage mocks base method.
+func (m *MockEvent) SendQuotedMessage(quote, message string) *discordgo.Message {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendQuotedMessage", quote, message)
+	ret0, _ := ret[0].(*discordgo.Message)
+	return ret0
+}
+
+// SendQuotedMessage indicates an expected call of SendQuotedMessage.
+func (mr *MockEventMockRecorder) SendQuotedMessage(quote, message interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendQuotedMessage", reflect.TypeOf((*MockEvent)(nil).SendQuotedMessage), quote, message)
+}
+
 // MockSearcher is a mock of Searcher interface.
 type MockSearcher struct {
 	ctrl     *gomock.Controller
