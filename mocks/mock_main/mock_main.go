@@ -198,6 +198,18 @@ func (mr *MockEventMockRecorder) React(emoji interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "React", reflect.TypeOf((*MockEvent)(nil).React), emoji)
 }
 
+// ReactToMessage mocks base method.
+func (m *MockEvent) ReactToMessage(emoji, messageID string) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "ReactToMessage", emoji, messageID)
+}
+
+// ReactToMessage indicates an expected call of ReactToMessage.
+func (mr *MockEventMockRecorder) ReactToMessage(emoji, messageID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReactToMessage", reflect.TypeOf((*MockEvent)(nil).ReactToMessage), emoji, messageID)
+}
+
 // MockSearcher is a mock of Searcher interface.
 type MockSearcher struct {
 	ctrl     *gomock.Controller

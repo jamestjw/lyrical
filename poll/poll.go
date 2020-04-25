@@ -121,7 +121,7 @@ func (p *Poll) GetVerdict() string {
 
 	var verdictMessage string
 
-	if options[0].count == 0 {
+	if options[0].count == 1 {
 		verdictMessage = "Unfortunately no votes were received, hence a decision was unable to be made."
 	} else if options[0].count == options[1].count {
 		verdictMessage = fmt.Sprintf("Looks like we have a tie between %s", getTiedOptions(options))

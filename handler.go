@@ -98,6 +98,8 @@ func addToPlaylistRequest(event Event, query string) {
 		return
 	}
 
+	event.SendMessage("Adding to playlist 😉")
+
 	title, err := voice.AddSong(youtubeID, event.GetGuildID())
 	if err != nil {
 		event.SendMessage(err.Error())

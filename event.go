@@ -32,6 +32,7 @@ func (e DiscordEvent) React(emoji string) {
 	e.ReactToMessage(emoji, e.message.ID)
 }
 
+// ReactToMessage will react to a particular message in the channel that triggered this event
 func (e DiscordEvent) ReactToMessage(emoji string, messageID string) {
 	err := e.session.MessageReactionAdd(e.message.ChannelID, messageID, emoji)
 	if err != nil {
