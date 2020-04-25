@@ -26,6 +26,15 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 	return m
 }
 
+// React will add a reaction from the bot to the message that triggered
+// this event.
+func (e DiscordEvent) React(emoji string) {
+	err := e.session.MessageReactionAdd(e.message.ChannelID, e.message.ID, emoji)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
 // FindVoiceChannel tries to find a voice channel with this channel name
 // within the guild.
 func (e DiscordEvent) FindVoiceChannel(channelName string) (channelID string, err error) {

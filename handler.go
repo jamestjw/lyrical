@@ -190,6 +190,7 @@ func skipMusicRequest(event Event, _ string) {
 		thisVoiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if thisVoiceChannel.IsPlayingMusic() {
 			thisVoiceChannel.StopMusic()
+			event.React("👌🏻")
 			event.SendMessage("Skipping song... ❌")
 			if thisVoiceChannel.ExistsNext() {
 				go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, true)
