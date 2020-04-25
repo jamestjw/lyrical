@@ -68,14 +68,17 @@ func FromStringParams(params string) (p *Poll, err error) {
 	return
 }
 
-func (p *Poll) GeneratePollMessage() string {
+func (p *Poll) GeneratePollMessage() (string, []string) {
 	messages := []string{
 		"A poll has been started!",
 		utils.Bold(p.title),
 	}
 
+	emojis := []string{}
+
 	for index, option := range p.options {
 		emoji := numberToEmoji[index+1]
+		emojis = append(emojis, emoji)
 		p.emojiToOption[emoji] = &Option{name: option}
 
 		formattedOption := fmt.Sprintf("%s. %s", emoji, option)
@@ -86,7 +89,7 @@ func (p *Poll) GeneratePollMessage() string {
 
 	messages = append(messages, finalMessage)
 
-	return strings.Join(messages, "\n")
+	return strings.Join(messages, "\n"), emojis
 }
 
 // AddResult accepts a map of emojis to counts and updates the results

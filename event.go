@@ -29,7 +29,11 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 // React will add a reaction from the bot to the message that triggered
 // this event.
 func (e DiscordEvent) React(emoji string) {
-	err := e.session.MessageReactionAdd(e.message.ChannelID, e.message.ID, emoji)
+	e.ReactToMessage(emoji, e.message.ID)
+}
+
+func (e DiscordEvent) ReactToMessage(emoji string, messageID string) {
+	err := e.session.MessageReactionAdd(e.message.ChannelID, messageID, emoji)
 	if err != nil {
 		log.Fatal(err)
 	}

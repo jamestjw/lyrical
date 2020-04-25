@@ -224,7 +224,11 @@ func newPollRequest(event Event, pollParams string) {
 		return
 	}
 
-	sentMessage := event.SendMessage(p.GeneratePollMessage())
+	pollMessageContents, pollEmojis := p.GeneratePollMessage()
+	sentMessage := event.SendMessage(pollMessageContents)
+	for _, emoji := range pollEmojis {
+		event.ReactToMessage(emoji, sentMessage.ID)
+	}
 
 	defer func() {
 		time.Sleep(p.GetDuration())

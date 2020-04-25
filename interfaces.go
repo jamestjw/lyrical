@@ -21,6 +21,7 @@ type Event interface {
 	GetVoiceConnection() (voice.Connection, bool)
 	GetMessageByMessageID(messageID string) (*discordgo.Message, error)
 	React(emoji string)
+	ReactToMessage(emoji string, messageID string)
 }
 
 type Searcher interface {
