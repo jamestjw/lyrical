@@ -52,7 +52,7 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 	channelID, err := event.FindVoiceChannel(channelName)
 
 	if err != nil {
-		event.SendMessage("Unable to find channel fo this name in the server.")
+		event.SendMessage("Unable to find channel of this name in the server.")
 		return
 	}
 
@@ -68,6 +68,7 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 			event.SendMessage("Playlist is still empty.")
 		} else {
 			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisChannel, thisChannel.ExistsNext())
+			event.SendMessage("Starting music 🎶")
 		}
 	}
 }
