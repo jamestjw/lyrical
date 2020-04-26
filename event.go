@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"fmt"
 
 	log "github.com/sirupsen/logrus"
 
@@ -24,6 +25,28 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 		log.Fatal(err)
 	}
 	return m
+}
+
+// SendQuotedMessage sends a message to the channel within
+// the guild that invoked this event with an added quote.
+func (e DiscordEvent) SendQuotedMessage(quote string, message string) *discordgo.Message {
+	quotedMessage := fmt.Sprintf(`>>> %s`, quote)
+	e.SendMessage(quotedMessage)
+	return e.SendMessage(message)
+}
+
+// React will add a reaction from the bot to the message that triggered
+// this event.
+func (e DiscordEvent) React(emoji string) {
+	e.ReactToMessage(emoji, e.message.ID)
+}
+
+// ReactToMessage will react to a particular message in the channel that triggered this event
+func (e DiscordEvent) ReactToMessage(emoji string, messageID string) {
+	err := e.session.MessageReactionAdd(e.message.ChannelID, messageID, emoji)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 // FindVoiceChannel tries to find a voice channel with this channel name

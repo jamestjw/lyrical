@@ -20,6 +20,9 @@ type Event interface {
 	GetGuildID() string
 	GetVoiceConnection() (voice.Connection, bool)
 	GetMessageByMessageID(messageID string) (*discordgo.Message, error)
+	React(emoji string)
+	ReactToMessage(emoji string, messageID string)
+	SendQuotedMessage(quote string, message string) *discordgo.Message
 }
 
 type Searcher interface {

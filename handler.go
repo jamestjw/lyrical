@@ -52,7 +52,7 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 	channelID, err := event.FindVoiceChannel(channelName)
 
 	if err != nil {
-		event.SendMessage("Unable to find channel fo this name in the server.")
+		event.SendMessage("Unable to find channel of this name in the server.")
 		return
 	}
 
@@ -68,7 +68,7 @@ func joinVoiceChannelRequest(event Event, channelName string) {
 			event.SendMessage("Playlist is still empty.")
 		} else {
 			voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisChannel, thisChannel.ExistsNext())
-			event.SendMessage("Starting music... 🎵")
+			event.SendMessage("Starting music 🎶")
 		}
 	}
 }
@@ -81,7 +81,6 @@ func leaveVoiceChannelRequest(event Event, _ string) {
 	if connected {
 		voiceChannel := voice.ActiveVoiceChannelForGuild(event.GetGuildID())
 		if voiceChannel.IsPlayingMusic() {
-			event.SendMessage("Stopping music...")
 			voiceChannel.StopMusic()
 		}
 		vc.Disconnect()
@@ -157,7 +156,6 @@ func stopMusicRequest(event Event, _ string) {
 		voiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if voiceChannel.IsPlayingMusic() {
 			voiceChannel.StopMusic()
-			event.SendMessage("OK, Shutting up now...")
 		} else {
 			event.SendMessage("Well I am not playing any music currently 🤔")
 		}
@@ -190,7 +188,6 @@ func skipMusicRequest(event Event, _ string) {
 		thisVoiceChannel := voice.ActiveVoiceChannelForGuild(vc.GetGuildID())
 		if thisVoiceChannel.IsPlayingMusic() {
 			thisVoiceChannel.StopMusic()
-			event.SendMessage("Skipping song... ❌")
 			if thisVoiceChannel.ExistsNext() {
 				go voice.PlayMusic(vc.GetAudioInputChannel(), event.GetGuildID(), thisVoiceChannel, true)
 			} else if thisVoiceChannel.ExistsBackupNext() {
@@ -230,11 +227,16 @@ func newPollRequest(event Event, pollParams string) {
 		return
 	}
 
-	sentMessage := event.SendMessage(p.GeneratePollMessage())
+	pollMessageContents, pollEmojis := p.GeneratePollMessage()
+	sentMessage := event.SendMessage(pollMessageContents)
+	for _, emoji := range pollEmojis {
+		event.ReactToMessage(emoji, sentMessage.ID)
+	}
 
 	defer func() {
 		time.Sleep(p.GetDuration())
 		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
+
 		if err != nil {
 			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
 			event.SendMessage("Unable to find the poll, was the message deleted? :eyes:")
@@ -244,6 +246,6 @@ func newPollRequest(event Event, pollParams string) {
 		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
 		p.AddResult(counts)
 
-		event.SendMessage(p.GetVerdict())
+		event.SendQuotedMessage(pollMessageContents, p.GetVerdict())
 	}()
 }

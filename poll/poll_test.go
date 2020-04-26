@@ -49,13 +49,15 @@ func TestGeneratePollMessage(t *testing.T) {
 	}
 
 	expectedMessage := "A poll has been started!\n**title**\n1️⃣. option1\n2️⃣. option2\nExercise your right to vote by reacting accordingly! The poll will close in 5s."
-	assert.Equal(t, expectedMessage, p.GeneratePollMessage(), "should have right message")
+	receivedMessage, emojis := p.GeneratePollMessage()
+	assert.Equal(t, expectedMessage, receivedMessage, "should have right message")
+	assert.ElementsMatch(t, []string{"1️⃣", "2️⃣"}, emojis)
 }
 
 func TestAddResult(t *testing.T) {
 	var emojiToOption = map[string]*Option{
-		"emojiOne": &Option{},
-		"emojiTwo": &Option{},
+		"emojiOne": {},
+		"emojiTwo": {},
 	}
 
 	var reactionCounts = map[string]int{
@@ -72,11 +74,11 @@ func TestAddResult(t *testing.T) {
 
 func TestTiedOptionsMessage(t *testing.T) {
 	options := []Option{
-		Option{name: "option1", count: 5},
-		Option{name: "option2", count: 5},
-		Option{name: "option3", count: 5},
-		Option{name: "option4", count: 4},
-		Option{name: "option5", count: 3},
+		{name: "option1", count: 5},
+		{name: "option2", count: 5},
+		{name: "option3", count: 5},
+		{name: "option4", count: 4},
+		{name: "option5", count: 3},
 	}
 
 	res := getTiedOptions(options)
@@ -86,8 +88,8 @@ func TestTiedOptionsMessage(t *testing.T) {
 
 func TestGetVerdictClearWinner(t *testing.T) {
 	var emojiToOption = map[string]*Option{
-		"emojiOne": &Option{name: "option1", count: 5},
-		"emojiTwo": &Option{name: "option2", count: 4},
+		"emojiOne": {name: "option1", count: 5},
+		"emojiTwo": {name: "option2", count: 4},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}
@@ -98,8 +100,8 @@ func TestGetVerdictClearWinner(t *testing.T) {
 
 func TestGetVerdictNoVotes(t *testing.T) {
 	var emojiToOption = map[string]*Option{
-		"emojiOne": &Option{name: "option1", count: 0},
-		"emojiTwo": &Option{name: "option2", count: 0},
+		"emojiOne": {name: "option1", count: 1},
+		"emojiTwo": {name: "option2", count: 1},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}
@@ -110,9 +112,9 @@ func TestGetVerdictNoVotes(t *testing.T) {
 
 func TestGetVerdictTies(t *testing.T) {
 	var emojiToOption = map[string]*Option{
-		"emojiOne":   &Option{name: "option1", count: 2},
-		"emojiTwo":   &Option{name: "option2", count: 2},
-		"emojiThree": &Option{name: "option3", count: 2},
+		"emojiOne":   {name: "option1", count: 2},
+		"emojiTwo":   {name: "option2", count: 2},
+		"emojiThree": {name: "option3", count: 2},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}

@@ -40,7 +40,6 @@ func TestLeaveVoiceChannelRequestWhenConnected(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
-	mockEvent.EXPECT().SendMessage("Stopping music...")
 	mockEvent.EXPECT().SendMessage("Left voice channel 👋🏼")
 
 	leaveVoiceChannelRequest(mockEvent, "")
@@ -125,7 +124,6 @@ func TestSkipMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
-	mockEvent.EXPECT().SendMessage("Skipping song... ❌")
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	skipMusicRequest(mockEvent, "")
@@ -145,7 +143,6 @@ func TestStopMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
-	mockEvent.EXPECT().SendMessage("OK, Shutting up now...")
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 
 	stopMusicRequest(mockEvent, "")
@@ -328,10 +325,14 @@ func TestNewPollRequest(t *testing.T) {
 
 	sentMessage := &discordgo.Message{ID: "id"}
 
+	expectedPollMessage := "A poll has been started!\n**title**\n1️⃣. option1\n2️⃣. option2\nExercise your right to vote by reacting accordingly! The poll will close in 1s."
+
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	gomock.InOrder(
-		mockEvent.EXPECT().SendMessage("A poll has been started!\n**title**\n1️⃣. option1\n2️⃣. option2\nExercise your right to vote by reacting accordingly! The poll will close in 1s.").Return(sentMessage),
-		mockEvent.EXPECT().SendMessage("**Results:**\nUnfortunately no votes were received, hence a decision was unable to be made.").Do(func(string) { wg.Done() }),
+		mockEvent.EXPECT().SendMessage(expectedPollMessage).Return(sentMessage),
+		mockEvent.EXPECT().ReactToMessage("1️⃣", "id"),
+		mockEvent.EXPECT().ReactToMessage("2️⃣", "id"),
+		mockEvent.EXPECT().SendQuotedMessage(expectedPollMessage, gomock.Any()).Do(func(string, string) { wg.Done() }),
 	)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().GetMessageByMessageID("id").Return(sentMessage, nil)
