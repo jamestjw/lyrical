@@ -7,6 +7,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"github.com/jamestjw/lyrical/help"
 	"github.com/jamestjw/lyrical/matcher"
+	"github.com/jamestjw/lyrical/playlist"
 	lyrical_poll "github.com/jamestjw/lyrical/poll"
 	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
@@ -212,8 +213,8 @@ func upNextRequest(event Event, _ string) {
 		return
 	}
 
-	allSongs := utils.LimitSongsArrayLengths(nextSongs, nextBackupSongs, config.UpNextMaxSongsCount)
-	message := utils.FormatNowPlayingText(allSongs, "Coming Up Next:")
+	allSongs := playlist.LimitSongsArrayLengths(nextSongs, nextBackupSongs, config.UpNextMaxSongsCount)
+	message := playlist.FormatNowPlayingText(allSongs, "Coming Up Next:")
 	event.SendMessage(message)
 }
 

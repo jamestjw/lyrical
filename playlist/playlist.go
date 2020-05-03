@@ -1,6 +1,10 @@
 package playlist
 
-import "sync"
+import (
+	"sync"
+
+	"github.com/jamestjw/lyrical/utils"
+)
 
 // Song is a type that contains information about a song saved in the bot
 type Song struct {
@@ -72,6 +76,7 @@ func (p *Playlist) SetNowPlaying(s *Song) {
 	p.m.Lock()
 	defer p.m.Unlock()
 	p.nowPlaying = s
+	utils.LogInfo("", utils.KvForEvent("set-now-playing", utils.KVs("name", s.Name)))
 }
 
 // RemoveNowPlaying removes the currently playing song
