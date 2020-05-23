@@ -1,5 +1,5 @@
 # config valid for current version and patch releases of Capistrano
-lock "~> 3.12.1"
+# lock "~> 3.12.1"
 
 set :application, "lyrical-bot"
 set :repo_url, "https://github.com/jamestjw/lyrical.git"
@@ -84,3 +84,4 @@ after 'go:stop-previous', 'go:deploy-new' do
     execute "cd #{release_path}; screen -dmS discordbot sh -c './bin/lyrical-bot'"
   end
 end
+

@@ -1,0 +1,47 @@
+# Logfile created on 2020-05-23 19:10:57 +0800 by logger.rb/54362
+  INFO ---------------------------------------------------------------------------
+  INFO START 2020-05-23 19:10:57 +0800 cap staging deploy:restart
+  INFO ---------------------------------------------------------------------------
+ DEBUG [b7499fdf] Running /usr/bin/env ps aux | grep bin/lyrical-bot | grep -v grep | awk '{print $2}' | tail -n1 as deploy@35.238.154.131
+ DEBUG [b7499fdf] Command: /usr/bin/env ps aux | grep bin/lyrical-bot | grep -v grep | awk '{print $2}' | tail -n1
+ DEBUG [b7499fdf] 	8904
+ DEBUG [b7499fdf] Finished in 3.003 seconds with exit status 0 (successful).
+  INFO Found PID: 8904
+  INFO [5d960ac3] Running /usr/bin/env kill -s SIGINT 8904 as deploy@35.238.154.131
+ DEBUG [5d960ac3] Command: /usr/bin/env kill -s SIGINT 8904
+  INFO [5d960ac3] Finished in 0.688 seconds with exit status 0 (successful).
+  INFO [e799eadf] Running touch /var/www/lyrical-bot/current/log/discordbot.log as deploy@35.238.154.131
+ DEBUG [e799eadf] Command: touch /var/www/lyrical-bot/current/log/discordbot.log
+  INFO [e799eadf] Finished in 0.688 seconds with exit status 0 (successful).
+  INFO [2d831d31] Running cd /var/www/lyrical-bot/current; screen -dmS discordbot sh -c './bin/lyrical-bot' as deploy@35.238.154.131
+ DEBUG [2d831d31] Command: cd /var/www/lyrical-bot/current; screen -dmS discordbot sh -c './bin/lyrical-bot'
+  INFO [2d831d31] Finished in 0.711 seconds with exit status 0 (successful).
+  INFO ---------------------------------------------------------------------------
+  INFO START 2020-05-23 19:13:37 +0800 cap staging deploy:restart
+  INFO ---------------------------------------------------------------------------
+ DEBUG [d6d9637b] Running /usr/bin/env ps aux | grep bin/lyrical-bot | grep -v grep | awk '{print $2}' | tail -n1 as deploy@35.238.154.131
+ DEBUG [d6d9637b] Command: /usr/bin/env ps aux | grep bin/lyrical-bot | grep -v grep | awk '{print $2}' | tail -n1
+ DEBUG [d6d9637b] Finished in 4.661 seconds with exit status 0 (successful).
+  INFO [1d8068e5] Running touch /var/www/lyrical-bot/current/log/discordbot.log as deploy@35.238.154.131
+ DEBUG [1d8068e5] Command: touch /var/www/lyrical-bot/current/log/discordbot.log
+  INFO [1d8068e5] Finished in 0.919 seconds with exit status 0 (successful).
+  INFO [eb4ad6e9] Running cd /var/www/lyrical-bot/current; screen -dmS discordbot sh -c './bin/lyrical-bot' as deploy@35.238.154.131
+ DEBUG [eb4ad6e9] Command: cd /var/www/lyrical-bot/current; screen -dmS discordbot sh -c './bin/lyrical-bot'
+  INFO [eb4ad6e9] Finished in 1.839 seconds with exit status 0 (successful).
+  INFO ---------------------------------------------------------------------------
+  INFO START 2020-05-23 19:14:17 +0800 cap staging deploy:restart
+  INFO ---------------------------------------------------------------------------
+ DEBUG [93b6e6ce] Running /usr/bin/env ps aux | grep bin/lyrical-bot | grep -v grep | awk '{print $2}' | tail -n1 as deploy@35.238.154.131
+ DEBUG [93b6e6ce] Command: /usr/bin/env ps aux | grep bin/lyrical-bot | grep -v grep | awk '{print $2}' | tail -n1
+ DEBUG [93b6e6ce] 	27807
+ DEBUG [93b6e6ce] Finished in 2.728 seconds with exit status 0 (successful).
+  INFO Found PID: 27807
+  INFO [d14ee739] Running /usr/bin/env kill -s SIGINT 27807 as deploy@35.238.154.131
+ DEBUG [d14ee739] Command: /usr/bin/env kill -s SIGINT 27807
+  INFO [d14ee739] Finished in 0.682 seconds with exit status 0 (successful).
+  INFO [8394ec33] Running touch /var/www/lyrical-bot/current/log/discordbot.log as deploy@35.238.154.131
+ DEBUG [8394ec33] Command: touch /var/www/lyrical-bot/current/log/discordbot.log
+  INFO [8394ec33] Finished in 0.673 seconds with exit status 0 (successful).
+  INFO [509669a0] Running cd /var/www/lyrical-bot/current; screen -dmS discordbot sh -c './bin/lyrical-bot' as deploy@35.238.154.131
+ DEBUG [509669a0] Command: cd /var/www/lyrical-bot/current; screen -dmS discordbot sh -c './bin/lyrical-bot'
+  INFO [509669a0] Finished in 1.510 seconds with exit status 0 (successful).
