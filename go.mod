@@ -11,6 +11,7 @@ require (
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/mattn/go-sqlite3 v2.0.3+incompatible // indirect
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/rylio/ytdl v0.6.3 // indirect
 	github.com/sirupsen/logrus v1.5.0
 	github.com/stretchr/testify v1.4.0
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859
