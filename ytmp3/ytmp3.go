@@ -1,7 +1,9 @@
 package ytmp3
 
 import (
+	"context"
 	"errors"
+	"net/http"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -9,7 +11,8 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/jamestjw/lyrical/utils"
-	"github.com/jamestjw/ytdl"
+	zerolog "github.com/rs/zerolog/log"
+	"github.com/rylio/ytdl"
 )
 
 // AudioPath is the path that contains all audio files
@@ -21,9 +24,15 @@ func init() {
 
 // Download a MP3 file based on youtube ID
 func Download(youtubeID string) (title string, err error) {
+	ctx := context.Background()
+	client := ytdl.Client{
+		HTTPClient: http.DefaultClient,
+		Logger:     zerolog.Logger,
+	}
+
 	utils.LogInfo("download", utils.KvForEvent("ytmp3", utils.KVs("youtubeID", youtubeID)))
 
-	vid, err := ytdl.GetVideoInfo("https://www.youtube.com/watch?v=" + youtubeID)
+	vid, err := client.GetVideoInfo(ctx, "https://www.youtube.com/watch?v="+youtubeID)
 	if err != nil {
 		log.Error("Failed to get video info: " + youtubeID)
 		return "", errors.New("video ID is invalid")
@@ -45,7 +54,7 @@ func Download(youtubeID string) (title string, err error) {
 	defer file.Close()
 	defer os.Remove(videoFname)
 
-	vid.Download(vid.Formats[0], file)
+	client.Download(ctx, vid, vid.Formats[0], file)
 
 	utils.LogInfo("video_ready", utils.KVs("name", title, "youtubeID", youtubeID, "event", "ytmp3"))
 
