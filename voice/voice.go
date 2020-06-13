@@ -87,18 +87,19 @@ func (d *defaultMusicPlayer) PlayMusic(input chan []byte, guildID string, vc Cha
 		song = vc.GetBackupNext()
 	}
 
-	// LIFO, so we have to remove now playing before playing next
 	defer func() {
 		if aborted {
 			return
 		}
+
+		vc.RemoveNowPlaying()
+
 		if vc.ExistsNext() {
 			go d.PlayMusic(input, guildID, vc, true)
 		} else if vc.ExistsBackupNext() {
 			go d.PlayMusic(input, guildID, vc, false)
 		}
 	}()
-	defer ActiveVoiceChannels[guildID].RemoveNowPlaying()
 
 	encodeSession, err := dca.EncodeFile(ytmp3.PathToAudio(song.YoutubeID), dca.StdEncodeOptions)
 	if err != nil {

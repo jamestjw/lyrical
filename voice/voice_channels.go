@@ -72,6 +72,7 @@ func (vc *voiceChannel) IsPlayingMusic() bool {
 
 func (vc *voiceChannel) StopMusic() {
 	vc.AbortChannel <- "stop"
+	vc.RemoveNowPlaying()
 }
 
 func (vc *voiceChannel) SetNowPlaying(s *playlist.Song) {

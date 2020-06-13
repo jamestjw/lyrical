@@ -102,10 +102,14 @@ func TestRemoveNowPlaying(t *testing.T) {
 
 func TestStopMusic(t *testing.T) {
 	vc := voice.NewVoiceChannel()
+	s := &playlist.Song{}
+	vc.SetNowPlaying(s)
 
 	assert.Empty(t, vc.AbortChannel, "should be initially empty")
+	assert.True(t, vc.Playlist.IsPlayingMusic())
 	vc.StopMusic()
 	assert.NotEmpty(t, vc.AbortChannel, "should be not empty")
+	assert.False(t, vc.Playlist.IsPlayingMusic())
 }
 
 func TestIsPlayingMusic(t *testing.T) {
