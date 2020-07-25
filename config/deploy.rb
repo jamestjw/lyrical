@@ -6,7 +6,8 @@ set :repo_url, "https://github.com/jamestjw/lyrical.git"
 ssh_options = { forward_agent: true }
 set :gopath, deploy_to
 set :pid_file, deploy_to+'/pids/PIDFILE'
-set :linked_dirs, %w(configs log db audio-cache)
+set :linked_dirs, %w(configs log audio-cache)
+set :linked_files, %w(db/discordbot.db)
 
 
 # Default branch is :master
