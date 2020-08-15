@@ -12,26 +12,28 @@ import (
 
 var searchService *youtube.SearchService
 
-type SearchService struct {
-	searchService *youtube.SearchService
+type YoutubeService struct {
+	searchService        *youtube.SearchService
+	playlistItemsService *youtube.PlaylistItemsService
 }
 
-// InitialiseSearchService initialises a youtube search object
+// InitialiseYoutubeService initialises a youtube search object
 // with the given api key.
-func InitialiseSearchService(apiKey string) *SearchService {
+func InitialiseYoutubeService(apiKey string) *YoutubeService {
 	ctx := context.Background()
 	youtubeService, err := youtube.NewService(ctx, option.WithAPIKey(apiKey))
 	if err != nil {
 		log.Fatal(err)
 	}
-	searchService = youtubeService.Search
+	searchService := youtubeService.Search
+	playlistItemsService := youtubeService.PlaylistItems
 	log.Println("Sucessfully initialised Youtube Search Service.")
-	return &SearchService{searchService: searchService}
+	return &YoutubeService{searchService: searchService, playlistItemsService: playlistItemsService}
 }
 
 // GetVideoID returns the first youtubeID of a
 // video that matches the query
-func (s *SearchService) GetVideoID(query string) (youtubeID string, err error) {
+func (s *YoutubeService) GetVideoID(query string) (youtubeID string, err error) {
 	call := s.searchService.List("id, snippet").
 		Type("video").
 		Q(query).
@@ -50,5 +52,29 @@ func (s *SearchService) GetVideoID(query string) (youtubeID string, err error) {
 
 	result := res.Items[0]
 	youtubeID = result.Id.VideoId
+	return
+}
+
+func (s *YoutubeService) GetVideoIDs(playlistID string, maxResults int64) (youtubeIDs []string, err error) {
+	call := s.playlistItemsService.List("contentDetails").
+		PlaylistId(playlistID).
+		MaxResults(maxResults)
+
+	res, err := call.Do()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	if len(res.Items) == 0 {
+		err = fmt.Errorf("No playlist could be found with the ID: %s", playlistID)
+		return
+	}
+
+	for _, item := range res.Items {
+		if item.ContentDetails != nil {
+			youtubeIDs = append(youtubeIDs, item.ContentDetails.VideoId)
+		}
+	}
 	return
 }
