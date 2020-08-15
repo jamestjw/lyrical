@@ -182,11 +182,11 @@ func TestPlayMusicRequestWhileConnectedAndPlayingMusic(t *testing.T) {
 }
 
 // AddToPlaylist
-type mockSearchService struct {
+type mockYoutubeService struct {
 	mock.Mock
 }
 
-func (s *mockSearchService) GetVideoID(id string) (string, error) {
+func (s *mockYoutubeService) GetVideoID(id string) (string, error) {
 	args := s.Called(id)
 	return args.String(0), args.Error(1)
 }
@@ -204,7 +204,7 @@ func TestAddToPlaylist(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockSS := new(mockSearchService)
+	mockSS := new(mockYoutubeService)
 	mockSS.On("GetVideoID", "song name").Return("video id", nil)
 
 	mockDB := mock_voice.NewMockDatabase(ctrl)

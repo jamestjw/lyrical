@@ -64,6 +64,7 @@ end
 after 'deploy:updated', 'go:build' do
   on roles(:app) do
     execute "cd #{release_path} && /usr/local/go/bin/go build -o #{release_path}/bin/lyrical-bot ."
+    execute "cd #{release_path} && /usr/local/go/bin/go build -o #{release_path}/bin/bulk-music-insert #{release_path}/cmd/bulk-music-insert"
   end
 end
   

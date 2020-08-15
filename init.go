@@ -17,7 +17,7 @@ func initialiseApplication() {
 	DB = database.InitialiseDatabase("production")
 	voice.ConnectToDatabase(DB)
 	loadConfig()
-	searchService = searcher.InitialiseSearchService(config.YoutubeAPIKey)
+	searchService = searcher.InitialiseYoutubeService(config.YoutubeAPIKey)
 }
 
 func shutdownApplication(dg voice.Connectable) {
