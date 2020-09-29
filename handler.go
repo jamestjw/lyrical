@@ -229,7 +229,7 @@ func newPollRequest(event Event, pollParams string) {
 	}
 
 	pollMessageContents, pollEmojis := p.GeneratePollMessage()
-	sentMessage := event.SendMessage(pollMessageContents)
+	sentMessage := event.SendMessageWithMentions(pollMessageContents)
 	for _, emoji := range pollEmojis {
 		event.ReactToMessage(emoji, sentMessage.ID)
 	}

@@ -15,6 +15,7 @@ type Session interface {
 // Event is an interface for a discord message event
 type Event interface {
 	SendMessage(message string) *discordgo.Message
+	SendMessageWithMentions(message string) *discordgo.Message
 	FindVoiceChannel(channelName string) (channelID string, err error)
 	GetSession() voice.Connectable
 	GetGuildID() string

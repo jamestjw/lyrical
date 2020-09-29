@@ -27,6 +27,25 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 	return m
 }
 
+// SendMessageWithMentions sends a message to the channel within the guild that invoked
+// the event while mentioning a list of users present.
+// message: Message to send
+// userIDs: List of users to mention
+func (e DiscordEvent) SendMessageWithMentions(message string) *discordgo.Message {
+	// m, err := e.session.ChannelMessageSend(e.message.ChannelID, message)
+	message = fmt.Sprintf("<@james412> %s", message)
+	m, err := e.session.ChannelMessageSendComplex(e.message.ChannelID, &discordgo.MessageSend{
+		Content: message,
+		AllowedMentions: &discordgo.MessageAllowedMentions{
+			Parse: []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return m
+}
+
 // SendQuotedMessage sends a message to the channel within
 // the guild that invoked this event with an added quote.
 func (e DiscordEvent) SendQuotedMessage(quote string, message string) *discordgo.Message {

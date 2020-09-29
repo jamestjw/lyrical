@@ -4,3 +4,4 @@ audio-cache/
 deployment-scripts/
 *.db
 *.log
+log/*
