@@ -120,7 +120,7 @@ func (e DiscordEvent) GetMessageByMessageID(messageID string) (*discordgo.Messag
 // GetReactionsFromMessage will fetch a list of IDs of users that reacted
 // to a particular message.
 func (e DiscordEvent) GetReactionsFromMessage(messageID string) (map[string][]string, error) {
-	var reactions map[string][]string
+	reactions := make(map[string][]string)
 	m, err := e.GetMessageByMessageID(messageID)
 
 	if err != nil {
@@ -129,7 +129,7 @@ func (e DiscordEvent) GetReactionsFromMessage(messageID string) (map[string][]st
 	for _, reaction := range m.Reactions {
 		var userIDs []string
 
-		users, err := e.session.MessageReactions(e.message.ChannelID, e.message.ID, reaction.Emoji.ID, 100, "", "")
+		users, err := e.session.MessageReactions(e.message.ChannelID, messageID, reaction.Emoji.Name, 100, "", "")
 
 		if err != nil {
 			return make(map[string][]string), fmt.Errorf("unable to fetch users that reacted to the message")
