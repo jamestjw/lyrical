@@ -229,14 +229,14 @@ func newPollRequest(event Event, pollParams string) {
 	}
 
 	pollMessageContents, pollEmojis := p.GeneratePollMessage()
-	sentMessage := event.SendMessageWithMentions(pollMessageContents)
+	sentMessage := event.SendMessage(pollMessageContents)
 	for _, emoji := range pollEmojis {
 		event.ReactToMessage(emoji, sentMessage.ID)
 	}
 
 	defer func() {
 		time.Sleep(p.GetDuration())
-		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
+		reactions, err := event.GetReactionsFromMessage(sentMessage.ID)
 
 		if err != nil {
 			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
@@ -244,8 +244,7 @@ func newPollRequest(event Event, pollParams string) {
 			return
 		}
 
-		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
-		p.AddResult(counts)
+		p.AddResult(reactions)
 
 		event.SendQuotedMessage(pollMessageContents, p.GetVerdict())
 	}()

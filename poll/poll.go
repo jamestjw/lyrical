@@ -92,13 +92,13 @@ func (p *Poll) GeneratePollMessage() (string, []string) {
 	return strings.Join(messages, "\n"), emojis
 }
 
-// AddResult accepts a map of emojis to counts and updates the results
+// AddResult accepts a map of emojis to array of user IDs and updates the results
 // of the poll.
-func (p *Poll) AddResult(reactionCounts map[string]int) {
-	for emoji, count := range reactionCounts {
+func (p *Poll) AddResult(reactionCounts map[string][]string) {
+	for emoji, userIDs := range reactionCounts {
 		option, exists := p.emojiToOption[emoji]
 		if exists {
-			option.SetCount(count)
+			option.AddResult(userIDs)
 		}
 	}
 }

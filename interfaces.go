@@ -24,6 +24,7 @@ type Event interface {
 	React(emoji string)
 	ReactToMessage(emoji string, messageID string)
 	SendQuotedMessage(quote string, message string) *discordgo.Message
+	GetReactionsFromMessage(messageID string) (map[string][]string, error)
 }
 
 type Searcher interface {

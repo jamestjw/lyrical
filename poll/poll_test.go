@@ -60,16 +60,16 @@ func TestAddResult(t *testing.T) {
 		"emojiTwo": {},
 	}
 
-	var reactionCounts = map[string]int{
-		"emojiOne": 10,
-		"emojiTwo": 20,
+	var reactionCounts = map[string][]string{
+		"emojiOne": []string{"user1", "user2"},
+		"emojiTwo": []string{"user3"},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}
 	p.AddResult(reactionCounts)
 
-	assert.Equal(t, 10, p.emojiToOption["emojiOne"].count, "should have updated count")
-	assert.Equal(t, 20, p.emojiToOption["emojiTwo"].count, "should have updated count")
+	assert.Equal(t, 2, p.emojiToOption["emojiOne"].count, "should have updated count")
+	assert.Equal(t, 1, p.emojiToOption["emojiTwo"].count, "should have updated count")
 }
 
 func TestTiedOptionsMessage(t *testing.T) {
