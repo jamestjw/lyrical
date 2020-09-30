@@ -55,8 +55,7 @@ func init() {
 	loadConfig()
 	setupLogger()
 	searchService = searcher.InitialiseYoutubeService(config.YoutubeAPIKey)
-	DB := database.InitialiseDatabase("production")
-	voice.ConnectToDatabase(DB)
+	database.InitialiseDatabase("production")
 }
 
 func addSongs(videoIDs []string) {
@@ -71,7 +70,7 @@ func addSongs(videoIDs []string) {
 }
 
 func addSong(youtubeID string) (title string, err error) {
-	title, exists := voice.DB.SongExists(youtubeID)
+	title, exists := database.DS.SongExists(youtubeID)
 
 	if exists {
 		err = fmt.Errorf("The song %s (%s) already exists in the database", title, youtubeID)
@@ -82,7 +81,7 @@ func addSong(youtubeID string) (title string, err error) {
 			return
 		}
 
-		dbErr := voice.DB.AddSongToDB(title, youtubeID)
+		dbErr := database.DS.AddSongToDB(title, youtubeID)
 		if dbErr != nil {
 			log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
 		}

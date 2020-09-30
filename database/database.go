@@ -5,15 +5,13 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-type Song struct {
-	gorm.Model
-	YoutubeID string `gorm:"unique;not null"`
-	Name      string
+var DS Datastore
+
+type DB struct {
+	*gorm.DB
 }
 
-var Connection *gorm.DB
-
-func InitialiseDatabase(env string) *gorm.DB {
+func InitialiseDatabase(env string) {
 	DbEnvMap := map[string]string{
 		"production": "db/discordbot.db",
 		"test":       "../db/test.db",
@@ -28,5 +26,9 @@ func InitialiseDatabase(env string) *gorm.DB {
 	// Migrate the schema
 	db.AutoMigrate(&Song{})
 
-	return db
+	DS = &DB{db}
+}
+
+func (db *DB) Close() error {
+	return db.Close()
 }
