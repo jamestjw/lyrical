@@ -100,8 +100,8 @@ func TestGetVerdictClearWinner(t *testing.T) {
 
 func TestGetVerdictNoVotes(t *testing.T) {
 	var emojiToOption = map[string]*Option{
-		"emojiOne": {name: "option1", count: 1},
-		"emojiTwo": {name: "option2", count: 1},
+		"emojiOne": {name: "option1", count: 0},
+		"emojiTwo": {name: "option2", count: 0},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}

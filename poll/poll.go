@@ -130,8 +130,10 @@ func (p *Poll) GetVerdict() string {
 
 	var verdictMessage string
 
-	if options[0].count == 1 {
+	// If the option with most votes has 0 votes
+	if options[0].count == 0 {
 		verdictMessage = "Unfortunately no votes were received, hence a decision was unable to be made."
+		// If option with most votes has same vote count has the runner-up
 	} else if options[0].count == options[1].count {
 		verdictMessage = fmt.Sprintf("Looks like we have a tie between %s", getTiedOptions(options))
 	} else {
