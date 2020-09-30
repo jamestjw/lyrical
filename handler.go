@@ -85,7 +85,7 @@ func leaveVoiceChannelRequest(event Event, _ string) {
 			voiceChannel.StopMusic()
 		}
 		vc.Disconnect()
-		event.SendMessage("Left voice channel 👋🏼")
+		event.SendMessage("Left voice channel 👋")
 	} else {
 		event.SendMessage("I am not in a voice channel.")
 	}
@@ -244,7 +244,12 @@ func newPollRequest(event Event, pollParams string) {
 			return
 		}
 
-		p.AddResult(reactions)
+		botUser, err := event.GetUserForBot()
+		if err != nil {
+			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
+			event.SendMessage("Unexpected error in resolving poll results.")
+		}
+		p.AddResult(reactions, botUser.ID)
 
 		event.SendQuotedMessage(pollMessageContents, p.GetVerdict())
 	}()

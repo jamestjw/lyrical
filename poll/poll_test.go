@@ -66,7 +66,7 @@ func TestAddResult(t *testing.T) {
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}
-	p.AddResult(reactionCounts)
+	p.AddResult(reactionCounts, "")
 
 	assert.Equal(t, 2, p.emojiToOption["emojiOne"].count, "should have updated count")
 	assert.Equal(t, 1, p.emojiToOption["emojiTwo"].count, "should have updated count")

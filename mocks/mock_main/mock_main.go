@@ -114,17 +114,17 @@ func (mr *MockEventMockRecorder) SendMessage(message interface{}) *gomock.Call {
 }
 
 // SendMessageWithMentions mocks base method
-func (m *MockEvent) SendMessageWithMentions(message string) *discordgo.Message {
+func (m *MockEvent) SendMessageWithMentions(message string, userIDs []string) *discordgo.Message {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SendMessageWithMentions", message)
+	ret := m.ctrl.Call(m, "SendMessageWithMentions", message, userIDs)
 	ret0, _ := ret[0].(*discordgo.Message)
 	return ret0
 }
 
 // SendMessageWithMentions indicates an expected call of SendMessageWithMentions
-func (mr *MockEventMockRecorder) SendMessageWithMentions(message interface{}) *gomock.Call {
+func (mr *MockEventMockRecorder) SendMessageWithMentions(message, userIDs interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessageWithMentions", reflect.TypeOf((*MockEvent)(nil).SendMessageWithMentions), message)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendMessageWithMentions", reflect.TypeOf((*MockEvent)(nil).SendMessageWithMentions), message, userIDs)
 }
 
 // FindVoiceChannel mocks base method
@@ -238,6 +238,20 @@ func (mr *MockEventMockRecorder) SendQuotedMessage(quote, message interface{}) *
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendQuotedMessage", reflect.TypeOf((*MockEvent)(nil).SendQuotedMessage), quote, message)
 }
 
+// SendQuotedMessageWithMentions mocks base method
+func (m *MockEvent) SendQuotedMessageWithMentions(quote, message string, userIDs []string) *discordgo.Message {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SendQuotedMessageWithMentions", quote, message, userIDs)
+	ret0, _ := ret[0].(*discordgo.Message)
+	return ret0
+}
+
+// SendQuotedMessageWithMentions indicates an expected call of SendQuotedMessageWithMentions
+func (mr *MockEventMockRecorder) SendQuotedMessageWithMentions(quote, message, userIDs interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SendQuotedMessageWithMentions", reflect.TypeOf((*MockEvent)(nil).SendQuotedMessageWithMentions), quote, message, userIDs)
+}
+
 // GetReactionsFromMessage mocks base method
 func (m *MockEvent) GetReactionsFromMessage(messageID string) (map[string][]string, error) {
 	m.ctrl.T.Helper()
@@ -251,6 +265,21 @@ func (m *MockEvent) GetReactionsFromMessage(messageID string) (map[string][]stri
 func (mr *MockEventMockRecorder) GetReactionsFromMessage(messageID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetReactionsFromMessage", reflect.TypeOf((*MockEvent)(nil).GetReactionsFromMessage), messageID)
+}
+
+// GetUserForBot mocks base method
+func (m *MockEvent) GetUserForBot() (*discordgo.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserForBot")
+	ret0, _ := ret[0].(*discordgo.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserForBot indicates an expected call of GetUserForBot
+func (mr *MockEventMockRecorder) GetUserForBot() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserForBot", reflect.TypeOf((*MockEvent)(nil).GetUserForBot))
 }
 
 // MockSearcher is a mock of Searcher interface

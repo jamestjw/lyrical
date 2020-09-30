@@ -94,11 +94,20 @@ func (p *Poll) GeneratePollMessage() (string, []string) {
 
 // AddResult accepts a map of emojis to array of user IDs and updates the results
 // of the poll.
-func (p *Poll) AddResult(reactionCounts map[string][]string) {
-	for emoji, userIDs := range reactionCounts {
+// reactions: Map of emoji to array of user IDs
+// excludedUserID: User ID to exlclude from array of user IDs passed in reactions
+func (p *Poll) AddResult(reactions map[string][]string, excludedUserID string) {
+	for emoji, userIDs := range reactions {
 		option, exists := p.emojiToOption[emoji]
 		if exists {
-			option.AddResult(userIDs)
+			sanitisedUserIDs := make([]string, 0)
+			for _, userID := range userIDs {
+				if userID == excludedUserID {
+					continue
+				}
+				sanitisedUserIDs = append(sanitisedUserIDs, userID)
+			}
+			option.AddResult(sanitisedUserIDs)
 		}
 	}
 }

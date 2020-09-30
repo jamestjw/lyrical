@@ -31,9 +31,10 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 // the event while mentioning a list of users present.
 // message: Message to send
 // userIDs: List of users to mention
-func (e DiscordEvent) SendMessageWithMentions(message string) *discordgo.Message {
-	// m, err := e.session.ChannelMessageSend(e.message.ChannelID, message)
-	message = fmt.Sprintf("<@james412> %s", message)
+func (e DiscordEvent) SendMessageWithMentions(message string, userIDs []string) *discordgo.Message {
+	for _, userID := range userIDs {
+		message = fmt.Sprintf("<@%s> %s", userID, message)
+	}
 	m, err := e.session.ChannelMessageSendComplex(e.message.ChannelID, &discordgo.MessageSend{
 		Content: message,
 		AllowedMentions: &discordgo.MessageAllowedMentions{
@@ -49,9 +50,16 @@ func (e DiscordEvent) SendMessageWithMentions(message string) *discordgo.Message
 // SendQuotedMessage sends a message to the channel within
 // the guild that invoked this event with an added quote.
 func (e DiscordEvent) SendQuotedMessage(quote string, message string) *discordgo.Message {
+	return e.SendQuotedMessageWithMentions(quote, message, make([]string, 0))
+}
+
+// SendQuotedMessageWithMentions sends a message to the channel within
+// the guild that invoked this event with an added quote while mentioning
+// list of users.
+func (e DiscordEvent) SendQuotedMessageWithMentions(quote string, message string, userIDs []string) *discordgo.Message {
 	quotedMessage := fmt.Sprintf(`>>> %s`, quote)
 	e.SendMessage(quotedMessage)
-	return e.SendMessage(message)
+	return e.SendMessageWithMentions(message, userIDs)
 }
 
 // React will add a reaction from the bot to the message that triggered
@@ -142,4 +150,10 @@ func (e DiscordEvent) GetReactionsFromMessage(messageID string) (map[string][]st
 	}
 
 	return reactions, nil
+}
+
+// GetUserForBot fetches the User that corresponds to the current bot
+func (e DiscordEvent) GetUserForBot() (*discordgo.User, error) {
+	user, err := e.session.User("@me")
+	return user, err
 }

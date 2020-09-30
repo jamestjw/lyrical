@@ -40,7 +40,7 @@ func TestLeaveVoiceChannelRequestWhenConnected(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
-	mockEvent.EXPECT().SendMessage("Left voice channel 👋🏼")
+	mockEvent.EXPECT().SendMessage("Left voice channel 👋")
 
 	leaveVoiceChannelRequest(mockEvent, "")
 }
@@ -337,6 +337,7 @@ func TestNewPollRequest(t *testing.T) {
 	)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().GetReactionsFromMessage("id").Return(reactions, nil)
+	mockEvent.EXPECT().GetUserForBot().Return(&discordgo.User{ID: "user_id"}, nil)
 	params := "title 1 option1 option2"
 	newPollRequest(mockEvent, params)
 }
