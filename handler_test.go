@@ -333,7 +333,7 @@ func TestNewPollRequest(t *testing.T) {
 		mockEvent.EXPECT().SendMessage(expectedPollMessage).Return(sentMessage),
 		mockEvent.EXPECT().ReactToMessage("1️⃣", "id"),
 		mockEvent.EXPECT().ReactToMessage("2️⃣", "id"),
-		mockEvent.EXPECT().SendQuotedMessage(expectedPollMessage, gomock.Any()).Do(func(string, string) { wg.Done() }),
+		mockEvent.EXPECT().SendQuotedMessageWithMentions(expectedPollMessage, gomock.Any(), gomock.Any()).Do(func(string, string, []string) { wg.Done() }),
 	)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
 	mockEvent.EXPECT().GetReactionsFromMessage("id").Return(reactions, nil)

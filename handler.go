@@ -250,7 +250,7 @@ func newPollRequest(event Event, pollParams string) {
 			event.SendMessage("Unexpected error in resolving poll results.")
 		}
 		p.AddResult(reactions, botUser.ID)
-
-		event.SendQuotedMessage(pollMessageContents, p.GetVerdict())
+		participantIDs := p.GetParticipants()
+		event.SendQuotedMessageWithMentions(pollMessageContents, p.GetVerdict(), participantIDs)
 	}()
 }

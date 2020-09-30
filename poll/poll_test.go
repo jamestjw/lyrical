@@ -121,3 +121,14 @@ func TestGetVerdictTies(t *testing.T) {
 	res := p.GetVerdict()
 	assert.Contains(t, res, "Looks like we have a tie between")
 }
+
+func TestGetParticipants(t *testing.T) {
+	var emojiToOption = map[string]*Option{
+		"emojiOne":   {userIDs: []string{"user1", "user2"}},
+		"emojiTwo":   {userIDs: []string{"user2", "user3"}},
+		"emojiThree": {userIDs: []string{"user4", "user5"}},
+	}
+	p := &Poll{emojiToOption: emojiToOption}
+	uniqueUserIDs := []string{"user1", "user2", "user3", "user4", "user5"}
+	assert.ElementsMatch(t, p.GetParticipants(), uniqueUserIDs)
+}

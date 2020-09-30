@@ -3,10 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
 
@@ -32,9 +34,13 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 // message: Message to send
 // userIDs: List of users to mention
 func (e DiscordEvent) SendMessageWithMentions(message string, userIDs []string) *discordgo.Message {
-	for _, userID := range userIDs {
-		message = fmt.Sprintf("<@%s> %s", userID, message)
+	if len(userIDs) > 0 {
+		joinedUserIDs := strings.Join(utils.StringArrayMap(userIDs, utils.Mentionify), " ")
+		// TODO: Support mentioning users from the front
+		// TODO: Support taking delimiter between user mentions and message as a parameter
+		message = fmt.Sprintf("%s\n%s", message, joinedUserIDs)
 	}
+
 	m, err := e.session.ChannelMessageSendComplex(e.message.ChannelID, &discordgo.MessageSend{
 		Content: message,
 		AllowedMentions: &discordgo.MessageAllowedMentions{

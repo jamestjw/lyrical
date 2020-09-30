@@ -130,11 +130,11 @@ func (p *Poll) GetVerdict() string {
 
 	var verdictMessage string
 
-	// If the option with most votes has 0 votes
 	if options[0].count == 0 {
+		// If the option with most votes has 0 votes
 		verdictMessage = "Unfortunately no votes were received, hence a decision was unable to be made."
-		// If option with most votes has same vote count has the runner-up
 	} else if options[0].count == options[1].count {
+		// If option with most votes has same vote count has the runner-up
 		verdictMessage = fmt.Sprintf("Looks like we have a tie between %s", getTiedOptions(options))
 	} else {
 		verdictMessage = fmt.Sprintf("The people have spoken, **%s** it shall be.", options[0].name)
@@ -167,4 +167,19 @@ func getTiedOptions(options []Option) string {
 	}
 
 	return strings.Join(tiedNames, ", ")
+}
+
+// GetParticipants returns a list of IDs of users that participated in this poll.
+func (p *Poll) GetParticipants() []string {
+	userIDExists := make(map[string]bool)
+	uniqueUserIDs := make([]string, 0)
+	for _, opt := range p.emojiToOption {
+		for _, userID := range opt.userIDs {
+			if _, value := userIDExists[userID]; !value {
+				userIDExists[userID] = true
+				uniqueUserIDs = append(uniqueUserIDs, userID)
+			}
+		}
+	}
+	return uniqueUserIDs
 }

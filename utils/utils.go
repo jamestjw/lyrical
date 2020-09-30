@@ -31,6 +31,12 @@ func Bold(s string) string {
 	return fmt.Sprintf("**%s**", s)
 }
 
+// Mentionify takes a userID and formats it for the purpose of mentioning
+// a user in a message
+func Mentionify(s string) string {
+	return fmt.Sprintf("<@%s>", s)
+}
+
 func StringArrayMap(strs []string, f func(string) string) []string {
 	var res []string
 
