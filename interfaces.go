@@ -15,6 +15,7 @@ type Session interface {
 // Event is an interface for a discord message event
 type Event interface {
 	SendMessage(message string) *discordgo.Message
+	SendMessageWithMentions(message string, userIDs []string) *discordgo.Message
 	FindVoiceChannel(channelName string) (channelID string, err error)
 	GetSession() voice.Connectable
 	GetGuildID() string
@@ -23,6 +24,9 @@ type Event interface {
 	React(emoji string)
 	ReactToMessage(emoji string, messageID string)
 	SendQuotedMessage(quote string, message string) *discordgo.Message
+	SendQuotedMessageWithMentions(quote string, message string, userIDs []string) *discordgo.Message
+	GetReactionsFromMessage(messageID string) (map[string][]string, error)
+	GetUserForBot() (*discordgo.User, error)
 }
 
 type Searcher interface {

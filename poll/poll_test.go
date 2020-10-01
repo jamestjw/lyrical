@@ -60,16 +60,16 @@ func TestAddResult(t *testing.T) {
 		"emojiTwo": {},
 	}
 
-	var reactionCounts = map[string]int{
-		"emojiOne": 10,
-		"emojiTwo": 20,
+	var reactionCounts = map[string][]string{
+		"emojiOne": []string{"user1", "user2"},
+		"emojiTwo": []string{"user3"},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}
-	p.AddResult(reactionCounts)
+	p.AddResult(reactionCounts, "")
 
-	assert.Equal(t, 10, p.emojiToOption["emojiOne"].count, "should have updated count")
-	assert.Equal(t, 20, p.emojiToOption["emojiTwo"].count, "should have updated count")
+	assert.Equal(t, 2, p.emojiToOption["emojiOne"].count, "should have updated count")
+	assert.Equal(t, 1, p.emojiToOption["emojiTwo"].count, "should have updated count")
 }
 
 func TestTiedOptionsMessage(t *testing.T) {
@@ -100,8 +100,8 @@ func TestGetVerdictClearWinner(t *testing.T) {
 
 func TestGetVerdictNoVotes(t *testing.T) {
 	var emojiToOption = map[string]*Option{
-		"emojiOne": {name: "option1", count: 1},
-		"emojiTwo": {name: "option2", count: 1},
+		"emojiOne": {name: "option1", count: 0},
+		"emojiTwo": {name: "option2", count: 0},
 	}
 
 	p := &Poll{emojiToOption: emojiToOption}
@@ -120,4 +120,15 @@ func TestGetVerdictTies(t *testing.T) {
 	p := &Poll{emojiToOption: emojiToOption}
 	res := p.GetVerdict()
 	assert.Contains(t, res, "Looks like we have a tie between")
+}
+
+func TestGetParticipants(t *testing.T) {
+	var emojiToOption = map[string]*Option{
+		"emojiOne":   {userIDs: []string{"user1", "user2"}},
+		"emojiTwo":   {userIDs: []string{"user2", "user3"}},
+		"emojiThree": {userIDs: []string{"user4", "user5"}},
+	}
+	p := &Poll{emojiToOption: emojiToOption}
+	uniqueUserIDs := []string{"user1", "user2", "user3", "user4", "user5"}
+	assert.ElementsMatch(t, p.GetParticipants(), uniqueUserIDs)
 }

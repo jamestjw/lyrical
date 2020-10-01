@@ -92,13 +92,22 @@ func (p *Poll) GeneratePollMessage() (string, []string) {
 	return strings.Join(messages, "\n"), emojis
 }
 
-// AddResult accepts a map of emojis to counts and updates the results
+// AddResult accepts a map of emojis to array of user IDs and updates the results
 // of the poll.
-func (p *Poll) AddResult(reactionCounts map[string]int) {
-	for emoji, count := range reactionCounts {
+// reactions: Map of emoji to array of user IDs
+// excludedUserID: User ID to exlclude from array of user IDs passed in reactions
+func (p *Poll) AddResult(reactions map[string][]string, excludedUserID string) {
+	for emoji, userIDs := range reactions {
 		option, exists := p.emojiToOption[emoji]
 		if exists {
-			option.SetCount(count)
+			sanitisedUserIDs := make([]string, 0)
+			for _, userID := range userIDs {
+				if userID == excludedUserID {
+					continue
+				}
+				sanitisedUserIDs = append(sanitisedUserIDs, userID)
+			}
+			option.AddResult(sanitisedUserIDs)
 		}
 	}
 }
@@ -121,9 +130,11 @@ func (p *Poll) GetVerdict() string {
 
 	var verdictMessage string
 
-	if options[0].count == 1 {
+	if options[0].count == 0 {
+		// If the option with most votes has 0 votes
 		verdictMessage = "Unfortunately no votes were received, hence a decision was unable to be made."
 	} else if options[0].count == options[1].count {
+		// If option with most votes has same vote count has the runner-up
 		verdictMessage = fmt.Sprintf("Looks like we have a tie between %s", getTiedOptions(options))
 	} else {
 		verdictMessage = fmt.Sprintf("The people have spoken, **%s** it shall be.", options[0].name)
@@ -156,4 +167,19 @@ func getTiedOptions(options []Option) string {
 	}
 
 	return strings.Join(tiedNames, ", ")
+}
+
+// GetParticipants returns a list of IDs of users that participated in this poll.
+func (p *Poll) GetParticipants() []string {
+	userIDExists := make(map[string]bool)
+	uniqueUserIDs := make([]string, 0)
+	for _, opt := range p.emojiToOption {
+		for _, userID := range opt.userIDs {
+			if _, value := userIDExists[userID]; !value {
+				userIDExists[userID] = true
+				uniqueUserIDs = append(uniqueUserIDs, userID)
+			}
+		}
+	}
+	return uniqueUserIDs
 }

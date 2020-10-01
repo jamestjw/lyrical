@@ -85,7 +85,7 @@ func leaveVoiceChannelRequest(event Event, _ string) {
 			voiceChannel.StopMusic()
 		}
 		vc.Disconnect()
-		event.SendMessage("Left voice channel 👋🏼")
+		event.SendMessage("Left voice channel 👋")
 	} else {
 		event.SendMessage("I am not in a voice channel.")
 	}
@@ -236,7 +236,7 @@ func newPollRequest(event Event, pollParams string) {
 
 	defer func() {
 		time.Sleep(p.GetDuration())
-		finalMsg, err := event.GetMessageByMessageID(sentMessage.ID)
+		reactions, err := event.GetReactionsFromMessage(sentMessage.ID)
 
 		if err != nil {
 			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
@@ -244,9 +244,13 @@ func newPollRequest(event Event, pollParams string) {
 			return
 		}
 
-		counts := utils.ExtractEmojiCounts(finalMsg.Reactions)
-		p.AddResult(counts)
-
-		event.SendQuotedMessage(pollMessageContents, p.GetVerdict())
+		botUser, err := event.GetUserForBot()
+		if err != nil {
+			utils.LogInfo(err.Error(), utils.KvForHandler(event.GetGuildID(), "newPollRequest", nil))
+			event.SendMessage("Unexpected error in resolving poll results.")
+		}
+		p.AddResult(reactions, botUser.ID)
+		participantIDs := p.GetParticipants()
+		event.SendQuotedMessageWithMentions(pollMessageContents, p.GetVerdict(), participantIDs)
 	}()
 }

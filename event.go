@@ -3,10 +3,12 @@ package main
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/jamestjw/lyrical/utils"
 	"github.com/jamestjw/lyrical/voice"
 )
 
@@ -27,12 +29,43 @@ func (e DiscordEvent) SendMessage(message string) *discordgo.Message {
 	return m
 }
 
+// SendMessageWithMentions sends a message to the channel within the guild that invoked
+// the event while mentioning a list of users present.
+// message: Message to send
+// userIDs: List of users to mention
+func (e DiscordEvent) SendMessageWithMentions(message string, userIDs []string) *discordgo.Message {
+	if len(userIDs) > 0 {
+		joinedUserIDs := strings.Join(utils.StringArrayMap(userIDs, utils.Mentionify), " ")
+		// TODO: Support mentioning users from the front
+		// TODO: Support taking delimiter between user mentions and message as a parameter
+		message = fmt.Sprintf("%s\n%s", message, joinedUserIDs)
+	}
+
+	m, err := e.session.ChannelMessageSendComplex(e.message.ChannelID, &discordgo.MessageSend{
+		Content: message,
+		AllowedMentions: &discordgo.MessageAllowedMentions{
+			Parse: []discordgo.AllowedMentionType{discordgo.AllowedMentionTypeUsers},
+		},
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+	return m
+}
+
 // SendQuotedMessage sends a message to the channel within
 // the guild that invoked this event with an added quote.
 func (e DiscordEvent) SendQuotedMessage(quote string, message string) *discordgo.Message {
+	return e.SendQuotedMessageWithMentions(quote, message, make([]string, 0))
+}
+
+// SendQuotedMessageWithMentions sends a message to the channel within
+// the guild that invoked this event with an added quote while mentioning
+// list of users.
+func (e DiscordEvent) SendQuotedMessageWithMentions(quote string, message string, userIDs []string) *discordgo.Message {
 	quotedMessage := fmt.Sprintf(`>>> %s`, quote)
 	e.SendMessage(quotedMessage)
-	return e.SendMessage(message)
+	return e.SendMessageWithMentions(message, userIDs)
 }
 
 // React will add a reaction from the bot to the message that triggered
@@ -96,4 +129,37 @@ func (e DiscordEvent) GetChannelID() string {
 func (e DiscordEvent) GetMessageByMessageID(messageID string) (*discordgo.Message, error) {
 	m, err := e.session.ChannelMessage(e.GetChannelID(), messageID)
 	return m, err
+}
+
+// GetReactionsFromMessage will fetch a list of IDs of users that reacted
+// to a particular message.
+func (e DiscordEvent) GetReactionsFromMessage(messageID string) (map[string][]string, error) {
+	reactions := make(map[string][]string)
+	m, err := e.GetMessageByMessageID(messageID)
+
+	if err != nil {
+		return make(map[string][]string), err
+	}
+	for _, reaction := range m.Reactions {
+		var userIDs []string
+
+		users, err := e.session.MessageReactions(e.message.ChannelID, messageID, reaction.Emoji.Name, 100, "", "")
+
+		if err != nil {
+			return make(map[string][]string), fmt.Errorf("unable to fetch users that reacted to the message")
+		}
+
+		for _, user := range users {
+			userIDs = append(userIDs, user.ID)
+		}
+		reactions[reaction.Emoji.Name] = userIDs
+	}
+
+	return reactions, nil
+}
+
+// GetUserForBot fetches the User that corresponds to the current bot
+func (e DiscordEvent) GetUserForBot() (*discordgo.User, error) {
+	user, err := e.session.User("@me")
+	return user, err
 }

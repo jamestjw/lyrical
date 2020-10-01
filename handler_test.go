@@ -40,7 +40,7 @@ func TestLeaveVoiceChannelRequestWhenConnected(t *testing.T) {
 	mockEvent := mock_main.NewMockEvent(ctrl)
 	mockEvent.EXPECT().GetVoiceConnection().Return(mockConnection, true)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
-	mockEvent.EXPECT().SendMessage("Left voice channel 👋🏼")
+	mockEvent.EXPECT().SendMessage("Left voice channel 👋")
 
 	leaveVoiceChannelRequest(mockEvent, "")
 }
@@ -324,6 +324,7 @@ func TestNewPollRequest(t *testing.T) {
 	defer ctrl.Finish()
 
 	sentMessage := &discordgo.Message{ID: "id"}
+	reactions := map[string][]string{"1️⃣": {"user1"}, "1️2️⃣": {"user2", "user3"}}
 
 	expectedPollMessage := "A poll has been started!\n**title**\n1️⃣. option1\n2️⃣. option2\nExercise your right to vote by reacting accordingly! The poll will close in 1s."
 
@@ -332,10 +333,11 @@ func TestNewPollRequest(t *testing.T) {
 		mockEvent.EXPECT().SendMessage(expectedPollMessage).Return(sentMessage),
 		mockEvent.EXPECT().ReactToMessage("1️⃣", "id"),
 		mockEvent.EXPECT().ReactToMessage("2️⃣", "id"),
-		mockEvent.EXPECT().SendQuotedMessage(expectedPollMessage, gomock.Any()).Do(func(string, string) { wg.Done() }),
+		mockEvent.EXPECT().SendQuotedMessageWithMentions(expectedPollMessage, gomock.Any(), gomock.Any()).Do(func(string, string, []string) { wg.Done() }),
 	)
 	mockEvent.EXPECT().GetGuildID().AnyTimes().Return("guildID")
-	mockEvent.EXPECT().GetMessageByMessageID("id").Return(sentMessage, nil)
+	mockEvent.EXPECT().GetReactionsFromMessage("id").Return(reactions, nil)
+	mockEvent.EXPECT().GetUserForBot().Return(&discordgo.User{ID: "user_id"}, nil)
 	params := "title 1 option1 option2"
 	newPollRequest(mockEvent, params)
 }
