@@ -1,4 +1,4 @@
-package database
+package models
 
 import (
 	"github.com/jinzhu/gorm"
@@ -20,7 +20,7 @@ func InitialiseDatabase(env string) {
 	db, err := gorm.Open("sqlite3", DbEnvMap[env])
 
 	if err != nil {
-		panic("failed to connect database")
+		panic("failed to connect models")
 	}
 
 	// Migrate the schema

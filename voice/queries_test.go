@@ -5,19 +5,19 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/jamestjw/lyrical/database"
-	"github.com/jamestjw/lyrical/mocks/mock_database"
+	"github.com/jamestjw/lyrical/mocks/mock_models"
+	"github.com/jamestjw/lyrical/models"
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/voice"
 	"github.com/stretchr/testify/assert"
 )
 
 func setup() {
-	// voice.ConnectToDatabase(database.InitialiseDatabase("test"))
+	// voice.ConnectToDatabase(models.InitialiseDatabase("test"))
 }
 
 func cleanSongs() {
-	// voice.DB.(voice.SongDatabase).Connection.Delete(database.Song{})
+	// voice.DB.(voice.SongDatabase).Connection.Delete(models.Song{})
 }
 
 func TestMain(m *testing.M) {
@@ -30,14 +30,14 @@ func TestLoadPlaylist(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	songs := []database.Song{
-		database.Song{Name: "Song Name 1"},
-		database.Song{Name: "Song Name 2"},
+	songs := []models.Song{
+		models.Song{Name: "Song Name 1"},
+		models.Song{Name: "Song Name 2"},
 	}
 
-	mockDS := mock_database.NewMockDatastore(ctrl)
+	mockDS := mock_models.NewMockDatastore(ctrl)
 	mockDS.EXPECT().GetRandomSongs(20).Return(songs)
-	database.DS = mockDS
+	models.DS = mockDS
 
 	p := &playlist.Playlist{}
 	voice.LoadPlaylist(p)

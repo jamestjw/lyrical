@@ -7,10 +7,10 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/golang/mock/gomock"
-	"github.com/jamestjw/lyrical/database"
-	"github.com/jamestjw/lyrical/mocks/mock_database"
 	mock_main "github.com/jamestjw/lyrical/mocks/mock_main"
+	"github.com/jamestjw/lyrical/mocks/mock_models"
 	mock_voice "github.com/jamestjw/lyrical/mocks/mock_voice"
+	"github.com/jamestjw/lyrical/models"
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/voice"
 	"github.com/stretchr/testify/mock"
@@ -209,7 +209,7 @@ func TestAddToPlaylist(t *testing.T) {
 	mockSS := new(mockYoutubeService)
 	mockSS.On("GetVideoID", "song name").Return("video id", nil)
 
-	mockDS := mock_database.NewMockDatastore(ctrl)
+	mockDS := mock_models.NewMockDatastore(ctrl)
 	mockDS.EXPECT().AddSongToDB("song name", "video id").Return(nil)
 	mockDS.EXPECT().SongExists("video id").Return("", false)
 
@@ -249,7 +249,7 @@ func TestAddToPlaylist(t *testing.T) {
 	)
 
 	searchService = mockSS
-	database.DS = mockDS
+	models.DS = mockDS
 	voice.Dl = mockDl
 	voice.DefaultMusicPlayer = mockPlayer
 	voice.ActiveVoiceChannels["guildID"] = mockChannel

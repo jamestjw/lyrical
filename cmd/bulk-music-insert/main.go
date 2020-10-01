@@ -9,7 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/jamestjw/lyrical/database"
+	"github.com/jamestjw/lyrical/models"
 	"github.com/jamestjw/lyrical/searcher"
 	"github.com/jamestjw/lyrical/voice"
 )
@@ -55,7 +55,7 @@ func init() {
 	loadConfig()
 	setupLogger()
 	searchService = searcher.InitialiseYoutubeService(config.YoutubeAPIKey)
-	database.InitialiseDatabase("production")
+	models.InitialiseDatabase("production")
 }
 
 func addSongs(videoIDs []string) {
@@ -70,7 +70,7 @@ func addSongs(videoIDs []string) {
 }
 
 func addSong(youtubeID string) (title string, err error) {
-	title, exists := database.DS.SongExists(youtubeID)
+	title, exists := models.DS.SongExists(youtubeID)
 
 	if exists {
 		err = fmt.Errorf("The song %s (%s) already exists in the database", title, youtubeID)
@@ -81,7 +81,7 @@ func addSong(youtubeID string) (title string, err error) {
 			return
 		}
 
-		dbErr := database.DS.AddSongToDB(title, youtubeID)
+		dbErr := models.DS.AddSongToDB(title, youtubeID)
 		if dbErr != nil {
 			log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
 		}

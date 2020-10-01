@@ -1,4 +1,4 @@
-package database
+package models
 
 type Datastore interface {
 	AddSongToDB(name string, youtubeID string) error
