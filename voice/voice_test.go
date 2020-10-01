@@ -5,9 +5,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/jamestjw/lyrical/database"
-	"github.com/jamestjw/lyrical/mocks/mock_database"
+	"github.com/jamestjw/lyrical/mocks/mock_models"
 	mock_voice "github.com/jamestjw/lyrical/mocks/mock_voice"
+	"github.com/jamestjw/lyrical/models"
 	"github.com/jamestjw/lyrical/voice"
 	"github.com/stretchr/testify/assert"
 )
@@ -53,10 +53,10 @@ func TestJoinVoiceChannel(t *testing.T) {
 	mockSession := mock_voice.NewMockConnectable(ctrl)
 	mockSession.EXPECT().JoinVoiceChannel("guildID", "channelID").Times(1).Return(mockConnection, nil)
 
-	mockDatastore := mock_database.NewMockDatastore(ctrl)
-	mockDatastore.EXPECT().GetRandomSongs(gomock.Any()).Return([]database.Song{{Name: "New Song", YoutubeID: "youtubeID"}})
+	mockDatastore := mock_models.NewMockDatastore(ctrl)
+	mockDatastore.EXPECT().GetRandomSongs(gomock.Any()).Return([]models.Song{{Name: "New Song", YoutubeID: "youtubeID"}})
 
-	database.DS = mockDatastore
+	models.DS = mockDatastore
 
 	voice.JoinVoiceChannel(mockSession, "guildID", "channelID")
 
@@ -68,11 +68,11 @@ func TestAddSongThatAlreadyExists(t *testing.T) {
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
-	mockDatastore := mock_database.NewMockDatastore(ctrl)
+	mockDatastore := mock_models.NewMockDatastore(ctrl)
 	mockDatastore.EXPECT().SongExists("youtubeID").Times(1).Return("Song Name", true)
-	mockDatastore.EXPECT().GetRandomSongs(gomock.Any()).Return([]database.Song{{Name: "New Song", YoutubeID: "youtubeID"}})
+	mockDatastore.EXPECT().GetRandomSongs(gomock.Any()).Return([]models.Song{{Name: "New Song", YoutubeID: "youtubeID"}})
 
-	database.DS = mockDatastore
+	models.DS = mockDatastore
 	voice.AddSong("youtubeID", "guildID")
 
 	if assert.Equal(t, voice.ActiveVoiceChannels["guildID"].FetchPlaylist().IsEmpty(), false) {
@@ -90,12 +90,12 @@ func TestAddSongThatDoesNotExistYet(t *testing.T) {
 	mockDownloader := mock_voice.NewMockDownloader(ctrl)
 	mockDownloader.EXPECT().Download("youtubeID").Times(1).Return("New Song", nil)
 
-	mockDatastore := mock_database.NewMockDatastore(ctrl)
+	mockDatastore := mock_models.NewMockDatastore(ctrl)
 	mockDatastore.EXPECT().SongExists("youtubeID").Times(1).Return("", false)
 	mockDatastore.EXPECT().AddSongToDB("New Song", "youtubeID").Times(1).Return(nil)
-	mockDatastore.EXPECT().GetRandomSongs(gomock.Any()).Return([]database.Song{{Name: "New Song", YoutubeID: "youtubeID"}})
+	mockDatastore.EXPECT().GetRandomSongs(gomock.Any()).Return([]models.Song{{Name: "New Song", YoutubeID: "youtubeID"}})
 
-	database.DS = mockDatastore
+	models.DS = mockDatastore
 	voice.Dl = mockDownloader
 
 	voice.AddSong("youtubeID", "guildID")

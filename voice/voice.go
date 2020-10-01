@@ -7,7 +7,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/jamestjw/lyrical/database"
+	"github.com/jamestjw/lyrical/models"
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/ytmp3"
 	"github.com/jonas747/dca"
@@ -171,10 +171,10 @@ func initialiseVoiceChannelForGuildIfNotExists(guildID string) {
 
 // AddSong will download a song based on the youtubeID for the guild
 // with guildID if it has not already been downloaded. It will
-// also add a database entry of it and add it to the playlist
+// also add a models entry of it and add it to the playlist
 // of the guild.
 func AddSong(youtubeID string, guildID string) (title string, err error) {
-	title, exists := database.DS.SongExists(youtubeID)
+	title, exists := models.DS.SongExists(youtubeID)
 
 	if !exists {
 		title, err = Dl.Download(youtubeID)
@@ -183,9 +183,9 @@ func AddSong(youtubeID string, guildID string) (title string, err error) {
 			return
 		}
 
-		dbErr := database.DS.AddSongToDB(title, youtubeID)
+		dbErr := models.DS.AddSongToDB(title, youtubeID)
 		if dbErr != nil {
-			log.Printf("Error writing song ID %s to the database: %s", youtubeID, dbErr)
+			log.Printf("Error writing song ID %s to the models: %s", youtubeID, dbErr)
 		}
 	}
 

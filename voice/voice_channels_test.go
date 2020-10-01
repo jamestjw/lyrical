@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/jamestjw/lyrical/database"
-	mock_database "github.com/jamestjw/lyrical/mocks/mock_database"
+	mock_models "github.com/jamestjw/lyrical/mocks/mock_models"
+	"github.com/jamestjw/lyrical/models"
 	"github.com/jamestjw/lyrical/playlist"
 	"github.com/jamestjw/lyrical/voice"
 	"github.com/stretchr/testify/assert"
@@ -31,9 +31,9 @@ func TestExistsBackupNextWithEmptyDB(t *testing.T) {
 
 	vc := voice.NewVoiceChannel()
 
-	mockDS := mock_database.NewMockDatastore(ctrl)
-	mockDS.EXPECT().GetRandomSongs(gomock.Any()).Return(make([]database.Song, 0))
-	database.DS = mockDS
+	mockDS := mock_models.NewMockDatastore(ctrl)
+	mockDS.EXPECT().GetRandomSongs(gomock.Any()).Return(make([]models.Song, 0))
+	models.DS = mockDS
 
 	assert.False(t, vc.ExistsBackupNext(), "no songs exists initially")
 
@@ -51,9 +51,9 @@ func TestExistsBackupNextWithPopulatedDB(t *testing.T) {
 
 	vc := voice.NewVoiceChannel()
 
-	mockDS := mock_database.NewMockDatastore(ctrl)
-	mockDS.EXPECT().GetRandomSongs(gomock.Any()).Return([]database.Song{{}})
-	database.DS = mockDS
+	mockDS := mock_models.NewMockDatastore(ctrl)
+	mockDS.EXPECT().GetRandomSongs(gomock.Any()).Return([]models.Song{{}})
+	models.DS = mockDS
 
 	assert.True(t, vc.ExistsBackupNext(), "songs populated from DB")
 }
