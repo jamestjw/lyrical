@@ -30,12 +30,6 @@ type Channel interface {
 	GetNextBackupSongs() (nextSongs []*playlist.Song, exists bool)
 }
 
-type Database interface {
-	SongExists(youtubeID string) (string, bool)
-	AddSongToDB(name string, youtubeID string) error
-	LoadPlaylist(*playlist.Playlist)
-}
-
 type Downloader interface {
 	Download(query string) (title string, err error)
 }
