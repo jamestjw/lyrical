@@ -3,6 +3,7 @@ package ytmp3
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -11,28 +12,27 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/jamestjw/lyrical/utils"
-	zerolog "github.com/rs/zerolog/log"
-	"github.com/rylio/ytdl"
+	ytmeta "github.com/kkdai/youtube/v2"
+	ytdl "github.com/kkdai/youtube/v2/downloader"
 )
 
 // AudioPath is the path that contains all audio files
 const AudioPath = "audio-cache"
 
 func init() {
-	_ = os.Mkdir(AudioPath, 0777)
+	os.Mkdir(AudioPath, 0777)
 }
 
 // Download a MP3 file based on youtube ID
 func Download(youtubeID string) (title string, err error) {
 	ctx := context.Background()
-	client := ytdl.Client{
+	client := ytmeta.Client{
 		HTTPClient: http.DefaultClient,
-		Logger:     zerolog.Logger,
 	}
 
 	utils.LogInfo("download", utils.KvForEvent("ytmp3", utils.KVs("youtubeID", youtubeID)))
 
-	vid, err := client.GetVideoInfo(ctx, "https://www.youtube.com/watch?v="+youtubeID)
+	vid, err := client.GetVideo("https://www.youtube.com/watch?v=" + youtubeID)
 	if err != nil {
 		log.Error("Failed to get video info: " + youtubeID)
 		return "", errors.New("video ID is invalid")
@@ -48,13 +48,24 @@ func Download(youtubeID string) (title string, err error) {
 		return "", err
 	}
 
+	for _, format := range vid.Formats {
+		fmt.Printf("Format with mimetype %s", format.MimeType)
+	}
+
 	videoFname := filepath.Join(AudioPath, youtubeID+".mp4")
-	mp3Fname := filepath.Join(AudioPath, youtubeID+".mp3")
-	file, _ := os.Create(videoFname)
-	defer file.Close()
+	mp3Fname := PathToAudio(youtubeID)
+
 	defer os.Remove(videoFname)
 
-	client.Download(ctx, vid, vid.Formats[0], file)
+	downloader := ytdl.Downloader{
+		client,
+		"",
+	}
+	err = downloader.Download(ctx, vid, &vid.Formats[0], videoFname)
+	if err != nil {
+		utils.LogError("video_download_failed", utils.KVs("name", title, "youtubeID", youtubeID, "event", "ytmp3", "err", err.Error()))
+		return "", err
+	}
 
 	utils.LogInfo("video_ready", utils.KVs("name", title, "youtubeID", youtubeID, "event", "ytmp3"))
 
