@@ -3,7 +3,6 @@ package ytmp3
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"os"
 	"os/exec"
@@ -49,7 +48,7 @@ func Download(youtubeID string) (title string, err error) {
 	}
 
 	for _, format := range vid.Formats {
-		fmt.Printf("Format with mimetype %s", format.MimeType)
+		log.Printf("Format with mimetype %s", format.MimeType)
 	}
 
 	videoFname := filepath.Join(AudioPath, youtubeID+".mp4")
