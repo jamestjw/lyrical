@@ -128,7 +128,7 @@ func handleAudioFormat(client ytmeta.Client, vid *ytmeta.Video, format *ytmeta.F
 		return err
 	}
 
-	utils.LogInfo("audio_extracted", utils.KVs("filename", mp3Fname, "youtubeID", vid.ID, "event", "ytmp3"))
+	utils.LogInfo("audio_downloaded", utils.KVs("filename", mp3Fname, "youtubeID", vid.ID, "event", "ytmp3"))
 	return nil
 }
 
